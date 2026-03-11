@@ -1,0 +1,50 @@
+<div class="page-container">
+  
+  <!-- Breadcrumb and Title -->
+  <div class="page-header mb-4">
+    <div class="breadcrumbs">
+      Acadêmico <i class="ri-arrow-right-s-line"></i> 
+      Avaliações <i class="ri-arrow-right-s-line"></i> 
+      <span class="text-dark font-weight-bold">Correções por IA</span>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-2">
+      <h3 class="page-title m-0">Parametrização de Inteligência Artificial</h3>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="nav-tabs-custom mb-4">
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link cursor-pointer" 
+           [class.active]="activeTab() === 'param'" 
+           (click)="setTab('param')">
+          <i class="ri-settings-4-line mr-2"></i> Parametrizar Atividade
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link cursor-pointer" 
+           [class.active]="activeTab() === 'audit'" 
+           (click)="setTab('audit')">
+          <i class="ri-file-list-3-line mr-2"></i> Auditoria de Configurações
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Tab Content Area -->
+  <div class="tab-content">
+    @if (activeTab() === 'param') {
+      <div class="fade-in">
+        <app-parameterization-tab></app-parameterization-tab>
+      </div>
+    }
+
+    @if (activeTab() === 'audit') {
+      <div class="fade-in">
+        <app-audit-tab></app-audit-tab>
+      </div>
+    }
+  </div>
+
+</div>

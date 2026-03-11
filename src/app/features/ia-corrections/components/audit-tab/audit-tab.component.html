@@ -1,0 +1,98 @@
+<div class="card param-container">
+  
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="m-0 font-weight-bold">Configurações de IA Ativas</h5>
+    
+    <div class="search-box">
+      <i class="ri-search-line"></i>
+      <input type="text" placeholder="Pesquisar registros..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event); currentPage.set(1)">
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state text-center py-4 text-muted">Aguarde, carregando auditoria...</div>
+  } @else {
+    <div class="table-responsive">
+      <table class="table mb-0 minimalist-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="toggleSort('id')">
+              Cód. Configuração 
+              @if(sortColumn() === 'id') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+            </th>
+            <th class="sortable" (click)="toggleSort('unitName')">
+              Unidade 
+              @if(sortColumn() === 'unitName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+            </th>
+            <th class="sortable" (click)="toggleSort('activityName')">
+              Atividade 
+              @if(sortColumn() === 'activityName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+            </th>
+            <th class="sortable" (click)="toggleSort('activatedBy')">
+              Ativado por 
+              @if(sortColumn() === 'activatedBy') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+            </th>
+            <th class="sortable" (click)="toggleSort('activatedAt')">
+              Data de Ativação 
+              @if(sortColumn() === 'activatedAt') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+            </th>
+            <th>Status</th>
+            <th class="text-center">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of paginatedLogs(); track log.id) {
+            <tr>
+              <td><strong>{{ log.id }}</strong></td>
+              <td>{{ log.unitName }}</td>
+              <td>{{ log.activityName }}</td>
+              <td>{{ log.activatedBy }}</td>
+              <td>{{ log.activatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <span class="badge" [class.badge-success]="log.status === 'Ativo'" [class.badge-danger]="log.status === 'Inativo'">
+                  {{ log.status }}
+                </span>
+              </td>
+              <td class="text-center">
+                @if (log.status === 'Ativo') {
+                  <button class="btn btn-icon btn-ghost-danger" (click)="onDisable(log)" title="Inativar regra (US09)">
+                    <i class="ri-forbid-2-line"></i>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+          @if(paginatedLogs().length === 0) {
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">Nenhum registro encontrado.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginação -->
+    <div class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+      <div class="page-size-selector text-muted">
+        Exibindo 
+        <select class="custom-select-sm" [ngModel]="itemsPerPage()" (ngModelChange)="setItemsPerPage($event)">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+        </select>
+        por página
+      </div>
+      
+      <div class="pagination-controls data-text">
+        Página {{ currentPage() }} de {{ totalPages() }}
+        
+        <button class="btn btn-sm btn-light ml-2" [disabled]="currentPage() === 1" (click)="prevPage()">
+          <i class="ri-arrow-left-s-line"></i> Anterior
+        </button>
+        <button class="btn btn-sm btn-light ml-1" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+          Próximo <i class="ri-arrow-right-s-line"></i>
+        </button>
+      </div>
+    </div>
+  }
+</div>

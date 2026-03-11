@@ -60,9 +60,7 @@ import { RouterModule } from '@angular/router';
 
         <!-- Content Area -->
         <main class="content">
-          <div class="alert-box">
-            Página inicial em desenvolvimento!
-          </div>
+          <router-outlet></router-outlet>
         </main>
 
         <!-- Footer -->
