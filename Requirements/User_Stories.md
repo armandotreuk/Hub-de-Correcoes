@@ -6,13 +6,14 @@ Este documento traduz as Regras de Negócio (RN01 a RN19) referentes à configur
 
 ### US01 - Seleção de Unidade de Negócio e Atividade
 **Como um** analista pedagógico ou gestor de sistema,
-**Eu quero** poder selecionar a unidade de negócio (ex: Uniasselvi ou Unicesumar) e o tipo de atividade (resenha, prova, etc.)
-**Para que** eu possa estabelecer configurações de IA que sejam específicas para cada marca e tipo de avaliação.
+**Eu quero** poder selecionar a unidade de negócio, o tipo de atividade, além de múltiplos clusters e cursos
+**Para que** eu possa estabelecer configurações de IA que sejam específicas para essas segmentações organizacionais.
 - **Relacionado a:** RN01, RN02
 - **Critérios de Aceite:**
-  - [ ] A interface deve apresentar um campo (dropdown) para selecionar a Unidade de Negócio.
-  - [ ] A interface deve apresentar um campo (dropdown) para selecionar o Tipo de Atividade.
-  - [ ] A troca de qualquer um desses campos deve limpar ou recarregar as opções de parâmetros abaixo deles.
+  - [ ] A interface deve apresentar um campo (dropdown) para selecionar a Unidade de Negócio e Tipo de Atividade.
+  - [ ] A interface deve apresentar seletores de múltipla escolha para *Clusters* e *Cursos*.
+  - [ ] A seleção deve respeitar a hierarquia (Unidade -> Atividade -> Clusters -> Cursos).
+  - [ ] A troca de qualquer um dos campos primários deve limpar ou recarregar as opções dependentes (em cascata).
 
 ### US02 - Ativação/Desativação Global
 **Como um** analista pedagógico,
@@ -29,12 +30,13 @@ Este documento traduz as Regras de Negócio (RN01 a RN19) referentes à configur
 
 ### US03 - Associação de Disciplinas Avaliadas pela IA
 **Como um** analista pedagógico,
-**Eu quero** visualizar uma lista de todas as disciplinas daquela atividade e poder marcar (*checkbox*) quais delas utilizarão a correção por IA
-**Para que** eu tenha controle granular sobre quais matérias (ex: Matemática vs História) terão o auxílio do modelo e quais não terão.
+**Eu quero** visualizar uma lista de disciplinas baseadas nos filtros organizacionais aplicados, exibindo suas respectivas colunas (Cluster, Curso)
+**Para que** eu tenha controle granular sobre quais matérias terão o auxílio do modelo e saiba exatamente a qual curso/cluster elas pertencem.
 - **Relacionado a:** RN04, RN05, RN07
 - **Critérios de Aceite:**
-  - [ ] O sistema lista as disciplinas associadas àquela atividade.
-  - [ ] Cada disciplina possui um *checkbox*.
+  - [ ] O sistema lista as disciplinas associadas aos cursos selecionados anteriormente.
+  - [ ] A tabela de disciplinas deve conter colunas para exibir o nome da disciplina, o Cluster e o Curso.
+  - [ ] Cada disciplina possui um *checkbox* para seleção.
   - [ ] Disciplinas não flegadas são automaticamente desconsideradas pela IA e enviadas para correção 100% manual por tutores (RN07).
 
 ### US04 - Seleção em Lote (Selecionar Todas)
@@ -65,9 +67,18 @@ Este documento traduz as Regras de Negócio (RN01 a RN19) referentes à configur
 **Para que** apenas as provas muito boas ou precisas (ex: acima de 70%) sejam liberadas direto para o aluno, retendo as demais notas para avaliação manual de um tutor.
 - **Relacionado a:** RN10, RN11, RN12
 - **Critérios de Aceite:**
-  - [ ] O campo decimal numérico (%) de "desempenho" só deve ser visível ou habilitado se o switch de **Publicação Direta** estiver ligado (On) (RN10).
+  - [ ] O campo decimal numérico (%) de "desempenho" só deve ser visível ou habilitado se o switch de **Publicação Automática** estiver ligado (On) (RN10).
   - [ ] A nota só é considerada "registrada" se for $\ge$ (maior ou igual) ao valor parametrizado (RN11).
   - [ ] O campo deve aceitar edição a qualquer momento para permitir ajuste dinâmico da calibragem (RN12).
+
+### US06B - Prazo de Publicação de Notas
+**Como um** coordenador de correção,
+**Eu quero** definir um prazo em dias (ex: 5 dias)
+**Para que** o sistema saiba exatamente após quantos dias do fim do período de provas a nota deve ser publicada ao aluno.
+- **Critérios de Aceite:**
+  - [ ] A interface deve apresentar o texto "Publicação de notas em:" seguido de um input numérico de até 2 dígitos.
+  - [ ] O input deve ser seguido do texto "dias após o fim do período de provas".
+  - [ ] Este controle faz parte do bloco de configurações do fluxo de IA e deve seguir a regra de ativação/desativação global e publicação automática.
 
 ---
 
@@ -80,7 +91,7 @@ Este documento traduz as Regras de Negócio (RN01 a RN19) referentes à configur
 - **Relacionado a:** RN13, RN14, RN19
 - **Critérios de Aceite:**
   - [ ] A tela de auditoria deve ser acessível via menu lateral principal ("Acadêmico" > "Correções por IA") (RN19).
-  - [ ] A grade (tabela) deve exibir no mínimo: Nome/tipo da atividade, o código de usuário (identificação) de quem configurou, e a data/hora exata do aceite da regra (RN14).
+  - [ ] A grade (tabela) deve exibir no mínimo: ID, Unidade, Atividade, **Cluster**, **Curso**, **Disciplina**, quem configurou e a data da configuração (RN14).
 
 ### US08 - Controle e Filtros na Tabela de Auditoria
 **Como um** auditor ou gestor do sistema,

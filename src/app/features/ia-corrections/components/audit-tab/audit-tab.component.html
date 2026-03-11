@@ -28,6 +28,18 @@
               Atividade 
               @if(sortColumn() === 'activityName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
             </th>
+            <th class="sortable" (click)="toggleSort('clusterName')">
+              Cluster
+              @if(sortColumn() === 'clusterName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+            </th>
+            <th class="sortable" (click)="toggleSort('courseName')">
+              Curso
+              @if(sortColumn() === 'courseName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+            </th>
+            <th class="sortable" (click)="toggleSort('disciplineName')">
+              Disciplina
+              @if(sortColumn() === 'disciplineName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+            </th>
             <th class="sortable" (click)="toggleSort('activatedBy')">
               Ativado por 
               @if(sortColumn() === 'activatedBy') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
@@ -46,6 +58,9 @@
               <td><strong>{{ log.id }}</strong></td>
               <td>{{ log.unitName }}</td>
               <td>{{ log.activityName }}</td>
+              <td>{{ log.clusterName || '-' }}</td>
+              <td>{{ log.courseName || '-' }}</td>
+              <td>{{ log.disciplineName || '-' }}</td>
               <td>{{ log.activatedBy }}</td>
               <td>{{ log.activatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>
@@ -64,7 +79,7 @@
           }
           @if(paginatedLogs().length === 0) {
             <tr>
-              <td colspan="7" class="text-center py-4 text-muted">Nenhum registro encontrado.</td>
+              <td colspan="10" class="text-center py-4 text-muted">Nenhum registro encontrado.</td>
             </tr>
           }
         </tbody>

@@ -11,12 +11,12 @@ A nova funcionalidade será modularizada dentro do diretório `/src/app/features
 - **UI**: Título da página, Breadcrumbs ("Acadêmico > Avaliações > Correções por IA") e o controle de abas (Tabs): "Parametrizar Atividade" e "Auditoria de Configurações".
 
 ### 1.2 `ParameterizationTabComponent` (Aba 1 - Dumb/Presentational Component)
-- **Função**: Cuidar da parametrização (US01 a US06).
+- **Função**: Cuidar da parametrização (US01 a US06B).
 - **Conteúdo Visual**:
-  - Filtros Superiores: Dropdowns para `Unidade de Negócio` e `Atividade` (US01).
+  - Filtros Superiores: Dropdowns para `Unidade de Negócio` e `Atividade` (US01). Dropdowns multi-seleção para `Clusters` e `Cursos`.
   - Controle Principal: Switch "Ativar Correção por IA" para o escopo global (US02).
-  - Tabela Central: Lista de `Disciplinas` (US03), com o *checkbox* master "Selecionar Todas" (US04).
-  - Bloco de Publicação: Switch "Publicação Automática de Nota" (US05) e Input numérico para "Desempenho de Corte (%)" habilitado sob condição (US06).
+  - Tabela Central: Lista de `Disciplinas` (US03) contendo colunas de Cluster e Curso, com o *checkbox* master "Selecionar Todas" (US04).
+  - Bloco de Publicação: Switch "Registro Automático de Nota" (US05), input numérico para "Desempenho de Corte (%)" e input numérico "Publicação de notas em:" dias (US06, US06B).
   - Ações: Botões `Salvar` e `Cancelar`.
 
 ### 1.3 `AuditTabComponent` (Aba 2 - Dumb/Presentational Component)
@@ -24,7 +24,7 @@ A nova funcionalidade será modularizada dentro do diretório `/src/app/features
 - **Conteúdo Visual**:
   - Tabela rica em UI baseada no *Design_Patterns.md*.
   - Funcionalidades Tabela: Filtros de linha/cabeçalho, ordenação clicável e paginação base (US08).
-  - Colunas: `ID`, `Unidade`, `Atividade`, `Usuário Modificador`, `Criado em`, `Ações`.
+  - Colunas: `ID`, `Unidade`, `Atividade`, `Cluster`, `Curso`, `Disciplina`, `Usuário Modificador`, `Criado em`, `Ações`.
   - Ações: Botão de ícone vermelho (Lixeira/Stop) para "Desativar regra" (US09).
 
 ## 2. Gerenciamento de Dados (Services & State)

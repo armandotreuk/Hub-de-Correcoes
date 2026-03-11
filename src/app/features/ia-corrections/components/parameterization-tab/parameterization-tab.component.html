@@ -2,7 +2,7 @@
   
   <!-- US01: Selectors -->
   <div class="row filter-row">
-    <div class="form-group col">
+    <div class="form-group col-md-6">
       <label>1 - Unidade de Negócio</label>
       <select class="form-control cust-select" [ngModel]="selectedUnit()" (ngModelChange)="onUnitChange($event)">
         <option value="">Selecione...</option>
@@ -12,7 +12,7 @@
       </select>
     </div>
 
-    <div class="form-group col">
+    <div class="form-group col-md-6">
       <label>2 - Tipo de Atividade</label>
       <select class="form-control cust-select" [ngModel]="selectedActivity()" (ngModelChange)="onActivityChange($event)" [disabled]="!selectedUnit()">
         <option value="">Selecione a atividade...</option>
@@ -20,6 +20,76 @@
           <option [value]="act.id">{{ act.name }}</option>
         }
       </select>
+    </div>
+  </div>
+
+  <div class="row filter-row mt-2">
+    <!-- 3 - Cluster (Multi) -->
+    <div class="form-group col-md-6">
+      <label>3 - Clusters</label>
+      <div class="dropdown custom-multi-select" [class.disabled]="!selectedActivity()">
+        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-left d-flex justify-content-between align-items-center" 
+                type="button" id="clusterDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                [disabled]="!selectedActivity()">
+          <span>
+            @if (selectedClusterIds().size === 0) { Selecione... }
+            @else { {{ selectedClusterIds().size }} selecionado(s) }
+          </span>
+        </button>
+        <div class="dropdown-menu w-100 shadow-sm" aria-labelledby="clusterDropdown">
+          <div class="dropdown-header d-flex justify-content-between align-items-center py-2 px-3 border-bottom">
+            <span class="font-weight-bold small">Selecione os Clusters</span>
+            <button class="btn btn-link btn-sm p-0 text-primary small" (click)="$event.stopPropagation(); toggleAllClusters()">
+              {{ selectedClusterIds().size === clusters().length ? 'Desmarcar Todos' : 'Selecionar Todos' }}
+            </button>
+          </div>
+          <div class="dropdown-items-wrapper">
+            @for (cluster of clusters(); track cluster.id) {
+              <div class="dropdown-item d-flex align-items-center" (click)="$event.stopPropagation(); toggleCluster(cluster.id)">
+                <input type="checkbox" class="mr-2" [checked]="selectedClusterIds().has(cluster.id)" (change)="$event.stopPropagation(); toggleCluster(cluster.id)">
+                {{ cluster.name }}
+              </div>
+            }
+            @if (clusters().length === 0) {
+              <div class="dropdown-item disabled text-muted">Aguardando atividade...</div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 - Curso (Multi) -->
+    <div class="form-group col-md-6">
+      <label>4 - Cursos</label>
+      <div class="dropdown custom-multi-select" [class.disabled]="selectedClusterIds().size === 0">
+        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-left d-flex justify-content-between align-items-center" 
+                type="button" id="courseDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                [disabled]="selectedClusterIds().size === 0">
+          <span>
+            @if (selectedCourseIds().size === 0) { Selecione... }
+            @else { {{ selectedCourseIds().size }} selecionado(s) }
+          </span>
+        </button>
+        <div class="dropdown-menu w-100 shadow-sm" aria-labelledby="courseDropdown">
+          <div class="dropdown-header d-flex justify-content-between align-items-center py-2 px-3 border-bottom">
+            <span class="font-weight-bold small">Selecione os Cursos</span>
+            <button class="btn btn-link btn-sm p-0 text-primary small" (click)="$event.stopPropagation(); toggleAllCourses()">
+              {{ selectedCourseIds().size === courses().length ? 'Desmarcar Todos' : 'Selecionar Todos' }}
+            </button>
+          </div>
+          <div class="dropdown-items-wrapper">
+            @for (course of courses(); track course.id) {
+              <div class="dropdown-item d-flex align-items-center" (click)="$event.stopPropagation(); toggleCourse(course.id)">
+                <input type="checkbox" class="mr-2" [checked]="selectedCourseIds().has(course.id)" (change)="$event.stopPropagation(); toggleCourse(course.id)">
+                {{ course.name }}
+              </div>
+            }
+            @if (courses().length === 0) {
+              <div class="dropdown-item disabled text-muted">Aguardando cluster...</div>
+            }
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -34,7 +104,7 @@
             <span class="slider round"></span>
           </label>
           <div>
-            <h5 class="m-0 font-weight-bold">3 - Utilização de IA</h5>
+            <h5 class="m-0 font-weight-bold">5 - Utilização de IA</h5>
             <small class="text-muted">Ativa e desativa todo o fluxo de IA da atividade.</small>
           </div>
         </div>
@@ -42,7 +112,7 @@
 
       <!-- US03/US04: Subjects Table -->
       <div class="table-card mt-4" [class.disabled-section]="!isGlobalIaEnabled()">
-        <label class="section-label">4 - Disciplinas</label>
+        <label class="section-label">6 - Seleção de Disciplinas em Massa</label>
         
         @if (isLoadingSubjects()) {
           <div class="loading-state">Carregando disciplinas...</div>
@@ -58,6 +128,8 @@
               <thead>
                 <tr>
                   <th>Nome da Disciplina</th>
+                  <th>Cluster</th>
+                  <th>Curso</th>
                   <th width="80" class="text-center">
                     <input type="checkbox" class="chk-custom" [checked]="allSelected()" (change)="toggleAll($any($event.target).checked)"> 
                     <small>Todas</small>
@@ -68,6 +140,8 @@
                 @for (sub of subjects(); track sub.id) {
                   <tr>
                     <td>{{ sub.name }}</td>
+                    <td>{{ sub.clusterName || '-' }}</td>
+                    <td>{{ sub.courseName || '-' }}</td>
                     <td class="text-center">
                       <input type="checkbox" class="chk-custom" [checked]="selectedSubjectIds().has(sub.id)" (change)="toggleSubject(sub.id)">
                     </td>
@@ -87,20 +161,29 @@
             <span class="slider round"></span>
           </label>
           <div>
-            <h5 class="m-0 font-weight-bold">5 - Registro Automático de Nota</h5>
+            <h5 class="m-0 font-weight-bold">7 - Registro Automático de Nota</h5>
             <small class="text-muted">Notas podem ser atualizadas sem validação manual humana.</small>
           </div>
         </div>
 
         @if (isAutoPublishEnabled()) {
           <div class="threshold-box fade-in">
-            <label class="mb-1">6 - A partir de: (% de desempenho)</label>
+            <label class="mb-1">8 - A partir de: (% de desempenho)</label>
             <div class="input-with-suffix">
               <input type="number" class="form-control" [ngModel]="thresholdPercentage()" (ngModelChange)="thresholdPercentage.set($event)" min="0" max="100">
               <span class="suffix">%</span>
             </div>
           </div>
         }
+      </div>
+
+      <!-- New Requirement -->
+      <div class="auto-pub-card mt-4" [class.disabled-section]="!isGlobalIaEnabled()">
+        <h5 class="m-0 font-weight-bold mb-2">9 - Publicação de notas em:</h5>
+        <div class="d-flex align-items-center">
+          <input type="number" class="form-control mr-2" style="width: 80px;" maxlength="2" max="99" min="0" [ngModel]="publishDays()" (ngModelChange)="publishDays.set($event)">
+          <span class="text-muted">dias após o fim do período de provas</span>
+        </div>
       </div>
 
       <!-- Final Actions -->
@@ -114,7 +197,6 @@
     </div>
   } @else {
     <div class="empty-state">
-      <i class="ri-settings-5-line display-4 text-muted mb-3 d-block"></i>
       <p class="text-muted">Selecione uma unidade de negócio e atividade acima para iniciar.</p>
     </div>
   }

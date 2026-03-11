@@ -34,6 +34,9 @@ export class AuditTabComponent implements OnInit {
       data = data.filter(log => 
          log.unitName.toLowerCase().includes(term) ||
          log.activityName.toLowerCase().includes(term) ||
+         log.clusterName?.toLowerCase().includes(term) ||
+         log.courseName?.toLowerCase().includes(term) ||
+         log.disciplineName?.toLowerCase().includes(term) ||
          log.activatedBy.toLowerCase().includes(term) ||
          log.id.toLowerCase().includes(term)
       );
