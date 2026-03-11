@@ -1,1 +1,20 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+    --primary-bg: #f3f3f9;
+    --sidebar-bg: #1c1c2b;
+    --accent-gold: #f7b84b;
+    --topbar-bg: #ffffff;
+    --text-primary: #495057;
+    --text-sidebar: #abb9e8;
+    --text-sidebar-hover: #ffffff;
+    --sidebar-width: 250px;
+    --topbar-height: 70px;
+    --transition: all 0.3s ease;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
