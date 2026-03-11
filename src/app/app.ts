@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [],
+  imports: [RouterModule],
   template: `
     <div class="layout-wrapper">
       <!-- Sidebar -->
@@ -25,6 +26,13 @@ import { Component, signal } from '@angular/core';
                   <i class="ri-arrow-right-s-line arrow"></i>
                 }
               </a>
+              @if (item.submenu) {
+                <ul class="submenu">
+                  @for (sub of item.submenu; track sub.label) {
+                    <li><a href="#" class="submenu-link" [routerLink]="sub.link">{{ sub.label }}</a></li>
+                  }
+                </ul>
+              }
             </li>
           }
         </ul>
@@ -167,6 +175,31 @@ import { Component, signal } from '@angular/core';
     }
 
     .nav-item.active .nav-link i {
+      color: var(--accent-gold);
+    }
+
+    .submenu {
+      list-style: none;
+      padding-left: 40px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      display: none;
+    }
+
+    .nav-item:hover .submenu, .nav-item.active .submenu {
+      display: block;
+    }
+
+    .submenu-link {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 13px;
+      display: block;
+      padding: 8px 0;
+      transition: color 0.2s ease;
+    }
+
+    .submenu-link:hover {
       color: var(--accent-gold);
     }
 
@@ -322,14 +355,14 @@ export class App {
   protected readonly title = signal('vitru-angular');
   
   protected readonly menuItems = signal([
-    { label: 'Início', icon: 'ri-home-4-line', active: true, hasSubmenu: false },
-    { label: 'AVA', icon: 'ri-dashboard-line', active: false, hasSubmenu: true },
-    { label: 'Financeiro', icon: 'ri-money-dollar-circle-line', active: false, hasSubmenu: true },
-    { label: 'Processo Seletivo', icon: 'ri-user-search-line', active: false, hasSubmenu: true },
-    { label: 'Atendimento', icon: 'ri-customer-service-2-line', active: false, hasSubmenu: true },
-    { label: 'Acadêmico', icon: 'ri-book-open-line', active: false, hasSubmenu: true },
-    { label: 'Integrações', icon: 'ri-links-line', active: false, hasSubmenu: true },
-    { label: 'Comercial', icon: 'ri-shopping-cart-2-line', active: false, hasSubmenu: true },
-    { label: 'Gerais', icon: 'ri-settings-4-line', active: false, hasSubmenu: true },
+    { label: 'Início', icon: 'ri-home-4-line', active: true, hasSubmenu: false, submenu: undefined },
+    { label: 'AVA', icon: 'ri-dashboard-line', active: false, hasSubmenu: true, submenu: undefined },
+    { label: 'Financeiro', icon: 'ri-money-dollar-circle-line', active: false, hasSubmenu: true, submenu: undefined },
+    { label: 'Processo Seletivo', icon: 'ri-user-search-line', active: false, hasSubmenu: true, submenu: undefined },
+    { label: 'Atendimento', icon: 'ri-customer-service-2-line', active: false, hasSubmenu: true, submenu: undefined },
+    { label: 'Acadêmico', icon: 'ri-book-open-line', active: false, hasSubmenu: true, submenu: [{ label: 'Correções por IA', link: '/correcoes-ia' }] },
+    { label: 'Integrações', icon: 'ri-links-line', active: false, hasSubmenu: true, submenu: undefined },
+    { label: 'Comercial', icon: 'ri-shopping-cart-2-line', active: false, hasSubmenu: true, submenu: undefined },
+    { label: 'Gerais', icon: 'ri-settings-4-line', active: false, hasSubmenu: true, submenu: undefined },
   ]);
 }
