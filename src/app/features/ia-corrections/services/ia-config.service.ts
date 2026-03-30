@@ -25,6 +25,7 @@ export interface AuditLog {
   clusterName?: string;
   courseName?: string;
   disciplineName?: string;
+  promptName?: string;
   activatedBy: string;
   activatedAt: Date;
   status: 'Ativo' | 'Inativo';
@@ -58,7 +59,8 @@ export class IaConfigMockService {
       parameters: { globalIa: true, autoPublish: false },
       clusterName: 'Cluster Sul',
       courseName: 'Engenharia de Software',
-      disciplineName: 'Algoritmos'
+      disciplineName: 'Algoritmos',
+      promptName: 'Prompt Corretor Padrão'
     },
     {
       id: 'CFG-002',
@@ -70,7 +72,8 @@ export class IaConfigMockService {
       parameters: { globalIa: true, autoPublish: true, threshold: 75 },
       clusterName: 'Cluster Norte',
       courseName: 'Administração',
-      disciplineName: 'Gestão de Projetos'
+      disciplineName: 'Gestão de Projetos',
+      promptName: 'Prompt Resenha Admin'
     }
   ];
 
@@ -165,5 +168,10 @@ export class IaConfigMockService {
       return of(true).pipe(delay(300));
     }
     return of(false);
+  }
+
+  updateStatuses(ids: string[], newStatus: 'Ativo' | 'Inativo'): Observable<boolean> {
+    this.activeConfigs.filter(c => ids.includes(c.id)).forEach(c => c.status = newStatus);
+    return of(true).pipe(delay(400));
   }
 }

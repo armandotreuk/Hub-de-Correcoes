@@ -91,7 +91,7 @@ Este documento traduz as Regras de Negócio (RN01 a RN19) referentes à configur
 - **Relacionado a:** RN13, RN14, RN19
 - **Critérios de Aceite:**
   - [ ] A tela de auditoria deve ser acessível via menu lateral principal ("Acadêmico" > "Correções por IA") (RN19).
-  - [ ] A grade (tabela) deve exibir no mínimo: ID, Unidade, Atividade, **Cluster**, **Curso**, **Disciplina**, quem configurou e a data da configuração (RN14).
+  - [ ] A grade (tabela) deve exibir no mínimo: Status, Unidade, Atividade, **Cluster**, **Curso**, **Disciplina**, **Prompt**, quem configurou e a data da configuração (RN14).
 
 ### US08 - Controle e Filtros na Tabela de Auditoria
 **Como um** auditor ou gestor do sistema,
@@ -99,15 +99,16 @@ Este documento traduz as Regras de Negócio (RN01 a RN19) referentes à configur
 **Para que** eu consiga gerenciar o alto volume de configurações, localizando rapidamente quem alterou algo ou filtrando as regras de uma atividade específica.
 - **Relacionado a:** RN16, RN17, RN18
 - **Critérios de Aceite:**
-  - [ ] A tabela deve comportar caixas de pesquisa (Gerais ou por coluna) (RN16).
+  - [ ] A tabela deve comportar caixas de pesquisa de texto individuais debaixo do cabeçalho de cada coluna textual para filtragem refinada (RN16).
   - [ ] Os cabeçalhos de coluna devem ser clicáveis invertendo a ordenação ASC/DESC (RN17).
-  - [ ] O componente deve ter paginação visível no rodapé limitando os itens expostos (RN18).
+  - [ ] O componente deve ter paginação visível no rodapé limitando os itens expostos, vindo por padrão a exibição de 25 registros numa lista de 10, 25, 50, 100 itens (RN18).
 
-### US09 - Desativação Rápida de Segurança
+### US09 - Alteração de Status em Lote (Ativar/Inativar)
 **Como um** auditor ou coordenador do sistema,
-**Eu quero** um botão de ação "Desativar" na linha da tabela de auditoria
-**Para que** eu anule imediatamente uma regra configurada por engano, travando o uso da IA para aquela atividade reportada.
+**Eu quero** poder selecionar múltiplos registros na tabela e possuir um botão para "Alterar Status"
+**Para que** eu anule imediatamente ou reative uma ou mais regras configuradas de uma só vez.
 - **Relacionado a:** RN15
 - **Critérios de Aceite:**
-  - [ ] Na respectiva linha configurada, deve haver um botão claro de "Inativar" ou "Desativar regra".
-  - [ ] Clicar no botão inativará o interruptor global daquela regra (US02 referenciada) e o registro pode sair da aba de ativos ou receber status "cancelado" (dependendo da convenção).
+  - [ ] A primeira coluna da tabela deve conter checkboxes de seleção (incluindo "Selecionar todos" no topo).
+  - [ ] Botão secundário deve surgir no topo da tabela rotulado "Alterar Status" caso haja registros flegados.
+  - [ ] Clicar no botão inverterá a atividade / inatividade dos registros selecionados através de uma ação em lote (mass action).

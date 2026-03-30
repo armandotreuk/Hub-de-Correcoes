@@ -1,0 +1,35 @@
+# Walkthrough de Implementação: Correções por IA
+
+Este documento descreve as etapas de codificação realizadas para atender aos requisitos de **Parametrização** e **Auditoria** da IA (RF001).
+
+## Resumo das Modificações Realizadas
+
+Desenvolvemos o Front-end Angular para suportar as configurações definidas nos arquivos [Business_Rules.md](file:///c:/Users/arman/.gemini/antigravity/scratch/vitru-angular/Requirements/Business_Rules.md) e [User_Stories.md](file:///c:/Users/arman/.gemini/antigravity/scratch/vitru-angular/Requirements/User_Stories.md). Todas as novas funcionalidades foram encapsuladas dentro da rota `/correcoes-ia` construindo uma arquitetura limpa de componentes standalone.
+
+### 1. Funcionalidades de Interface:
+- **[IaCorrectionsPageComponent](file:///c:/Users/arman/.gemini/antigravity/scratch/vitru-angular/src/app/features/ia-corrections/ia-corrections-page.component.ts#6-20)**: Componente PAI inteligente. Contém o cabeçalho (*Breadcrumb* "Acadêmico > Avaliações > Correções por IA") e hospeda a navegação em Abas (Tabs).
+- **Abas Funcionais**:
+  - **Aba de Parametrização**: Cumpre as histórias **US01 a US06**. Renderiza seletores limpos de unidade de negócio e atividade. Exibe "switches" globais (*Utilização de IA*, *Registro Automático*) limitando componentes. Apresenta lista de disciplinas iterável com "Selecionar Todos" e finaliza com um Input customizado de Desempenho (%).
+  - **Aba de Auditoria**: Lista Mock de dados cumprindo **US07 a US09**. Suporta paginação (5, 10, 20 itens), Search unificado, Ordenadores por cabeçalho e inativação interativa de regras por botão fantasma vermelho (*ghost btn*).
+  
+### 2. Estilos baseados no Design Pattern:
+- As lógicas do CSS foram construídas 100% fieis à proposta estabelecida no documento [Design_Patterns.md](file:///c:/Users/arman/.gemini/antigravity/scratch/vitru-angular/Requirements/Design_Patterns.md) usando cores hexadecimais como o `#405189` para Primary buttons, botões ghost, badges responsivas (`badge-success`, `badge-danger`), caixas de texto limpas e uma tabela listrada *minimalist*.
+
+### 3. Integrações de Rota e Layout:
+- O layout principal ([app.ts](file:///c:/Users/arman/.gemini/antigravity/scratch/vitru-angular/src/app/app.ts)) foi ajustado, exibindo a logo e a navegação da sidebar conforme referências.
+- Configurada a porta principal via `<router-outlet>` no [app.ts](file:///c:/Users/arman/.gemini/antigravity/scratch/vitru-angular/src/app/app.ts) central.
+- A rota [app.config.ts](file:///c:/Users/arman/.gemini/antigravity/scratch/vitru-angular/src/app/app.config.ts) injetada carrega com Lazy Load o módulo novo.
+
+## Validação da Implementação
+
+### Mock Services (Data Layer)
+O arquivo [IaConfigMockService](file:///c:/Users/arman/.gemini/antigravity/scratch/vitru-angular/src/app/features/ia-corrections/services/ia-config.service.ts#29-112) substitui, nesta etapa do front-end, as requisições que iriam ao Backend. Ele está recheado com:
+- Simuladores lentos usando `Observable.delay` imitando *Round Trips* HTTP.
+- Um banco provisório injetando auditorias ao salvar na aba principal. Funciona o fluxo End-to-End localmente!
+
+### Como Testar
+1. Inicie o servidor frontend no terminal: `npm run dev` ou `npm start`.
+2. Acesse a aplicação no navegador (normalmente em `localhost:4200`).
+3. Clique no menu esquerdo **"Acadêmico"**. Em seguida clique no link **"Correções por IA"**.
+4. Teste a aba **Parametrizar Atividade**. Preencha o form simulado e clique em Salvar.
+5. Acesse a aba secundária **Auditoria**, observe sua configuração salva lá e teste a paginação clicando na lixeira vermelha para desativar sua regra de configuração de IA.

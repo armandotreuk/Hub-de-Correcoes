@@ -23,9 +23,9 @@ A nova funcionalidade será modularizada dentro do diretório `/src/app/features
 - **Função**: Listar e gerir parâmetros já ativos (US07 a US09).
 - **Conteúdo Visual**:
   - Tabela rica em UI baseada no *Design_Patterns.md*.
-  - Funcionalidades Tabela: Filtros de linha/cabeçalho, ordenação clicável e paginação base (US08).
-  - Colunas: `ID`, `Unidade`, `Atividade`, `Cluster`, `Curso`, `Disciplina`, `Usuário Modificador`, `Criado em`, `Ações`.
-  - Ações: Botão de ícone vermelho (Lixeira/Stop) para "Desativar regra" (US09).
+  - Funcionalidades Tabela: Filtros input-text textuais no header individual das colunas, ordenação clicável e paginação base padrão a 25 registros por página.
+  - Colunas: `Checkbox Select`, `Status`, `Unidade`, `Atividade`, `Cluster`, `Curso`, `Disciplina`, `Prompt`, `Usuário Modificador`, `Criado em`.
+  - Ações: Checkbox de master select para as linhas com um botão secundário dinâmico superior de título "Alterar Status" para alternar Ativos/Inativos em lotes (US09).
 
 ## 2. Gerenciamento de Dados (Services & State)
 
@@ -37,8 +37,8 @@ A classe injetável responsável por gerenciar Promessas/Observables com dados f
 - `getActivities(unitId)`: Retorna lista de provas, resenhas baseada na unidade.
 - `getSubjects(unitId, activityId)`: Retorna uma lista longa de disciplinas (50+ para testes de lote).
 - `saveConfig(payload)`: Simula salvar a configuração e a injeta no "banco" de auditoria.
-- `getAuditLogs(filters, sort, pagination)`: Retorna as configurações ativas atuais com paginação pronta simulada.
-- `disableConfig(auditId)`: Exclui a configuração do banco Mock.
+- `getAuditLogs()`: Retorna as configurações ativas atuais base com paginação e filtro por coluna do próprio Angular (Signals).
+- `updateStatuses(ids, newStatus)`: Salva no mock local em batch o novo status (Ativo/Inativo) da configuração. A cada registro ativado gera também nova chave `promptName` mapeada nos atributos.
 
 ## 3. Roteamento (Routing)
 

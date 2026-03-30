@@ -3,9 +3,12 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="m-0 font-weight-bold">Configurações de IA Ativas</h5>
     
-    <div class="search-box">
-      <i class="ri-search-line"></i>
-      <input type="text" placeholder="Pesquisar registros..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event); currentPage.set(1)">
+    <div>
+      @if (selectedLogs().size > 0) {
+        <button class="btn btn-sm btn-outline-primary" (click)="onMassAction()" style="margin-right: 10px;">
+          Alterar Status
+        </button>
+      }
     </div>
   </div>
 
@@ -16,65 +19,70 @@
       <table class="table mb-0 minimalist-table">
         <thead>
           <tr>
-            <th class="sortable" (click)="toggleSort('id')">
-              Cód. Configuração 
-              @if(sortColumn() === 'id') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+            <th style="width: 40px; text-align: center;">
+              <input type="checkbox" [checked]="allSelected()" (change)="toggleAll($any($event.target).checked)">
             </th>
+            <th>Status</th>
             <th class="sortable" (click)="toggleSort('unitName')">
               Unidade 
               @if(sortColumn() === 'unitName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+              <input type="text" class="form-control form-control-sm mt-1" placeholder="Pesquisar..." [ngModel]="columnFilters()['unitName']" (ngModelChange)="updateFilter('unitName', $event)" (click)="$event.stopPropagation()">
             </th>
             <th class="sortable" (click)="toggleSort('activityName')">
               Atividade 
               @if(sortColumn() === 'activityName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+              <input type="text" class="form-control form-control-sm mt-1" placeholder="Pesquisar..." [ngModel]="columnFilters()['activityName']" (ngModelChange)="updateFilter('activityName', $event)" (click)="$event.stopPropagation()">
             </th>
             <th class="sortable" (click)="toggleSort('clusterName')">
               Cluster
               @if(sortColumn() === 'clusterName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+              <input type="text" class="form-control form-control-sm mt-1" placeholder="Pesquisar..." [ngModel]="columnFilters()['clusterName']" (ngModelChange)="updateFilter('clusterName', $event)" (click)="$event.stopPropagation()">
             </th>
             <th class="sortable" (click)="toggleSort('courseName')">
               Curso
               @if(sortColumn() === 'courseName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+              <input type="text" class="form-control form-control-sm mt-1" placeholder="Pesquisar..." [ngModel]="columnFilters()['courseName']" (ngModelChange)="updateFilter('courseName', $event)" (click)="$event.stopPropagation()">
             </th>
             <th class="sortable" (click)="toggleSort('disciplineName')">
               Disciplina
               @if(sortColumn() === 'disciplineName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+              <input type="text" class="form-control form-control-sm mt-1" placeholder="Pesquisar..." [ngModel]="columnFilters()['disciplineName']" (ngModelChange)="updateFilter('disciplineName', $event)" (click)="$event.stopPropagation()">
+            </th>
+            <th class="sortable" (click)="toggleSort('promptName')">
+              Prompt
+              @if(sortColumn() === 'promptName') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+              <input type="text" class="form-control form-control-sm mt-1" placeholder="Pesquisar..." [ngModel]="columnFilters()['promptName']" (ngModelChange)="updateFilter('promptName', $event)" (click)="$event.stopPropagation()">
             </th>
             <th class="sortable" (click)="toggleSort('activatedBy')">
               Ativado por 
               @if(sortColumn() === 'activatedBy') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
+              <input type="text" class="form-control form-control-sm mt-1" placeholder="Pesquisar..." [ngModel]="columnFilters()['activatedBy']" (ngModelChange)="updateFilter('activatedBy', $event)" (click)="$event.stopPropagation()">
             </th>
             <th class="sortable" (click)="toggleSort('activatedAt')">
-              Data de Ativação 
+              Data
               @if(sortColumn() === 'activatedAt') {<i [class]="sortDirection() === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>}
             </th>
-            <th>Status</th>
-            <th class="text-center">Ação</th>
           </tr>
         </thead>
         <tbody>
           @for (log of paginatedLogs(); track log.id) {
             <tr>
-              <td><strong>{{ log.id }}</strong></td>
-              <td>{{ log.unitName }}</td>
-              <td>{{ log.activityName }}</td>
-              <td>{{ log.clusterName || '-' }}</td>
-              <td>{{ log.courseName || '-' }}</td>
-              <td>{{ log.disciplineName || '-' }}</td>
-              <td>{{ log.activatedBy }}</td>
-              <td>{{ log.activatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="text-center">
+                <input type="checkbox" [checked]="selectedLogs().has(log.id)" (change)="toggleSelection(log.id)">
+              </td>
               <td>
                 <span class="badge" [class.badge-success]="log.status === 'Ativo'" [class.badge-danger]="log.status === 'Inativo'">
                   {{ log.status }}
                 </span>
               </td>
-              <td class="text-center">
-                @if (log.status === 'Ativo') {
-                  <button class="btn btn-icon btn-ghost-danger" (click)="onDisable(log)" title="Inativar regra (US09)">
-                    <i class="ri-forbid-2-line"></i>
-                  </button>
-                }
-              </td>
+              <td>{{ log.unitName }}</td>
+              <td>{{ log.activityName }}</td>
+              <td>{{ log.clusterName || '-' }}</td>
+              <td>{{ log.courseName || '-' }}</td>
+              <td>{{ log.disciplineName || '-' }}</td>
+              <td>{{ log.promptName || '-' }}</td>
+              <td>{{ log.activatedBy }}</td>
+              <td>{{ log.activatedAt | date:'dd/MM/yyyy' }}</td>
             </tr>
           }
           @if(paginatedLogs().length === 0) {
@@ -91,9 +99,10 @@
       <div class="page-size-selector text-muted">
         Exibindo 
         <select class="custom-select-sm" [ngModel]="itemsPerPage()" (ngModelChange)="setItemsPerPage($event)">
-          <option [value]="5">5</option>
           <option [value]="10">10</option>
-          <option [value]="20">20</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
         </select>
         por página
       </div>
