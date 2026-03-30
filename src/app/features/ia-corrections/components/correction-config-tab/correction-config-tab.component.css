@@ -1,0 +1,67 @@
+.filters-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.minimalist-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.minimalist-table thead th {
+  background: #f3f6f9;
+  color: #495057;
+  font-weight: 600;
+  padding: 0.75rem;
+  border-bottom: 2px solid #e9ecef;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.minimalist-table tbody td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eff2f7;
+  vertical-align: middle;
+}
+
+.minimalist-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.badge-success {
+  background: #0ab39c;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.badge-secondary {
+  background: #6c757d;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.form-control-sm {
+  font-size: 0.875rem;
+  height: 32px;
+}
+
+.chk-custom {
+  cursor: pointer;
+}
+
+.pagination .page-link {
+  color: #405189;
+  cursor: pointer;
+  border-color: #e9ecef;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #ccc;
+  cursor: not-allowed;
+}

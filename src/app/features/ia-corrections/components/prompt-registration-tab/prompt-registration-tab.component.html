@@ -1,0 +1,122 @@
+<div class="card param-container h-100">
+  <div class="split-panel-container">
+    <!-- Painel Esquerdo: Lista de Prompts -->
+    <div class="prompt-list-panel">
+      <div class="panel-header">
+        <h5 class="m-0">Lista de Prompts</h5>
+        <button class="btn btn-primary btn-sm" (click)="createNew()">
+          <i class="ri-add-line mr-1"></i> Criar Novo Prompt
+        </button>
+      </div>
+
+      <div class="prompt-list">
+        @if (isLoading()) {
+          <div class="text-center p-3 text-muted">Carregando...</div>
+        } @else {
+          @for (prompt of prompts(); track prompt.id) {
+            <div
+              class="prompt-item"
+              [class.active]="selectedPrompt()?.id === prompt.id"
+              (click)="selectPrompt(prompt.id)"
+            >
+              <div class="prompt-title">{{ prompt.title }}</div>
+              <div class="prompt-meta">
+                <span class="badge badge-primary mr-1">{{ prompt.businessUnitName }}</span>
+                <span class="badge badge-secondary">{{ prompt.activityTypeName }}</span>
+              </div>
+            </div>
+          } @empty {
+            <div class="text-center p-3 text-muted">Nenhum prompt cadastrado.</div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Painel Direito: Editor de Prompt -->
+    <div class="prompt-editor-panel">
+      @if (isEditing()) {
+        <div class="editor-header">
+          <h5 class="m-0">{{ isNewPrompt() ? 'Novo Prompt' : 'Editar Prompt' }}</h5>
+        </div>
+
+        <div class="editor-form">
+          <div class="form-group">
+            <label class="required">Título</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="formData.title"
+              placeholder="Digite o título do prompt"
+              maxlength="200"
+            />
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="required">Unidade de Negócio</label>
+                <select
+                  class="form-control cust-select"
+                  [(ngModel)]="formData.businessUnitId"
+                  (ngModelChange)="onBusinessUnitChange($event)"
+                >
+                  <option [ngValue]="null">Selecione...</option>
+                  @for (unit of businessUnits(); track unit.id) {
+                    <option [ngValue]="unit.id">{{ unit.name }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="required">Tipo de Atividade</label>
+                <select
+                  class="form-control cust-select"
+                  [(ngModel)]="formData.activityTypeId"
+                  (ngModelChange)="onActivityTypeChange($event)"
+                >
+                  <option [ngValue]="null">Selecione...</option>
+                  @for (act of activityTypes(); track act.id) {
+                    <option [ngValue]="act.id">{{ act.name }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group flex-grow-1">
+            <label class="required">Corpo do Prompt</label>
+            <textarea
+              class="form-control prompt-textarea"
+              [(ngModel)]="formData.body"
+              placeholder="Digite as instruções para a IA..."
+              maxlength="10000"
+            ></textarea>
+            <small class="text-muted float-right"
+              >{{ formData.body?.length || 0 }} / 10.000 caracteres</small
+            >
+          </div>
+
+          <div class="editor-actions">
+            <button class="btn btn-outline-secondary mr-2" (click)="cancelEdit()">Cancelar</button>
+            <button
+              class="btn btn-primary"
+              (click)="save()"
+              [disabled]="!isFormValid() || isSaving()"
+            >
+              <i class="ri-save-line mr-1"></i>
+              {{ isSaving() ? 'Salvando...' : 'Salvar' }}
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="empty-editor">
+          <div class="text-center">
+            <i class="ri-edit-circle-line" style="font-size: 3rem; color: #ced4da"></i>
+            <p class="mt-3 text-muted">Selecione um prompt da lista ou crie um novo.</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

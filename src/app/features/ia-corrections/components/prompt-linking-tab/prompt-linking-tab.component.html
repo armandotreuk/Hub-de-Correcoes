@@ -1,0 +1,144 @@
+<div class="card param-container h-100">
+  <!-- Seletor de Prompt -->
+  <div class="prompt-selector mb-4">
+    <div class="row">
+      <div class="col-md-6">
+        <label class="font-weight-bold">Selecione o Prompt:</label>
+        <select
+          class="form-control cust-select"
+          [(ngModel)]="selectedPromptId"
+          (ngModelChange)="onPromptChange($event)"
+        >
+          <option [ngValue]="null">Selecione um prompt...</option>
+          @for (prompt of prompts(); track prompt.id) {
+            <option [ngValue]="prompt.id">{{ prompt.title }}</option>
+          }
+        </select>
+      </div>
+      @if (selectedPrompt()) {
+        <div class="col-md-6 d-flex align-items-end">
+          <div class="prompt-info p-2 rounded">
+            <small class="text-muted d-block"
+              >Unidade: <strong>{{ selectedPrompt()?.businessUnitName }}</strong></small
+            >
+            <small class="text-muted"
+              >Atividade: <strong>{{ selectedPrompt()?.activityTypeName }}</strong></small
+            >
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (selectedPromptId) {
+    <!-- Filtros -->
+    <div class="filters-row mb-3">
+      <div class="row">
+        <div class="col-md-4">
+          <label>Filtrar Cluster:</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Pesquisar cluster..."
+            [(ngModel)]="filterCluster"
+          />
+        </div>
+        <div class="col-md-4">
+          <label>Filtrar Curso:</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Pesquisar curso..."
+            [(ngModel)]="filterCourse"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Cursos -->
+    <div class="table-responsive">
+      <table class="table table-hover minimalist-table">
+        <thead>
+          <tr>
+            <th>Cluster</th>
+            <th>Curso</th>
+            <th>Prompt Vinculado</th>
+            <th width="120">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (course of paginatedCourses(); track course.id) {
+            <tr>
+              <td>{{ course.clusterName }}</td>
+              <td>{{ course.name }}</td>
+              <td>
+                @if (getLinkedPrompt(course.id); as link) {
+                  <span class="badge badge-success">{{ link.promptTitle }}</span>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td class="text-center">
+                @if (getLinkedPrompt(course.id); as link) {
+                  <!-- Botão Alterar -->
+                  <button
+                    class="btn btn-sm btn-ghost text-primary"
+                    title="Alterar Prompt"
+                    (click)="openChangePromptModal(course)"
+                  >
+                    <i class="ri-edit-line"></i>
+                  </button>
+                  <!-- Botão Remover -->
+                  <button
+                    class="btn btn-sm btn-ghost text-danger"
+                    title="Remover Vínculo"
+                    (click)="unlinkPrompt(link.id)"
+                  >
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                } @else {
+                  <!-- Botão Vincular -->
+                  <button
+                    class="btn btn-sm btn-ghost text-success"
+                    title="Vincular Prompt"
+                    (click)="linkPrompt(course.id)"
+                  >
+                    <i class="ri-add-circle-line"></i>
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="text-center text-muted p-4">
+                Nenhum curso encontrado para esta Unidade.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginação -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div class="text-muted">
+        Exibindo {{ paginatedCourses().length }} de {{ filteredCourses().length }} registros
+      </div>
+      <nav>
+        <ul class="pagination mb-0">
+          <li class="page-item" [class.disabled]="currentPage() === 1">
+            <a class="page-link" (click)="prevPage()">Anterior</a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage() >= totalPages()">
+            <a class="page-link" (click)="nextPage()">Próxima</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  } @else {
+    <div class="empty-state text-center p-5">
+      <i class="ri-links-line" style="font-size: 3rem; color: #ced4da"></i>
+      <p class="mt-3 text-muted">Selecione um prompt acima para gerenciar os vínculos.</p>
+    </div>
+  }
+</div>

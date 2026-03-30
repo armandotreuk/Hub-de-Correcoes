@@ -1,0 +1,209 @@
+<div class="card param-container h-100">
+  <!-- Painel de Regras (RN25-RN27) -->
+  <div class="rules-panel mb-4 p-3 rounded">
+    <div class="d-flex align-items-center mb-2">
+      <i class="ri-information-line mr-2 text-primary"></i>
+      <h6 class="m-0">Regras de Publicação Automática</h6>
+    </div>
+    <ul class="rules-list mb-0">
+      <li>
+        Notas com desempenho igual ou superior ao percentual configurado serão publicadas
+        automaticamente.
+      </li>
+      <li>Notas abaixo do percentual ficarão retidas para curadoria manual.</li>
+      <li>O percentual pode ser ajustado a qualquer momento.</li>
+    </ul>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="m-0">Configurações de Publicação de Notas</h5>
+    @if (selectedIds().size > 0) {
+      <button class="btn btn-primary btn-sm" (click)="onMassAction()">
+        <i class="ri-exchange-circle-line mr-1"></i>
+        Alterar Status ({{ selectedIds().size }})
+      </button>
+    }
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-card mb-3 p-3 rounded">
+    <div class="row">
+      <div class="col-md-2">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Unidade..."
+          (input)="updateFilter('businessUnitName', $any($event.target).value)"
+        />
+      </div>
+      <div class="col-md-2">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Cluster..."
+          (input)="updateFilter('clusterName', $any($event.target).value)"
+        />
+      </div>
+      <div class="col-md-2">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Curso..."
+          (input)="updateFilter('courseName', $any($event.target).value)"
+        />
+      </div>
+      <div class="col-md-2">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Atividade..."
+          (input)="updateFilter('activityTypeName', $any($event.target).value)"
+        />
+      </div>
+      <div class="col-md-2">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Prompt..."
+          (input)="updateFilter('promptTitle', $any($event.target).value)"
+        />
+      </div>
+      <div class="col-md-2">
+        <select
+          class="form-control form-control-sm"
+          (change)="updateFilter('publicationStatus', $any($event.target).value)"
+        >
+          <option value="">Todos Status</option>
+          <option value="Habilitado">Habilitado</option>
+          <option value="Desabilitado">Desabilitado</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="table-responsive">
+    <table class="table table-hover minimalist-table">
+      <thead>
+        <tr>
+          <th width="50">
+            <input
+              type="checkbox"
+              class="chk-custom"
+              [checked]="allSelected()"
+              (change)="toggleAll($any($event.target).checked)"
+            />
+          </th>
+          <th>Status Pub.</th>
+          <th>Correção</th>
+          <th>Unidade</th>
+          <th>Cluster</th>
+          <th>Curso</th>
+          <th>Atividade</th>
+          <th>Prompt</th>
+          <th>Percentual</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (config of paginatedConfigs(); track config.id) {
+          <tr>
+            <td>
+              <input
+                type="checkbox"
+                class="chk-custom"
+                [checked]="selectedIds().has(config.id)"
+                (change)="toggleSelection(config.id)"
+                [disabled]="config.correctionStatus === 'Inativo'"
+              />
+            </td>
+            <td>
+              @if (config.correctionStatus === 'Inativo') {
+                <span class="badge badge-secondary" title="Correção inativa - publicação bloqueada">
+                  <i class="ri-lock-line mr-1"></i> Bloqueado
+                </span>
+              } @else {
+                <span
+                  class="badge cursor-pointer"
+                  [class.badge-success]="config.publicationStatus === 'Habilitado'"
+                  [class.badge-secondary]="config.publicationStatus === 'Desabilitado'"
+                  (click)="toggleSingleStatus(config)"
+                  title="Clique para alterar"
+                >
+                  {{ config.publicationStatus }}
+                </span>
+              }
+            </td>
+            <td>
+              <span
+                class="badge"
+                [class.badge-success]="config.correctionStatus === 'Ativo'"
+                [class.badge-secondary]="config.correctionStatus === 'Inativo'"
+              >
+                {{ config.correctionStatus }}
+              </span>
+            </td>
+            <td>{{ config.businessUnitName }}</td>
+            <td>{{ config.clusterName }}</td>
+            <td>{{ config.courseName }}</td>
+            <td>{{ config.activityTypeName }}</td>
+            <td>{{ config.promptTitle }}</td>
+            <td>
+              @if (config.publicationStatus === 'Habilitado') {
+                <div class="input-group input-group-sm" style="width: 100px">
+                  <input
+                    type="number"
+                    class="form-control"
+                    [value]="config.performanceThreshold"
+                    (change)="updateThreshold(config.id, $any($event.target).value)"
+                    min="0"
+                    max="100"
+                  />
+                  <span class="input-group-text">%</span>
+                </div>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="9" class="text-center text-muted p-4">Nenhum registro encontrado.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <div class="text-muted">
+      Exibindo {{ paginatedConfigs().length }} de {{ filteredConfigs().length }} registros
+    </div>
+    <div class="d-flex align-items-center">
+      <select
+        class="form-control form-control-sm mr-2"
+        style="width: 80px"
+        [value]="itemsPerPage()"
+        (change)="setItemsPerPage($any($event.target).value)"
+      >
+        <option value="10">10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+      <nav>
+        <ul class="pagination mb-0">
+          <li class="page-item" [class.disabled]="currentPage() === 1">
+            <a class="page-link" (click)="prevPage()">Anterior</a>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link">{{ currentPage() }} / {{ totalPages() }}</span>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage() >= totalPages()">
+            <a class="page-link" (click)="nextPage()">Próxima</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
