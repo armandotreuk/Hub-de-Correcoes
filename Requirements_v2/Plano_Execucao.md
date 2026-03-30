@@ -1,364 +1,316 @@
-# Plano de Execução Completo — Requirements v2 (5 Abas)
+# Plano de Execução v3 — Atualizações das 4 Abas
 
-> **Projeto**: vitru-angular (mesmo repositório)  
-> **Branch de trabalho**: `feature/5-tabs-v2`  
-> **Base de referência**: `Requirements_v2/`
-
----
-
-## Fase 0 — Preparação do Ambiente
-
-### 0.1 Criar branch de desenvolvimento
-```bash
-git checkout -b feature/5-tabs-v2
-```
-
-### 0.2 Verificar que a aplicação compila e roda
-```bash
-npm start  # deve rodar em localhost:4200 sem erros
-```
-
-**Critério de aceite**: Branch criado, app rodando, nenhum erro no console.
+> **Projeto**: vitru-angular (mesmo repositório)
+> **Branch de trabalho**: `feature/v3-tab-enhancements`
+> **Base**: código atual em `master` (Fases 1-8 v2 concluídas)
+> **Referência**: `Requirements_v2/` (Business_Rules_v2, User_Stories_v2, Tech_Spec_Implementation_v2)
 
 ---
 
-## Fase 1 — Camada de Dados (Services & Interfaces)
+## Fase A — Componentes Compartilhados
 
-Criar toda a infraestrutura de dados **antes** da UI. Isso garante que os componentes já terão dados mock disponíveis desde o primeiro render.
+### A.1 Criar `MultiSelectDropdownComponent`
 
-### 1.1 Definir Interfaces (Types)
+**Diretório**: `components/shared/multi-select-dropdown/`
 
-**Arquivo**: `src/app/features/ia-corrections/models/ia-corrections.models.ts` (NOVO)
+Componente reutilizável para filtros com dropdown, busca e seleção múltipla.
+
+**Inputs/Outputs**:
+```typescript
+@Input() options: { value: any; label: string }[] = [];
+@Input() label: string = '';
+@Input() placeholder: string = 'Buscar...';
+@Output() selectionChange = new EventEmitter<any[]>();
+```
+
+**Comportamento**:
+- Campo de texto para busca por digitação (filtra as opções visíveis no dropdown)
+- Ícone de seta (ri-arrow-down-s-line) para abrir/fechar dropdown
+- Primeira opção: "Selecionar todas"
+  - Se nem todas selecionadas → seleciona todas
+  - Se todas selecionadas → desseleciona todas
+- Checkbox a frente de cada opção
+- Emite `selectionChange` com array de valores selecionados
+- Click outside → fecha dropdown
+
+### A.2 Criar `PromptDetailModalComponent`
+
+**Diretório**: `components/shared/prompt-detail-modal/`
+
+Modal centralizado para exibir/editar detalhes de um prompt.
+
+**Inputs/Outputs**:
+```typescript
+@Input() prompt: Prompt | null = null;
+@Input() isOpen: boolean = false;
+@Output() close = new EventEmitter<void>();
+@Output() saveObservations = new EventEmitter<{ id: string; observations: string }>();
+```
+
+**Visual**:
+- Overlay escuro semi-transparente
+- Card centralizado (max-width: 700px)
+- Campos bloqueados: Título, Unidade, Tipo de Atividade, Corpo do Prompt → `readonly`, `background: #f0f0f0`, `cursor: not-allowed`
+- Campo editável: Observações (textarea, max 10.000 chars) + botão "Salvar Comentário"
+- Botão X para fechar
+
+**Critério de aceite**: Componentes compilam, renderizam isoladamente, emitem eventos corretamente.
+
+---
+
+## Fase B — Atualizar Modelos & Services
+
+### B.1 Atualizar `ia-corrections.models.ts`
+
+Adicionar campos à interface `Prompt`:
+```typescript
+status: 'Ativo' | 'Inativo';    // default: 'Ativo'
+observations: string;             // até 10.000 caracteres
+```
+
+Nova interface:
+```typescript
+export interface PublicationGlobalSettings {
+  note: number | null;             // 0-100
+  deadline: number | null;         // 0-99 (dias)
+  autoPublicationEnabled: boolean; // default: false
+}
+```
+
+### B.2 Atualizar `prompt.service.ts`
+
+| Método novo | Descrição |
+|---|---|
+| `updatePromptStatus(id, status)` | Alterna Ativo/Inativo |
+| `updatePromptObservations(id, observations)` | Salva apenas o campo observações |
+
+Atualizar mock data: adicionar `status: 'Ativo'` e `observations: ''` a todos os prompts.
+
+### B.3 Atualizar `prompt-linking.service.ts`
+
+| Método novo | Descrição |
+|---|---|
+| `linkPromptToCourses(promptId, promptTitle, courseIds[], activityTypeName)` | Vinculação em lote |
+
+### B.4 Atualizar `publication.service.ts`
+
+| Método novo | Descrição |
+|---|---|
+| `getGlobalSettings()` | Retorna `PublicationGlobalSettings` |
+| `saveGlobalSettings(note, deadline, enabled)` | Grava configurações globais |
+
+**Critério de aceite**: Todos os services compilam, novos métodos retornam dados, mock data atualizado.
+
+---
+
+## Fase C — Aba 1: Cadastro Prompt (Aprimoramentos)
+
+### C.1 Filtros na Lista de Prompts (painel esquerdo)
+
+Acima da lista de prompts, adicionar:
+```
+┌─────────────────────────────┐
+│  Unidade: [dropdown___▼]    │
+│  Atividade: [dropdown___▼]  │
+│  Situação: ☑ Ativo ☐ Inativo│
+├─────────────────────────────┤
+│  ● Prompt Corretor v1 ✓    │
+│  ● Prompt Resenha v2       │
+│  ● Prompt MAPA padrão      │
+└─────────────────────────────┘
+```
+
+**Lógica**: `filteredPrompts = computed(() => { ... })` que aplica filtros de Unidade, Atividade e Situação.
+
+### C.2 Badge Situação no Editor (painel direito)
+
+Ao lado do título "Editar Prompt" / "Novo Prompt", exibir badge clicável:
+- `Ativo` (badge-success) / `Inativo` (badge-secondary)
+- Ao clicar: `promptService.updatePromptStatus(id, newStatus)`
+
+### C.3 Campo Observações
+
+Abaixo do textarea de corpo do prompt:
+- Textarea `Observações` (10.000 chars, contador)
+- Botão "Salvar Comentário" (invoca `promptService.updatePromptObservations(id, text)`)
+
+**Critério de aceite**: Filtros funcionam cumulativamente, badge alterna status, observações salvam independentemente.
+
+---
+
+## Fase D — Aba 2: Relacionar Prompt (Reestruturação)
+
+### D.1 Substituir layout de filtros
+
+**Antes**: Dropdown de prompt + filtros de texto
+**Depois**: 3 `MultiSelectDropdownComponent` em hierarquia:
+1. Unidade de Negócio
+2. Tipo de Atividade (cascata de Unidade)
+3. Prompt (cascata de Unidade + Atividade)
+
+### D.2 Área de vinculação em massa
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  Prompt: [dropdown hierárquico___▼]   [Vincular]         │
+│  (aplica aos registros selecionados com checkbox)        │
+└──────────────────────────────────────────────────────────┘
+```
+
+### D.3 Reestruturar tabela
+
+Nova ordem de colunas:
+| # | Coluna | Nota |
+|---|---|---|
+| 1 | ☐ Checkbox | Seleção para vinculação em massa |
+| 2 | Unidade de Negócio | Texto |
+| 3 | Tipo de Atividade | Texto |
+| 4 | Cluster | Texto |
+| 5 | Curso | Texto |
+| 6 | Prompt Vinculado | **Clicável** → abre modal |
+
+### D.4 Integrar `PromptDetailModalComponent`
+
+Ao clicar no nome do prompt vinculado (coluna 6):
+- Buscar prompt completo via `promptService.getPromptById(id)`
+- Abrir `PromptDetailModalComponent` com dados preenchidos
+- Hook `(saveObservations)` → `promptService.updatePromptObservations(id, text)`
+
+### D.5 Padronizar paginação
+
+Substituir o HTML de paginação atual pelo padrão da Auditoria:
+- Seletor "Exibindo [10/25/50/100] por página"
+- "Página X de Y"
+- Botões "← Anterior" / "Próximo →" com ícones `ri-arrow-left-s-line` / `ri-arrow-right-s-line`
+- Default: 25 itens por página
+
+**Critério de aceite**: Filtros em cascata, vinculação em massa funciona, modal abre com campos bloqueados, comentários salvam, paginação padronizada.
+
+---
+
+## Fase E — Aba 3: Configurar Correção (Multi-Select Filters)
+
+### E.1 Substituir filtros por `MultiSelectDropdownComponent`
+
+**Antes**: Inputs de texto simples + dropdown de status
+**Depois**: 6 instâncias do `MultiSelectDropdownComponent` em linha:
+1. Unidade (popula com valores distintos da lista)
+2. Cluster (cascata de Unidade)
+3. Curso (cascata de Cluster)
+4. Atividade (cascata de Curso)
+5. Prompt (cascata de Atividade)
+6. Status (opções fixas: Ativo, Inativo)
+
+### E.2 Lógica de cascata hierárquica
 
 ```typescript
-export interface Prompt {
-  id: string;
-  title: string;
-  body: string;              // até 10.000 caracteres
-  businessUnitId: number;
-  businessUnitName: string;
-  activityTypeId: number;
-  activityTypeName: string;
-  createdAt: string;
-  createdBy: string;
+// Pseudocódigo
+availableClusters = computed(() => {
+  const data = this.configs();
+  const selectedUnits = this.selectedUnits();
+  if (selectedUnits.length === 0) return uniqueValues(data, 'clusterName');
+  return uniqueValues(data.filter(c => selectedUnits.includes(c.businessUnitName)), 'clusterName');
+});
+// Repetir pattern para cada nível
+```
+
+### E.3 Padronizar paginação
+
+Mesmo padrão da Auditoria (substitui o HTML de paginação atual).
+
+**Critério de aceite**: Filtros multi-select funcionam com cascata, opções se atualizam ao selecionar filtro superior, "Selecionar todas" funciona, paginação padronizada.
+
+---
+
+## Fase F — Aba 5: Publicação de Notas (Layout Split + Global Settings)
+
+### F.1 Reestruturar painel superior
+
+**Antes**: Card full-width com regras
+**Depois**: Layout 50/50
+
+```
+┌───────────────────────────────┬───────────────────────────────┐
+│ Regras de Publicação          │ Configurações Globais         │
+│ Automática                    │                               │
+│                               │ Nota:    [___] (0-100)        │
+│ • Notas ≥ valor → publicadas  │ Prazo:   [___] dias (0-99)    │
+│   automaticamente             │                               │
+│ • Notas < valor → retidas     │ Publicação Automática:        │
+│   para curadoria manual       │ [Toggle ON/OFF]               │
+│ • Valores ajustáveis a        │ "Aprovar liberação de nota    │
+│   qualquer momento            │  automática"                  │
+└───────────────────────────────┴───────────────────────────────┘
+```
+
+### F.2 Lógica do toggle
+
+```typescript
+canEnableAutoPublication = computed(() => {
+  const note = this.globalNote();
+  const deadline = this.globalDeadline();
+  return note !== null && deadline !== null
+    && Number.isInteger(note) && Number.isInteger(deadline)
+    && note >= 0 && note <= 100
+    && deadline >= 0 && deadline <= 99;
+});
+
+toggleAutoPublication() {
+  const newState = !this.isAutoPublicationEnabled();
+  this.service.saveGlobalSettings(
+    this.globalNote()!, this.globalDeadline()!, newState
+  ).subscribe(() => {
+    this.isAutoPublicationEnabled.set(newState);
+  });
 }
-
-export interface PromptLink {
-  id: string;
-  promptId: string;
-  promptTitle: string;
-  courseId: number;
-  courseName: string;
-  clusterId: number;
-  clusterName: string;
-  activityTypeName: string;
-}
-
-export interface CorrectionConfig {
-  id: string;
-  businessUnitName: string;
-  clusterName: string;
-  courseName: string;
-  activityTypeName: string;
-  promptTitle: string;
-  correctionStatus: 'Ativo' | 'Inativo';   // default: Inativo
-}
-
-export interface PublicationConfig {
-  id: string;
-  businessUnitName: string;
-  clusterName: string;
-  courseName: string;
-  activityTypeName: string;
-  promptTitle: string;
-  correctionStatus: 'Ativo' | 'Inativo';    // herdado de CorrectionConfig
-  publicationStatus: 'Habilitado' | 'Desabilitado';  // default: Desabilitado
-  performanceThreshold: number | null;       // % de corte (RN25-RN27)
-}
-
-// Manter a interface AuditLog existente (sem alterações)
 ```
 
-### 1.2 Criar `PromptService`
+### F.3 Substituir filtros por `MultiSelectDropdownComponent`
 
-**Arquivo**: `src/app/features/ia-corrections/services/prompt.service.ts` (NOVO)
+Mesmos filtros multi-select hierárquicos da Aba 3.
 
-| Método | Descrição | US |
-|---|---|---|
-| `getPrompts()` | Retorna lista de todos os prompts | US01, US02 |
-| `getPromptById(id)` | Retorna prompt específico para edição | US02 |
-| `createPrompt(payload)` | Cria novo prompt (título, corpo, unidade, atividade) | US01 |
-| `updatePrompt(id, payload)` | Edita prompt existente | US02 |
+### F.4 Padronizar paginação
 
-**Mock data**: 3–5 prompts pré-cadastrados com textos reais de correção.
+Mesmo padrão da Auditoria.
 
-### 1.3 Criar `PromptLinkingService`
-
-**Arquivo**: `src/app/features/ia-corrections/services/prompt-linking.service.ts` (NOVO)
-
-| Método | Descrição | US |
-|---|---|---|
-| `getCoursesByUnit(unitId)` | Retorna cursos agrupados por cluster | US04 |
-| `getLinksByPrompt(promptId)` | Retorna vínculos existentes de um prompt | US04 |
-| `linkPromptToCourse(promptId, courseId)` | Cria vínculo (valida unicidade) | US04, US05 |
-| `unlinkPromptFromCourse(promptId, courseId)` | Remove vínculo | US06 |
-| `updateCoursePrompt(courseId, oldPromptId, newPromptId)` | Substitui prompt vinculado | US06 |
-
-**Mock data**: 10–15 cursos distribuídos em 3 clusters, com alguns vínculos pré-existentes.
-
-### 1.4 Criar `CorrectionConfigService`
-
-**Arquivo**: `src/app/features/ia-corrections/services/correction-config.service.ts` (NOVO)
-
-| Método | Descrição | US |
-|---|---|---|
-| `getConfigs()` | Lista todas as combinações Unidade > Cluster > Curso > Atividade > Prompt | US08 |
-| `updateStatus(id, status)` | Altera status de correção individual | US09 |
-| `updateStatuses(ids[], status)` | Altera status em lote | US10 |
-
-**Mock data**: Gerado a partir dos vínculos do PromptLinkingService, todos começando como `Inativo`.
-
-### 1.5 Criar `PublicationService`
-
-**Arquivo**: `src/app/features/ia-corrections/services/publication.service.ts` (NOVO)
-
-| Método | Descrição | US |
-|---|---|---|
-| `getPublicationConfigs()` | Lista registros com status de publicação | US13 |
-| `updatePublicationStatus(id, status)` | Altera status (valida dependência com correção) | US14 |
-| `updatePublicationStatuses(ids[], status)` | Altera em lote | US13 |
-| `setPerformanceThreshold(id, percentage)` | Define % de corte | US15 |
-
-**Regra crítica (RN24)**: Se `correctionStatus === 'Inativo'`, o toggle de publicação deve ser bloqueado.
-
-**Critério de aceite da Fase 1**: Todos os services criados com mock data, compilando sem erros.
+**Critério de aceite**: Layout 50/50, toggle desabilitado sem nota/prazo, ao ativar grava tudo, filtros multi-select com cascata, paginação padronizada.
 
 ---
 
-## Fase 2 — Refatorar Container Principal (5 Abas)
+## Fase G — QA, Commit & Merge
 
-### 2.1 Atualizar `IaCorrectionsPageComponent`
-
-**Arquivo**: `src/app/features/ia-corrections/ia-corrections-page.component.ts`  
-**Arquivo**: `src/app/features/ia-corrections/ia-corrections-page.component.html`
-
-**Ações**:
-- Alterar o sistema de abas de 2 para 5 abas.
-- Ordem: Cadastro Prompt → Relacionar Prompt → Configurar Correção → Auditoria Correções → Publicação de Notas.
-- A antiga aba "Parametrizar Atividade" será **removida** (seu conteúdo se distribui nas abas 1, 2, 3 e 5).
-- A aba "Auditoria de Configurações" será **mantida** e reposicionada como aba 4.
-- Importar os 4 novos componentes (serão criados nas fases seguintes com template placeholder).
-
-### 2.2 Criar esqueletos dos 4 novos componentes
-
-Criar arquivos `.ts`, `.html`, `.css` com conteúdo placeholder para cada:
-
-| Componente | Diretório |
-|---|---|
-| `PromptRegistrationTabComponent` | `components/prompt-registration-tab/` |
-| `PromptLinkingTabComponent` | `components/prompt-linking-tab/` |
-| `CorrectionConfigTabComponent` | `components/correction-config-tab/` |
-| `PublicationTabComponent` | `components/publication-tab/` |
-
-Cada esqueleto terá apenas:
-```html
-<div class="card param-container">
-  <h5>Nome da Aba — Em construção</h5>
-</div>
-```
-
-**Critério de aceite da Fase 2**: App rodando com 5 abas visíveis e navegáveis. Aba 4 (Auditoria) funcional. Demais abas mostram placeholder.
-
----
-
-## Fase 3 — Aba 1: Cadastro Prompt (US01, US02, US03)
-
-### 3.1 Layout split-panel
-
-**Arquivo**: `components/prompt-registration-tab/prompt-registration-tab.component.html`
-
-```
-┌─────────────────────────────┬───────────────────────────────────────┐
-│  LISTA DE PROMPTS           │  EDITOR DE PROMPT                    │
-│                             │                                       │
-│  [+ Criar Novo Prompt]      │  Título: [__________________]        │
-│                             │  Unid. Negócio: [dropdown____]       │
-│  ● Prompt Corretor v1      │  Tipo Atividade: [dropdown___]       │
-│  ● Prompt Resenha v2       │                                       │
-│  ● Prompt MAPA padrão      │  Corpo do Prompt:                    │
-│                             │  ┌──────────────────────────────┐    │
-│                             │  │                              │    │
-│                             │  │  (textarea 10.000 chars)     │    │
-│                             │  │                              │    │
-│                             │  └──────────────────────────────┘    │
-│                             │                                       │
-│                             │              [Salvar]                 │
-└─────────────────────────────┴───────────────────────────────────────┘
-```
-
-### 3.2 Lógica do componente
-
-**Arquivo**: `components/prompt-registration-tab/prompt-registration-tab.component.ts`
-
-- **Signals**: `prompts`, `selectedPrompt`, `isEditing`, `formDirty`
-- **Métodos**: `createNew()`, `selectPrompt(id)`, `save()`, `checkUnsavedChanges()`
-- **Injetar**: `PromptService`
-
-### 3.3 Guard de navegação (unsaved changes)
-
-**Arquivo**: `src/app/features/ia-corrections/guards/unsaved-changes.guard.ts` (NOVO)
-
-- Intercepta mudança de aba quando `formDirty === true`.
-- Exibe `confirm()` com opções "Salvar" / "Descartar" / "Cancelar".
-- Integrar com o container principal via `@Output()` ou callback de aba.
-
-**Critério de aceite da Fase 3**: Criar novo prompt, editar existente, salvar alterações, confirmação ao tentar sair com alterações pendentes.
-
----
-
-## Fase 4 — Aba 2: Relacionar Prompt (US04, US05, US06, US07)
-
-### 4.1 Layout
-
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  Prompt selecionado: [dropdown de prompts_________▼]             │
-│  (Unidade: Uniasselvi | Atividade: Desafio Profissional)        │
-├──────────────────────────────────────────────────────────────────┤
-│  Filtro Cluster: [___] Filtro Curso: [___]                       │
-├──────┬─────────────┬──────────────────┬──────────────┬──────────┤
-│  ☐   │ Cluster     │ Curso            │ Prompt Vinc. │ Ações    │
-├──────┼─────────────┼──────────────────┼──────────────┼──────────┤
-│  ☐   │ Cluster Sul │ Eng. Software    │ Prompt v1    │ ✏️ 🗑️    │
-│  ☐   │ Cluster Sul │ Administração    │ —            │ ➕       │
-│  ☐   │ Cluster N.  │ Pedagogia        │ —            │ ➕       │
-│  ...                                  (paginação: 100/página)    │
-└──────────────────────────────────────────────────────────────────┘
-```
-
-### 4.2 Lógica do componente
-
-**Arquivo**: `components/prompt-linking-tab/prompt-linking-tab.component.ts`
-
-- **Signals**: `selectedPromptId`, `courses`, `links`, `filters`
-- **Métodos**: `linkPrompt(courseId)`, `unlinkPrompt(courseId)`, `updateLink(courseId, newPromptId)`
-- **Validação (RN07)**: Antes de vincular, verificar se o curso já tem prompt para o mesmo tipo de atividade.
-- **Paginação**: 100 registros por página (conforme definido).
-- **Injetar**: `PromptService`, `PromptLinkingService`
-
-**Critério de aceite da Fase 4**: Vincular prompt a curso, trocar prompt vinculado, remover vínculo, bloqueio de duplicidade (Curso + Atividade).
-
----
-
-## Fase 5 — Aba 3: Configurar Correção (US08, US09, US10, US11)
-
-### 5.1 Layout
-
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  Configurações de Correção por IA           [Alterar Status]     │
-├──────┬─────────┬──────────┬─────────┬───────────┬───────┬───────┤
-│  ☐   │ Status  │ Unidade  │ Cluster │ Curso     │ Ativ. │Prompt │
-│      │         │ Pesq..   │ Pesq..  │ Pesq..    │Pesq.. │Pesq.. │
-├──────┼─────────┼──────────┼─────────┼───────────┼───────┼───────┤
-│  ☐   │ Inativo │ Uniass.  │ Cl. Sul │ Eng. Sof. │ Desaf.│Prom.1 │
-│  ☐   │ Ativo   │ Uniass.  │ Cl. N.  │ Adm.      │ Prova │Prom.2 │
-└──────────────────────────────────────────────────────────────────┘
-```
-
-### 5.2 Lógica do componente
-
-**Arquivo**: `components/correction-config-tab/correction-config-tab.component.ts`
-
-- **Baseado no padrão do AuditTabComponent existente** (filtros por coluna, checkboxes, paginação, botão "Alterar Status").
-- **Signals**: `configs`, `columnFilters`, `selectedIds`, `itemsPerPage` (25 default)
-- **Injetar**: `CorrectionConfigService`
-- **Diferença vs Auditoria**: Status default Inativo (RN13), toggle individual por linha (RN15).
-
-**Critério de aceite da Fase 5**: Listar combinações, ativar/inativar individual, ativar/inativar em lote, filtrar por todas as colunas.
-
----
-
-## Fase 6 — Reposicionar Aba 4: Auditoria (US12)
-
-### 6.1 Ajuste mínimo
-
-- **Nenhuma alteração funcional** no `AuditTabComponent`.
-- Apenas garantir que ele aparece na posição 4 no container principal.
-- Verificar que importações e bindings estão corretos após a refatoração da Fase 2.
-
-**Critério de aceite da Fase 6**: Auditoria funcional na posição 4, sem regressões.
-
----
-
-## Fase 7 — Aba 5: Publicação de Notas (US13, US14, US15)
-
-### 7.1 Layout
-
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  Regras de Publicação Automática                                 │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │ 📊 Desempenho mínimo para publicação: [___]%              │  │
-│  │ ✅ Notas ≥ valor → publicadas automaticamente             │  │
-│  │ ⏸️  Notas < valor → retidas para curadoria manual          │  │
-│  │ 🔄 O percentual pode ser ajustado a qualquer momento      │  │
-│  └────────────────────────────────────────────────────────────┘  │
-├──────────────────────────────────────────────────────────────────┤
-│                                                 [Alterar Status] │
-├──────┬──────────┬──────────┬─────────┬───────┬───────┬──────────┤
-│  ☐   │ Status   │ Unidade  │ Cluster │ Curso │ Ativ. │ Prompt   │
-├──────┼──────────┼──────────┼─────────┼───────┼───────┼──────────┤
-│  ☐   │ Desab.   │ Uniass.  │ Cl. Sul │ E.S.  │ Des.  │ Prom. 1  │
-│  🔒  │ [lock]   │ Uniass.  │ Cl. N.  │ Adm.  │ Prova │ Prom. 2  │
-│      │ (correção inativa → publicação bloqueada)                 │
-└──────────────────────────────────────────────────────────────────┘
-```
-
-### 7.2 Lógica do componente
-
-**Arquivo**: `components/publication-tab/publication-tab.component.ts`
-
-- **Estrutura idêntica ao AuditTab** (copiar padrão de filtros, paginação, seleção em lote).
-- **Regra crítica (RN24)**: Linhas com `correctionStatus === 'Inativo'` devem exibir ícone de 🔒 e ter checkbox/toggle desabilitados.
-- **Painel superior**: Card com regras RN25, RN26, RN27 e input de percentual.
-- **Injetar**: `PublicationService`, `CorrectionConfigService` (para verificar dependência)
-
-**Critério de aceite da Fase 7**: Habilitar/desabilitar publicação, bloqueio quando correção inativa, configurar % de corte, ações em lote.
-
----
-
-## Fase 8 — Limpeza, QA e Merge
-
-### 8.1 Remover código obsoleto
-- Remover `ParameterizationTabComponent` (aba antiga "Parametrizar Atividade").
-- Remover referências no container principal.
-- Limpar imports não utilizados.
-
-### 8.2 Testes manuais via browser (QA)
+### G.1 Testes manuais via browser
 
 | Fluxo | Validação |
 |---|---|
-| Aba 1 → Criar prompt | Título, corpo (10k chars), unidade, atividade → Salvar → Aparece na lista |
-| Aba 1 → Editar prompt | Selecionar da lista → Alterar → Salvar → Dados atualizados |
-| Aba 1 → Guard de navegação | Alterar campo → Trocar aba → Confirmação aparece |
-| Aba 2 → Vincular prompt | Selecionar prompt → Vincular a curso → Vínculo aparece |
-| Aba 2 → Unicidade | Tentar vincular 2 prompts ao mesmo curso+atividade → Bloqueio |
-| Aba 2 → Remover vínculo | Remover → Curso volta a mostrar "—" |
-| Aba 3 → Ativar correção | Toggle individual → Status muda para Ativo |
-| Aba 3 → Ação em lote | Selecionar vários → "Alterar Status" → Todos mudam |
-| Aba 3 → Filtros | Filtrar por cada coluna → Resultados corretos |
-| Aba 4 → Auditoria | Verificar que continua funcionando sem regressão |
-| Aba 5 → Publicação | Habilitar publicação → Campo % aparece |
-| Aba 5 → Dependência | Correção Inativa → Toggle publicação bloqueado (🔒) |
-| Aba 5 → Lote | Selecionar vários → "Alterar Status" → Respeita dependência |
+| Aba 1 → Filtro Situação | Default "Ativo" marcado → só ativos visíveis |
+| Aba 1 → Desmarcar todos | Nenhum prompt exibido |
+| Aba 1 → Badge Inativo/Ativo | Status muda e persiste |
+| Aba 1 → Observações | Digitar + "Salvar Comentário" → salva separado |
+| Aba 1 → Filtros Unidade/Atividade | Filtram cumulativamente |
+| Aba 2 → Filtros hierárquicos | Cascata Unidade → Atividade → Prompt |
+| Aba 2 → Vinculação em massa | Checkbox + dropdown + Vincular |
+| Aba 2 → Modal prompt | Campos bloqueados, observações editáveis |
+| Aba 2 → Paginação | Padrão Auditoria (25 default) |
+| Aba 3 → MultiSelect | Abrir, buscar, selecionar múltiplos, "Selecionar todas" |
+| Aba 3 → Cascata | Selecionar Unidade → Cluster filtra |
+| Aba 3 → Paginação | Padrão Auditoria (25 default) |
+| Aba 4 → Regressão | Auditoria funciona sem alterações |
+| Aba 5 → Layout 50/50 | Regras à esquerda, campos à direita |
+| Aba 5 → Toggle desabilitado | Sem Nota/Prazo → toggle cinza |
+| Aba 5 → Toggle habilitado | Com valores válidos → clicável |
+| Aba 5 → Gravar | Ativar toggle → grava Nota + Prazo + status |
+| Aba 5 → Filtros multi-select | Mesmos da Aba 3 |
+| Aba 5 → Paginação | Padrão Auditoria (25 default) |
 
-### 8.3 Commit e merge
+### G.2 Commit e merge
+
 ```bash
+git checkout -b feature/v3-tab-enhancements
 git add .
-git commit -m "feat: implement 5-tab architecture (Requirements v2)"
+git commit -m "feat: v3 enhancements - multi-select filters, prompt status/observations, bulk linking, publication split layout"
 git checkout master
-git merge feature/5-tabs-v2
+git merge feature/v3-tab-enhancements
 git push origin master
 ```
 
@@ -366,52 +318,46 @@ git push origin master
 
 ## Resumo de Arquivos
 
-### Novos (a criar)
+### Novos
 | Arquivo | Fase |
 |---|---|
-| `models/ia-corrections.models.ts` | 1 |
-| `services/prompt.service.ts` | 1 |
-| `services/prompt-linking.service.ts` | 1 |
-| `services/correction-config.service.ts` | 1 |
-| `services/publication.service.ts` | 1 |
-| `components/prompt-registration-tab/*` | 3 |
-| `components/prompt-linking-tab/*` | 4 |
-| `components/correction-config-tab/*` | 5 |
-| `components/publication-tab/*` | 7 |
-| `guards/unsaved-changes.guard.ts` | 3 |
+| `components/shared/multi-select-dropdown/*` | A |
+| `components/shared/prompt-detail-modal/*` | A |
 
 ### Modificados
 | Arquivo | Fase |
 |---|---|
-| `ia-corrections-page.component.ts` | 2 |
-| `ia-corrections-page.component.html` | 2 |
-
-### Removidos
-| Arquivo | Fase |
-|---|---|
-| `components/parameterization-tab/*` | 8 |
+| `models/ia-corrections.models.ts` | B |
+| `services/prompt.service.ts` | B |
+| `services/prompt-linking.service.ts` | B |
+| `services/publication.service.ts` | B |
+| `components/prompt-registration-tab/*` | C |
+| `components/prompt-linking-tab/*` | D |
+| `components/correction-config-tab/*` | E |
+| `components/publication-tab/*` | F |
 
 ### Mantidos (sem alteração)
 | Arquivo | Fase |
 |---|---|
-| `components/audit-tab/*` | 6 |
-| `services/ia-config.service.ts` (para Auditoria) | — |
+| `components/audit-tab/*` | — (referência de paginação) |
+| `services/ia-config.service.ts` | — |
+| `services/correction-config.service.ts` | — |
+| `guards/unsaved-changes.guard.ts` | — |
+| `ia-corrections-page.component.*` | — |
 
 ---
 
-## Ordem de Execução Recomendada
+## Ordem de Execução
 
 ```mermaid
 graph TD
-    F0[Fase 0: Branch] --> F1[Fase 1: Services & Interfaces]
-    F1 --> F2[Fase 2: Container 5 Abas + Esqueletos]
-    F2 --> F3[Fase 3: Aba 1 - Cadastro Prompt]
-    F2 --> F6[Fase 6: Aba 4 - Reposicionar Auditoria]
-    F3 --> F4[Fase 4: Aba 2 - Relacionar Prompt]
-    F4 --> F5[Fase 5: Aba 3 - Configurar Correção]
-    F5 --> F7[Fase 7: Aba 5 - Publicação de Notas]
-    F6 --> F8[Fase 8: Limpeza, QA & Merge]
-    F7 --> F8
+    FA[Fase A: Componentes Compartilhados] --> FB[Fase B: Models & Services]
+    FB --> FC[Fase C: Aba 1 - Cadastro Prompt]
+    FB --> FE[Fase E: Aba 3 - Configurar Correção]
+    FC --> FD[Fase D: Aba 2 - Relacionar Prompt]
+    FE --> FF[Fase F: Aba 5 - Publicação de Notas]
+    FD --> FG[Fase G: QA & Merge]
+    FF --> FG
 ```
 
-> **Nota**: Fases 3 e 6 podem rodar em paralelo. Fase 4 depende da 3 (precisa de prompts cadastrados). Fase 5 depende da 4 (precisa de vínculos). Fase 7 depende da 5 (precisa de status de correção).
+> **Nota**: Fases C e E podem rodar em paralelo (ambas dependem apenas de B). Fase D depende de C (precisa do modal e prompt atualizado). Fase F depende de E (reutiliza filtros multi-select).
