@@ -25,6 +25,27 @@ export class PromptRegistrationTabComponent implements OnInit {
   isNewPrompt = signal<boolean>(false);
   formDirty = signal<boolean>(false);
 
+  // Filtros da lista (RN05.3)
+  filterUnitId = signal<number | null>(null);
+  filterActivityTypeId = signal<number | null>(null);
+  filterStatus = signal<string[]>(['Ativo']); // Default: Ativo marcado
+
+  filteredPrompts = computed(() => {
+    const list = this.prompts();
+    const unitId = this.filterUnitId();
+    const activityId = this.filterActivityTypeId();
+    const statusArr = this.filterStatus();
+
+    if (statusArr.length === 0) return []; // RN05.3: Nenhuma opção selecionada = nenhum prompt
+
+    return list.filter((p) => {
+      const matchUnit = !unitId || p.businessUnitId === unitId;
+      const matchActivity = !activityId || p.activityTypeId === activityId;
+      const matchStatus = statusArr.includes(p.status);
+      return matchUnit && matchActivity && matchStatus;
+    });
+  });
+
   formData = {
     id: '',
     title: '',
@@ -114,18 +135,56 @@ export class PromptRegistrationTabComponent implements OnInit {
     }
   }
 
+  toggleStatusFilter(status: string) {
+    this.filterStatus.update((current) => {
+      if (current.includes(status)) {
+        return current.filter((s) => s !== status);
+      }
+      return [...current, status];
+    });
+  }
+
+  togglePromptStatus() {
+    this.formData.status = this.formData.status === 'Ativo' ? 'Inativo' : 'Ativo';
+    this.checkFormDirty();
+  }
+
+  saveComment() {
+    if (!this.selectedPrompt()) return;
+    this.isSaving.set(true);
+    this.promptService
+      .updatePromptObservations(this.selectedPrompt()!.id, this.formData.observations)
+      .subscribe({
+        next: (updated) => {
+          this.prompts.update((list) => list.map((p) => (p.id === updated.id ? updated : p)));
+          this.originalFormData.observations = updated.observations;
+          this.isSaving.set(false);
+          this.checkFormDirty();
+          alert('Comentário salvo com sucesso!');
+        },
+        error: () => {
+          this.isSaving.set(false);
+          alert('Erro ao salvar comentário.');
+        },
+      });
+  }
+
   checkFormDirty() {
     const current = JSON.stringify({
       title: this.formData.title,
       body: this.formData.body,
       businessUnitId: this.formData.businessUnitId,
       activityTypeId: this.formData.activityTypeId,
+      status: this.formData.status,
+      observations: this.formData.observations,
     });
     const original = JSON.stringify({
       title: this.originalFormData.title,
       body: this.originalFormData.body,
       businessUnitId: this.originalFormData.businessUnitId,
       activityTypeId: this.originalFormData.activityTypeId,
+      status: this.originalFormData.status,
+      observations: this.originalFormData.observations,
     });
     this.formDirty.set(current !== original);
   }

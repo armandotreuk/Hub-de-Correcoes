@@ -68,6 +68,26 @@
   flex-wrap: wrap;
 }
 
+.badge-unit {
+  background: #e1e6f9;
+  color: #405189;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.badge-activity {
+  background: #f3f3f3;
+  color: #666;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
 .badge-primary {
   background: #405189;
   color: #fff;
@@ -102,6 +122,28 @@
 .editor-header h5 {
   color: #495057;
   font-weight: 600;
+}
+
+.status-badge-toggle {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f3f3f3;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.status-badge-toggle.active {
+  background: #0ab39c;
+  color: #fff;
+  border-color: #0ab39c;
+}
+
+.status-badge-toggle:hover {
+  filter: brightness(0.9);
 }
 
 .editor-form {
@@ -200,4 +242,33 @@
 .btn-sm {
   padding: 0.25rem 0.75rem;
   font-size: 0.875rem;
+}
+
+/* Novos Estilos v3 */
+.list-filters {
+  background-color: #f9f9f9;
+}
+
+.status-filters {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.obs-textarea {
+  min-height: 80px;
+  background-color: #fff9e6; /* Tom levemente amarelado para diferenciar de prompt */
+  border-color: #ffeeb3;
+}
+
+.obs-textarea:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.1);
+}
+
+.submit-btn {
+  min-width: 140px;
+}
+
+.custom-control-label {
+  cursor: pointer;
 }

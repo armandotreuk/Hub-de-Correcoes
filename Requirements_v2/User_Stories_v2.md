@@ -12,11 +12,11 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** o sistema disponha de instruções textuais padronizadas que orientem a IA na correção de cada tipo de avaliação.
 - **Relacionado a:** RN01, RN02
 - **Critérios de Aceite:**
-  - [ ] Deve existir um botão "Criar Novo Prompt" na tela.
-  - [ ] Ao clicar, libera os campos: Título (texto curto), Corpo do Prompt (textarea até 10.000 caracteres), dropdown de Unidade de Negócio, dropdown de Tipo de Atividade.
-  - [ ] Os campos de Unidade de Negócio e Tipo de Atividade são **obrigatórios** na criação.
-  - [ ] O campo de texto do prompt deve ser amplo, oferecendo boa experiência de escrita.
-  - [ ] O prompt é criado com a Situação **Ativo** por padrão.
+  - [x] Deve existir um botão "Criar Novo Prompt" na tela.
+  - [x] Ao clicar, libera os campos: Título (texto curto), Corpo do Prompt (textarea até 10.000 caracteres), dropdown de Unidade de Negócio, dropdown de Tipo de Atividade.
+  - [x] Os campos de Unidade de Negócio e Tipo de Atividade são **obrigatórios** na criação.
+  - [x] O campo de texto do prompt deve ser amplo, oferecendo boa experiência de escrita.
+  - [x] O prompt é criado com a Situação **Ativo** por padrão.
 
 ### US02 - Edição de Prompt Existente
 **Como um** analista pedagógico,
@@ -24,9 +24,9 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu possa refinar as instruções de correção conforme a evolução do modelo de IA.
 - **Relacionado a:** RN03, RN05
 - **Critérios de Aceite:**
-  - [ ] A tela deve exibir uma lista de todos os prompts cadastrados (respeitando filtros).
-  - [ ] Ao selecionar um prompt, seu título, corpo, unidade, atividade e observações devem ser carregados nos campos de edição.
-  - [ ] As alterações do prompt podem ser salvas via botão "Salvar".
+  - [x] A tela deve exibir uma lista de todos os prompts cadastrados (respeitando filtros).
+  - [x] Ao selecionar um prompt, seu título, corpo, unidade, atividade e observações devem ser carregados nos campos de edição.
+  - [x] As alterações do prompt podem ser salvas via botão "Salvar".
 
 ### US03 - Persistência com Validação de Navegação
 **Como um** analista pedagógico,
@@ -34,8 +34,8 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu não perca acidentalmente edições importantes em um prompt.
 - **Relacionado a:** RN04
 - **Critérios de Aceite:**
-  - [ ] Se o usuário alterou qualquer campo e tenta navegar para outra aba ou fechar a tela, um diálogo de confirmação deve ser exibido.
-  - [ ] O diálogo deve oferecer opções "Salvar", "Descartar" ou "Cancelar".
+  - [x] Se o usuário alterou qualquer campo e tenta navegar para outra aba ou fechar a tela, um diálogo de confirmação deve ser exibido.
+  - [x] O diálogo deve oferecer opções "Salvar", "Descartar" ou "Cancelar".
 
 ### US03.1 - Ativar/Inativar Prompt (Deprecated)
 **Como um** analista pedagógico,
@@ -43,9 +43,9 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** prompts obsoletos não apareçam na listagem padrão sem precisar excluí-los.
 - **Relacionado a:** RN05.1
 - **Critérios de Aceite:**
-  - [ ] Ao selecionar um prompt, deve existir um botão/badge "Ativo" ou "Inativo" exibido.
-  - [ ] Ao clicar, alterna entre Ativo e Inativo gravando a situação no banco.
-  - [ ] O prompt inativo é considerado deprecated.
+  - [x] Ao selecionar um prompt, deve existir um botão/badge "Ativo" ou "Inativo" exibido.
+  - [x] Ao clicar, alterna entre Ativo e Inativo gravando a situação no banco.
+  - [x] O prompt inativo é considerado deprecated.
 
 ### US03.2 - Campo de Observações
 **Como um** analista pedagógico,
@@ -53,9 +53,9 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** minha equipe possa deixar comentários e anotações sobre o uso ou histórico daquele prompt.
 - **Relacionado a:** RN05.2
 - **Critérios de Aceite:**
-  - [ ] Abaixo do campo "Corpo do Prompt" deve existir um textarea "Observações" (até 10.000 caracteres).
-  - [ ] Deve possuir um botão próprio "Salvar Comentário" independente do botão "Salvar" do prompt.
-  - [ ] O botão salva apenas o campo Observações, sem alterar os demais campos do prompt.
+  - [x] Abaixo do campo "Corpo do Prompt" deve existir um textarea "Observações" (até 10.000 caracteres).
+  - [x] Deve possuir um botão próprio "Salvar Comentário" independente do botão "Salvar" do prompt.
+  - [x] O botão salva apenas o campo Observações, sem alterar os demais campos do prompt.
 
 ### US03.3 - Filtros na Lista de Prompts
 **Como um** analista pedagógico,
@@ -63,11 +63,11 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu encontre rapidamente o prompt que preciso editar.
 - **Relacionado a:** RN05.3
 - **Critérios de Aceite:**
-  - [ ] Dropdown "Unidade de Negócio" (não obrigatório) filtra a lista de prompts.
-  - [ ] Dropdown "Tipo de Atividade" (não obrigatório) filtra a lista de prompts.
-  - [ ] Filtro "Situação" com **checkboxes de múltipla seleção** (Ativo / Inativo).
-  - [ ] Por padrão, "Ativo" inicia marcado. O usuário pode desmarcar "Ativo" e/ou marcar "Inativo".
-  - [ ] Se nenhuma situação for selecionada, nenhum prompt é exibido.
+  - [x] Dropdown "Unidade de Negócio" (não obrigatório) filtra a lista de prompts.
+  - [x] Dropdown "Tipo de Atividade" (não obrigatório) filtra a lista de prompts.
+  - [x] Filtro "Situação" com **checkboxes de múltipla seleção** (Ativo / Inativo).
+  - [x] Por padrão, "Ativo" inicia marcado. O usuário pode desmarcar "Ativo" e/ou marcar "Inativo".
+  - [x] Se nenhuma situação for selecionada, nenhum prompt é exibido.
 
 ---
 
@@ -79,10 +79,10 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** cada curso tenha instruções de correção por IA apropriadas ao seu contexto acadêmico.
 - **Relacionado a:** RN06, RN09
 - **Critérios de Aceite:**
-  - [ ] A tela deve possuir filtros hierárquicos empilhados: Unidade de Negócio → Tipo de Atividade → Prompt.
-  - [ ] Os filtros devem ser checkboxes de múltipla seleção.
-  - [ ] Ao selecionar um filtro, os filtros abaixo atualizam com opções relacionadas.
-  - [ ] A tabela deve exibir colunas: Checkbox, Unidade de Negócio, Tipo de Atividade, Cluster, Curso, Prompt Vinculado.
+  - [x] A tela deve possuir filtros hierárquicos empilhados: Unidade de Negócio → Tipo de Atividade → Prompt.
+  - [x] Os filtros devem ser checkboxes de múltipla seleção.
+  - [x] Ao selecionar um filtro, os filtros abaixo atualizam com opções relacionadas.
+  - [x] A tabela deve exibir colunas: Checkbox, Unidade de Negócio, Tipo de Atividade, Cluster, Curso, Prompt Vinculado.
 
 ### US04.1 - Vinculação em Massa
 **Como um** analista pedagógico,
@@ -90,9 +90,9 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu ganhe produtividade ao configurar grandes volumes de vínculos.
 - **Relacionado a:** RN09.1
 - **Critérios de Aceite:**
-  - [ ] Checkbox de seleção na primeira coluna de cada registro.
-  - [ ] Após os filtros, área com dropdown de prompt (obedece hierarquia de Unidade + Atividade) + botão "Vincular".
-  - [ ] Ao clicar "Vincular", aplica o prompt selecionado a todos os cursos com checkbox marcado.
+  - [x] Checkbox de seleção na primeira coluna de cada registro.
+  - [x] Após os filtros, área com dropdown de prompt (obedece hierarquia de Unidade + Atividade) + botão "Vincular".
+  - [x] Ao clicar "Vincular", aplica o prompt selecionado a todos os cursos com checkbox marcado.
 
 ### US05 - Restrição de Unicidade de Vínculo
 **Como um** gestor do sistema,
@@ -100,8 +100,8 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** não haja conflito de instruções de correção para uma mesma avaliação.
 - **Relacionado a:** RN07
 - **Critérios de Aceite:**
-  - [ ] Se o usuário tentar vincular um prompt a um curso que já possui outro prompt para o mesmo tipo de atividade, o sistema deve bloquear ou alertar sobre o conflito.
-  - [ ] A restrição é na combinação (Curso + Tipo de Atividade).
+  - [x] Se o usuário tentar vincular um prompt a um curso que já possui outro prompt para o mesmo tipo de atividade, o sistema deve bloquear ou alertar sobre o conflito.
+  - [x] A restrição é na combinação (Curso + Tipo de Atividade).
 
 ### US06 - Gestão de Vínculos (Alterar e Remover)
 **Como um** analista pedagógico,
@@ -109,9 +109,9 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu tenha flexibilidade para ajustar as configurações conforme necessário.
 - **Relacionado a:** RN08
 - **Critérios de Aceite:**
-  - [ ] Deve ser possível substituir o prompt de um curso por outro prompt (do mesmo tipo de atividade).
-  - [ ] Deve ser possível remover o vínculo de prompt de um curso.
-  - [ ] Podem existir registros sem vínculo com prompt (exibido como "—").
+  - [x] Deve ser possível substituir o prompt de um curso por outro prompt (do mesmo tipo de atividade).
+  - [x] Deve ser possível remover o vínculo de prompt de um curso.
+  - [x] Podem existir registros sem vínculo com prompt (exibido como "—").
 
 ### US06.1 - Modal de Detalhe do Prompt Vinculado
 **Como um** analista pedagógico,
@@ -119,10 +119,10 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu possa consultar e adicionar observações sem sair da tela de vínculos.
 - **Relacionado a:** RN09.3
 - **Critérios de Aceite:**
-  - [ ] Ao clicar no nome do prompt vinculado, abre modal no centro da tela.
-  - [ ] Layout idêntico ao editor da Aba 1 (Título, Unidade, Atividade, Corpo, Observações).
-  - [ ] Campos Título, Unidade, Tipo de Atividade e Corpo do Prompt estão **bloqueados** (visual com cor diferente para refletir o bloqueio).
-  - [ ] Campo Observações está **liberado** para edição com botão "Salvar Comentário".
+  - [x] Ao clicar no nome do prompt vinculado, abre modal no centro da tela.
+  - [x] Layout idêntico ao editor da Aba 1 (Título, Unidade, Atividade, Corpo, Observações).
+  - [x] Campos Título, Unidade, Tipo de Atividade e Corpo do Prompt estão **bloqueados** (visual com cor diferente para refletir o bloqueio).
+  - [x] Campo Observações está **liberado** para edição com botão "Salvar Comentário".
 
 ### US07 - Paginação Padrão
 **Como um** analista pedagógico,
@@ -130,9 +130,9 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** haja consistência visual em todo o módulo.
 - **Relacionado a:** RN10, RN32
 - **Critérios de Aceite:**
-  - [ ] Paginação com seletor de itens (10/25/50/100), default 25.
-  - [ ] Texto "Exibindo X por página", indicador "Página X de Y".
-  - [ ] Botões Anterior/Próximo com ícones e estados disabled.
+  - [x] Paginação com seletor de itens (10/25/50/100), default 25.
+  - [x] Texto "Exibindo X por página", indicador "Página X de Y".
+  - [x] Botões Anterior/Próximo com ícones e estados disabled.
 
 ---
 
@@ -144,8 +144,8 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu tenha uma visão completa de onde a IA pode atuar e controle qual combinação está ativa ou inativa.
 - **Relacionado a:** RN11, RN13
 - **Critérios de Aceite:**
-  - [ ] A lista exibe todas as combinações possíveis com colunas: Checkbox, Status, Unidade, Cluster, Curso, Tipo de Atividade, Prompt.
-  - [ ] Todo novo registro aparece com Status **Inativo** por padrão.
+  - [x] A lista exibe todas as combinações possíveis com colunas: Checkbox, Status, Unidade, Cluster, Curso, Tipo de Atividade, Prompt.
+  - [x] Todo novo registro aparece com Status **Inativo** por padrão.
 
 ### US09 - Ativação/Desativação Individual
 **Como um** coordenador de correção,
@@ -153,7 +153,7 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu possa controlar pontualmente quais combinações curso/atividade estão usando IA.
 - **Relacionado a:** RN15
 - **Critérios de Aceite:**
-  - [ ] Cada linha da tabela deve possuir um badge clicável para alternar entre Ativo e Inativo.
+  - [x] Cada linha da tabela deve possuir um badge clicável para alternar entre Ativo e Inativo.
 
 ### US10 - Ativação/Desativação em Lote
 **Como um** coordenador de correção,
@@ -161,9 +161,9 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu economize tempo ao configurar grandes volumes de combinações.
 - **Relacionado a:** RN16
 - **Critérios de Aceite:**
-  - [ ] Checkboxes de seleção em cada linha + checkbox master no cabeçalho.
-  - [ ] Botão "Alterar Status" visível quando há registros selecionados.
-  - [ ] A ação em lote alterna o status dos registros selecionados.
+  - [x] Checkboxes de seleção em cada linha + checkbox master no cabeçalho.
+  - [x] Botão "Alterar Status" visível quando há registros selecionados.
+  - [x] A ação em lote alterna o status dos registros selecionados.
 
 ### US11 - Filtros Multi-Select com Hierarquia Cascata
 **Como um** coordenador de correção,
@@ -171,11 +171,11 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu localize rapidamente as combinações que preciso configurar.
 - **Relacionado a:** RN14
 - **Critérios de Aceite:**
-  - [ ] Cada filtro permite busca por digitação.
-  - [ ] Cada filtro possui seta/ícone que abre dropdown com checkboxes.
-  - [ ] Primeira opção do dropdown: "Selecionar todas" (toggle).
-  - [ ] Ao selecionar no filtro superior, os filtros abaixo atualizam com opções relacionadas.
-  - [ ] Hierarquia: Unidade → Cluster → Curso → Atividade → Prompt → Status.
+  - [x] Cada filtro permite busca por digitação.
+  - [x] Cada filtro possui seta/ícone que abre dropdown com checkboxes.
+  - [x] Primeira opção do dropdown: "Selecionar todas" (toggle).
+  - [x] Ao selecionar no filtro superior, os filtros abaixo atualizam com opções relacionadas.
+  - [x] Hierarquia: Unidade → Cluster → Curso → Atividade → Prompt → Status.
 
 ### US11.1 - Paginação Padrão
 **Como um** coordenador de correção,
@@ -183,8 +183,8 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** haja consistência em todo o módulo.
 - **Relacionado a:** RN16.1, RN32
 - **Critérios de Aceite:**
-  - [ ] Seletor de itens (10/25/50/100), default 25.
-  - [ ] Botões Anterior/Próximo com ícones, indicador "Página X de Y".
+  - [x] Seletor de itens (10/25/50/100), default 25.
+  - [x] Botões Anterior/Próximo com ícones, indicador "Página X de Y".
 
 ---
 
@@ -196,10 +196,10 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu possa consultar as parametrizações de IA, verificar quem configurou e quando.
 - **Relacionado a:** RN17, RN18, RN32
 - **Critérios de Aceite:**
-  - [ ] A tabela exibe: Status, Unidade, Atividade, Cluster, Curso, Disciplina, Prompt, Ativado por, Data.
-  - [ ] Filtros por coluna, ordenação por cabeçalho, paginação (25 default, opções 10/25/50/100).
-  - [ ] Checkboxes de seleção + botão "Alterar Status" para ações em lote.
-  - [ ] **Este componente de paginação é o padrão visual para as Abas 2, 3 e 5.**
+  - [x] A tabela exibe: Status, Unidade, Atividade, Cluster, Curso, Disciplina, Prompt, Ativado por, Data.
+  - [x] Filtros por coluna, ordenação por cabeçalho, paginação (25 default, opções 10/25/50/100).
+  - [x] Checkboxes de seleção + botão "Alterar Status" para ações em lote.
+  - [x] **Este componente de paginação é o padrão visual para as Abas 2, 3 e 5.**
 
 ---
 
@@ -211,13 +211,13 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** eu tenha acesso às regras de referência enquanto configuro os parâmetros de publicação.
 - **Relacionado a:** RN23, RN25
 - **Critérios de Aceite:**
-  - [ ] Painel superior ocupando 50% esquerda com regras textuais de publicação automática.
-  - [ ] 50% direita com os campos:
+  - [x] Painel superior ocupando 50% esquerda com regras textuais de publicação automática.
+  - [x] 50% direita com os campos:
     - **Nota**: Input numérico inteiro (0–100).
     - **Prazo de publicação**: Input numérico inteiro (0–99) representando **dias**.
     - **Publicação Automática**: Toggle liga/desliga com subtexto "Aprovar liberação de nota automática".
-  - [ ] Tabela com filtros multi-select hierárquicos (mesmos da Aba 3).
-  - [ ] Paginação padrão Auditoria.
+  - [x] Tabela com filtros multi-select hierárquicos (mesmos da Aba 3).
+  - [x] Paginação padrão Auditoria.
 
 ### US14 - Regra de Dependência com Correção
 **Como um** coordenador de correção,
@@ -225,9 +225,9 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** não exista uma situação inconsistente onde notas são publicadas sem que a correção por IA esteja ativa.
 - **Relacionado a:** RN24
 - **Critérios de Aceite:**
-  - [ ] Se a correção de um registro está Inativa, o sistema deve bloquear a habilitação da publicação para aquele registro.
-  - [ ] Correção Ativa + Publicação Desabilitada é um estado **válido**.
-  - [ ] Correção Desabilitada + Publicação Ativa é um estado **inválido** (bloqueado).
+  - [x] Se a correção de um registro está Inativa, o sistema deve bloquear a habilitação da publicação para aquele registro.
+  - [x] Correção Ativa + Publicação Desabilitada é um estado **válido**.
+  - [x] Correção Desabilitada + Publicação Ativa é um estado **inválido** (bloqueado).
 
 ### US15 - Validação do Toggle de Publicação Automática
 **Como um** coordenador de correção,
@@ -235,6 +235,6 @@ Este documento traduz as Regras de Negócio (RN01 a RN32) em Histórias de Usuá
 **Para que** todas as publicações automáticas tenham parâmetros válidos configurados.
 - **Relacionado a:** RN26, RN27
 - **Critérios de Aceite:**
-  - [ ] Toggle desabilitado enquanto Nota ou Prazo estiverem vazios ou com valores inválidos (fora dos limites).
-  - [ ] Ao ativar/desativar o toggle, grava automaticamente Nota, Prazo e status de Publicação.
-  - [ ] Os valores de Nota e Prazo podem ser ajustados a qualquer momento.
+  - [x] Toggle desabilitado enquanto Nota ou Prazo estiverem vazios ou com valores inválidos (fora dos limites).
+  - [x] Ao ativar/desativar o toggle, grava automaticamente Nota, Prazo e status de Publicação.
+  - [x] Os valores de Nota e Prazo podem ser ajustados a qualquer momento.

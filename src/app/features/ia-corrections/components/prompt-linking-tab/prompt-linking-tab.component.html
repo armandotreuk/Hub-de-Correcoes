@@ -1,144 +1,193 @@
-<div class="card param-container h-100">
-  <!-- Seletor de Prompt -->
-  <div class="prompt-selector mb-4">
-    <div class="row">
-      <div class="col-md-6">
-        <label class="font-weight-bold">Selecione o Prompt:</label>
-        <select
-          class="form-control cust-select"
-          [(ngModel)]="selectedPromptId"
-          (ngModelChange)="onPromptChange($event)"
-        >
-          <option [ngValue]="null">Selecione um prompt...</option>
-          @for (prompt of prompts(); track prompt.id) {
-            <option [ngValue]="prompt.id">{{ prompt.title }}</option>
-          }
-        </select>
+<div class="card param-container h-100 p-3">
+  <!-- Fase D.1: Filtros Hierárquicos MultiSelect -->
+  <div class="filters-panel mb-4">
+    <h6 class="mb-3 text-muted">Filtros Hierárquicos</h6>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <app-multi-select-dropdown
+          [label]="'Unidade de Negócio'"
+          [options]="unitOptions()"
+          [selectedValues]="selectedUnits()"
+          (selectionChange)="selectedUnits.set($event); currentPage.set(1)"
+        ></app-multi-select-dropdown>
       </div>
-      @if (selectedPrompt()) {
-        <div class="col-md-6 d-flex align-items-end">
-          <div class="prompt-info p-2 rounded">
-            <small class="text-muted d-block"
-              >Unidade: <strong>{{ selectedPrompt()?.businessUnitName }}</strong></small
-            >
-            <small class="text-muted"
-              >Atividade: <strong>{{ selectedPrompt()?.activityTypeName }}</strong></small
-            >
-          </div>
-        </div>
-      }
+      <div class="col-md-4">
+        <app-multi-select-dropdown
+          [label]="'Tipo de Atividade'"
+          [options]="activityTypeOptions()"
+          [selectedValues]="selectedActivityTypes()"
+          (selectionChange)="selectedActivityTypes.set($event); currentPage.set(1)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-4">
+        <app-multi-select-dropdown
+          [label]="'Prompt Vinculado'"
+          [options]="promptOptions()"
+          [selectedValues]="selectedPromptIds()"
+          (selectionChange)="selectedPromptIds.set($event); currentPage.set(1)"
+        ></app-multi-select-dropdown>
+      </div>
     </div>
   </div>
 
-  @if (selectedPromptId) {
-    <!-- Filtros -->
-    <div class="filters-row mb-3">
-      <div class="row">
-        <div class="col-md-4">
-          <label>Filtrar Cluster:</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Pesquisar cluster..."
-            [(ngModel)]="filterCluster"
-          />
-        </div>
-        <div class="col-md-4">
-          <label>Filtrar Curso:</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Pesquisar curso..."
-            [(ngModel)]="filterCourse"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabela de Cursos -->
-    <div class="table-responsive">
-      <table class="table table-hover minimalist-table">
-        <thead>
-          <tr>
-            <th>Cluster</th>
-            <th>Curso</th>
-            <th>Prompt Vinculado</th>
-            <th width="120">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (course of paginatedCourses(); track course.id) {
-            <tr>
-              <td>{{ course.clusterName }}</td>
-              <td>{{ course.name }}</td>
-              <td>
-                @if (getLinkedPrompt(course.id); as link) {
-                  <span class="badge badge-success">{{ link.promptTitle }}</span>
-                } @else {
-                  <span class="text-muted">—</span>
-                }
-              </td>
-              <td class="text-center">
-                @if (getLinkedPrompt(course.id); as link) {
-                  <!-- Botão Alterar -->
-                  <button
-                    class="btn btn-sm btn-ghost text-primary"
-                    title="Alterar Prompt"
-                    (click)="openChangePromptModal(course)"
-                  >
-                    <i class="ri-edit-line"></i>
-                  </button>
-                  <!-- Botão Remover -->
-                  <button
-                    class="btn btn-sm btn-ghost text-danger"
-                    title="Remover Vínculo"
-                    (click)="unlinkPrompt(link.id)"
-                  >
-                    <i class="ri-delete-bin-line"></i>
-                  </button>
-                } @else {
-                  <!-- Botão Vincular -->
-                  <button
-                    class="btn btn-sm btn-ghost text-success"
-                    title="Vincular Prompt"
-                    (click)="linkPrompt(course.id)"
-                  >
-                    <i class="ri-add-circle-line"></i>
-                  </button>
-                }
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="4" class="text-center text-muted p-4">
-                Nenhum curso encontrado para esta Unidade.
-              </td>
-            </tr>
+  <!-- Fase D.2: Área de Vinculação em Massa -->
+  <div class="bulk-linking-area bg-light p-3 rounded mb-4 border">
+    <div class="d-flex align-items-center gap-3">
+      <div style="flex: 1">
+        <label class="small font-weight-bold text-muted mb-1">Vincular Prompt em Massa:</label>
+        <select class="form-control form-control-sm" [(ngModel)]="bulkPromptId">
+          <option value="">Selecione um prompt para vincular...</option>
+          @for (p of prompts(); track p.id) {
+            <option [value]="p.id">{{ p.title }} ({{ p.activityTypeName }})</option>
           }
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Paginação -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <div class="text-muted">
-        Exibindo {{ paginatedCourses().length }} de {{ filteredCourses().length }} registros
+        </select>
       </div>
-      <nav>
-        <ul class="pagination mb-0">
-          <li class="page-item" [class.disabled]="currentPage() === 1">
-            <a class="page-link" (click)="prevPage()">Anterior</a>
-          </li>
-          <li class="page-item" [class.disabled]="currentPage() >= totalPages()">
-            <a class="page-link" (click)="nextPage()">Próxima</a>
-          </li>
-        </ul>
-      </nav>
+      <div class="pt-4">
+        <button
+          class="btn btn-sm btn-primary"
+          [disabled]="!bulkPromptId() || selectedCourseIds().size === 0"
+          (click)="linkSelectedCourses()"
+        >
+          <i class="ri-links-line mr-1"></i> Vincular Selecionados ({{ selectedCourseIds().size }})
+        </button>
+      </div>
     </div>
-  } @else {
-    <div class="empty-state text-center p-5">
-      <i class="ri-links-line" style="font-size: 3rem; color: #ced4da"></i>
-      <p class="mt-3 text-muted">Selecione um prompt acima para gerenciar os vínculos.</p>
+    <small class="text-muted mt-2 d-block">
+      Selecione os cursos na tabela abaixo e escolha um prompt para realizar o vínculo em lote.
+    </small>
+  </div>
+
+  <!-- Fase D.3: Tabela Reestruturada -->
+  <div class="table-responsive flex-grow-1">
+    <table class="table table-hover minimalist-table mb-0">
+      <thead>
+        <tr>
+          <th width="40">
+            <div class="custom-control custom-checkbox">
+              <input
+                type="checkbox"
+                class="custom-control-input"
+                id="chkAll"
+                (change)="toggleAllVisible($event)"
+              />
+              <label class="custom-control-label" for="chkAll"></label>
+            </div>
+          </th>
+          <th>Unidade de Negócio</th>
+          <th>Tipo de Atividade</th>
+          <th>Cluster</th>
+          <th>Curso</th>
+          <th>Prompt Vinculado</th>
+          <th width="80">Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (course of paginatedCourses(); track course.id) {
+          <tr>
+            <td>
+              <div class="custom-control custom-checkbox">
+                <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  [id]="'chk-' + course.id"
+                  [checked]="selectedCourseIds().has(course.id)"
+                  (change)="toggleCourseSelection(course.id)"
+                />
+                <label class="custom-control-label" [for]="'chk-' + course.id"></label>
+              </div>
+            </td>
+            <td class="data-text">{{ course.businessUnitId === 1 ? 'Uniasselvi' : 'Unicesumar' }}</td>
+            <td>
+              @if (getLinkedPrompt(course.id); as link) {
+                <span class="activity-text">{{ link.activityTypeName }}</span>
+              } @else {
+                <span class="text-muted small">Pendente</span>
+              }
+            </td>
+            <td class="data-text">{{ course.clusterName }}</td>
+            <td class="font-weight-600">{{ course.name }}</td>
+            <td>
+              @if (getLinkedPrompt(course.id); as link) {
+                <a
+                  href="javascript:void(0)"
+                  class="prompt-link-text"
+                  (click)="openPromptModal(link.promptId)"
+                >
+                  {{ link.promptTitle }}
+                </a>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+            <td class="text-center">
+              @if (getLinkedPrompt(course.id); as link) {
+                <button
+                  class="btn btn-sm btn-ghost text-danger"
+                  title="Remover Vínculo"
+                  (click)="unlinkPrompt(link.id)"
+                >
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+              } @else {
+                <button
+                  class="btn btn-sm btn-ghost text-success"
+                  title="Vincular Prompt"
+                  (click)="linkPrompt(course.id)"
+                >
+                  <i class="ri-add-circle-line"></i>
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="ri-filter-off-line mb-2" style="font-size: 2rem"></i>
+              <p>Nenhum registro encontrado com os filtros aplicados.</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Fase D.5: Paginação Padronizada (Padrão Auditoria) -->
+  <div class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+    <div class="page-size-selector text-muted small">
+      Exibindo
+      <select
+        class="custom-select-sm"
+        [ngModel]="itemsPerPage()"
+        (ngModelChange)="onItemsPerPageChange($event)"
+      >
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="25">25</option>
+        <option [ngValue]="50">50</option>
+        <option [ngValue]="100">100</option>
+      </select>
+      por página
     </div>
-  }
+    <div class="pagination-controls data-text">
+      Página {{ currentPage() }} de {{ totalPages() }}
+      <button class="btn btn-sm btn-light ml-2" [disabled]="currentPage() === 1" (click)="prevPage()">
+        <i class="ri-arrow-left-s-line"></i> Anterior
+      </button>
+      <button
+        class="btn btn-sm btn-light ml-1"
+        [disabled]="currentPage() >= totalPages()"
+        (click)="nextPage()"
+      >
+        Próximo <i class="ri-arrow-right-s-line"></i>
+      </button>
+    </div>
+  </div>
 </div>
+
+<!-- Fase D.4: Modal de Detalhe -->
+<app-prompt-detail-modal
+  [prompt]="modalPrompt()"
+  [isOpen]="isModalOpen()"
+  [allowEdit]="false"
+  (close)="isModalOpen.set(false)"
+  (saveObservations)="onSaveObservations($event)"
+></app-prompt-detail-modal>

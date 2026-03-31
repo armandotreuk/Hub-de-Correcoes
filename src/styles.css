@@ -18,3 +18,183 @@ body {
     color: var(--text-primary);
     overflow-x: hidden;
 }
+
+/* Common IA Corrections Module Styles */
+.minimalist-table {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    background: transparent;
+    width: 100%;
+}
+
+.minimalist-table thead th {
+    border: none;
+    background: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    padding: 12px;
+}
+
+.minimalist-table tbody tr {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    border-radius: 4px;
+    transition: transform 0.2s;
+}
+
+.minimalist-table tbody tr:hover {
+    transform: translateY(-1px);
+    background: #fdfdfd;
+}
+
+.minimalist-table td {
+    border: none;
+    padding: 12px;
+    vertical-align: middle;
+    font-size: 0.85rem;
+}
+
+.data-text {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.activity-text {
+    font-weight: 600;
+    color: #405189;
+    background: #eef1f9;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+.prompt-link-text {
+    color: #405189;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.prompt-link-text:hover {
+    text-decoration: underline;
+}
+
+.status-badge-toggle {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f3f3f3;
+    color: #888;
+    border: 1px solid #ddd;
+    text-align: center;
+    display: inline-block;
+    min-width: 85px;
+}
+
+.status-badge-toggle.active {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #0ab39c;
+}
+
+.status-badge-toggle:hover {
+    filter: brightness(0.95);
+}
+
+/* Custom Checkbox */
+.custom-control {
+    position: relative;
+    display: block;
+    min-height: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+.custom-control-input {
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    left: 0;
+    opacity: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.custom-control-label {
+    position: relative;
+    margin-bottom: 0;
+    vertical-align: top;
+    cursor: pointer;
+}
+
+.custom-control-label::before {
+    position: absolute;
+    top: 0.25rem;
+    left: -1.5rem;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    pointer-events: none;
+    content: "";
+    background-color: #fff;
+    border: #adb5bd solid 1px;
+    border-radius: 0.25rem;
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+    color: #fff;
+    border-color: #405189;
+    background-color: #405189;
+}
+
+/* Global Publication Toggle (Aba 5) */
+.toggle-v3 {
+    width: 50px;
+    height: 24px;
+    background: #e9ecef;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.toggle-v3.active {
+    background: #0ab39c;
+}
+
+.toggle-v3.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.toggle-v3 .toggle-switch {
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: left 0.3s;
+}
+
+.toggle-v3.active .toggle-switch {
+    left: 29px;
+}
+
+/* Filters UI v3 */
+.filters-panel-v3 {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.pagination-footer {
+    border-top: 1px solid #eff2f7;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}

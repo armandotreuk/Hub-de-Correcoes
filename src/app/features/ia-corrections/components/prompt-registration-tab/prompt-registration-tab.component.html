@@ -5,28 +5,93 @@
       <div class="panel-header">
         <h5 class="m-0">Lista de Prompts</h5>
         <button class="btn btn-primary btn-sm" (click)="createNew()">
-          <i class="ri-add-line mr-1"></i> Criar Novo Prompt
+          <i class="ri-add-line mr-1"></i> Criar Novo
         </button>
+      </div>
+
+      <!-- Filtros da Lista (RN05.3) -->
+      <div class="list-filters p-2 border-bottom bg-light">
+        <div class="form-group mb-2">
+          <select
+            class="form-control form-control-sm"
+            [(ngModel)]="filterUnitId"
+            (ngModelChange)="filterUnitId.set($event)"
+          >
+            <option [ngValue]="null">Todas as Unidades</option>
+            @for (unit of businessUnits(); track unit.id) {
+              <option [ngValue]="unit.id">{{ unit.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group mb-2">
+          <select
+            class="form-control form-control-sm"
+            [(ngModel)]="filterActivityTypeId"
+            (ngModelChange)="filterActivityTypeId.set($event)"
+          >
+            <option [ngValue]="null">Todas as Atividades</option>
+            @for (act of activityTypes(); track act.id) {
+              <option [ngValue]="act.id">{{ act.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="status-filters d-flex gap-3 px-1">
+          <div class="custom-control custom-checkbox">
+            <input
+              type="checkbox"
+              class="custom-control-input"
+              id="chkAtivo"
+              [checked]="filterStatus().includes('Ativo')"
+              (change)="toggleStatusFilter('Ativo')"
+            />
+            <label class="custom-control-label data-text" for="chkAtivo">Ativo</label>
+          </div>
+          <div class="custom-control custom-checkbox">
+            <input
+              type="checkbox"
+              class="custom-control-input"
+              id="chkInativo"
+              [checked]="filterStatus().includes('Inativo')"
+              (change)="toggleStatusFilter('Inativo')"
+            />
+            <label class="custom-control-label data-text" for="chkInativo">Inativo</label>
+          </div>
+        </div>
       </div>
 
       <div class="prompt-list">
         @if (isLoading()) {
           <div class="text-center p-3 text-muted">Carregando...</div>
         } @else {
-          @for (prompt of prompts(); track prompt.id) {
+          @for (prompt of filteredPrompts(); track prompt.id) {
             <div
               class="prompt-item"
               [class.active]="selectedPrompt()?.id === prompt.id"
               (click)="selectPrompt(prompt.id)"
             >
-              <div class="prompt-title">{{ prompt.title }}</div>
-              <div class="prompt-meta">
-                <span class="badge badge-primary mr-1">{{ prompt.businessUnitName }}</span>
-                <span class="badge badge-secondary">{{ prompt.activityTypeName }}</span>
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="prompt-title">{{ prompt.title }}</div>
+                <span
+                  class="badge"
+                  [class.badge-success]="prompt.status === 'Ativo'"
+                  [class.badge-secondary]="prompt.status === 'Inativo'"
+                >
+                  {{ prompt.status }}
+                </span>
+              </div>
+              <div class="prompt-meta mt-1">
+                <span class="badge-unit mr-1">{{ prompt.businessUnitName }}</span>
+                <span class="badge-activity">{{ prompt.activityTypeName }}</span>
               </div>
             </div>
           } @empty {
-            <div class="text-center p-3 text-muted">Nenhum prompt cadastrado.</div>
+            <div class="text-center p-3 text-muted">
+              {{
+                filterStatus().length === 0
+                  ? 'Selecione uma situação para filtrar'
+                  : 'Nenhum prompt encontrado'
+              }}
+            </div>
           }
         }
       </div>
@@ -35,8 +100,18 @@
     <!-- Painel Direito: Editor de Prompt -->
     <div class="prompt-editor-panel">
       @if (isEditing()) {
-        <div class="editor-header">
+        <div class="editor-header d-flex justify-content-between align-items-center">
           <h5 class="m-0">{{ isNewPrompt() ? 'Novo Prompt' : 'Editar Prompt' }}</h5>
+          @if (!isNewPrompt()) {
+            <div
+              class="status-badge-toggle"
+              [class.active]="formData.status === 'Ativo'"
+              (click)="togglePromptStatus()"
+              title="Clique para alternar o status"
+            >
+              {{ formData.status }}
+            </div>
+          }
         </div>
 
         <div class="editor-form">
@@ -48,6 +123,7 @@
               [(ngModel)]="formData.title"
               placeholder="Digite o título do prompt"
               maxlength="200"
+              (ngModelChange)="checkFormDirty()"
             />
           </div>
 
@@ -84,28 +160,56 @@
             </div>
           </div>
 
-          <div class="form-group flex-grow-1">
+          <div class="form-group flex-grow-1 mb-3">
             <label class="required">Corpo do Prompt</label>
             <textarea
               class="form-control prompt-textarea"
               [(ngModel)]="formData.body"
               placeholder="Digite as instruções para a IA..."
               maxlength="10000"
+              (ngModelChange)="checkFormDirty()"
             ></textarea>
             <small class="text-muted float-right"
-              >{{ formData.body?.length || 0 }} / 10.000 caracteres</small
+              >{{ formData.body.length }} / 10.000 caracteres</small
             >
           </div>
 
-          <div class="editor-actions">
+          <!-- Campo Observações (RN05.2) -->
+          <div class="form-group border-top pt-3 mt-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="mb-0">Observações</label>
+              @if (!isNewPrompt()) {
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="saveComment()"
+                  [disabled]="isSaving()"
+                >
+                  <i class="ri-save-line mr-1"></i> Salvar Comentário
+                </button>
+              }
+            </div>
+            <textarea
+              class="form-control obs-textarea"
+              [(ngModel)]="formData.observations"
+              placeholder="Comentários internos sobre este prompt..."
+              maxlength="10000"
+              rows="3"
+              (ngModelChange)="checkFormDirty()"
+            ></textarea>
+            <small class="text-muted float-right"
+              >{{ formData.observations.length }} / 10.000 caracteres</small
+            >
+          </div>
+
+          <div class="editor-actions mt-4">
             <button class="btn btn-outline-secondary mr-2" (click)="cancelEdit()">Cancelar</button>
             <button
-              class="btn btn-primary"
+              class="btn btn-primary submit-btn"
               (click)="save()"
-              [disabled]="!isFormValid() || isSaving()"
+              [disabled]="!isFormValid() || isSaving() || !formDirty()"
             >
               <i class="ri-save-line mr-1"></i>
-              {{ isSaving() ? 'Salvando...' : 'Salvar' }}
+              {{ isSaving() ? 'Salvando...' : 'Salvar Prompt' }}
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
-<div class="card param-container h-100">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="m-0">Configurações de Correção por IA</h5>
+<div class="card param-container h-100 p-3">
+  <!-- Fase E: Configurações de Correção por IA -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h6 class="m-0 text-muted">Configurações de Correção por IA</h6>
     @if (selectedIds().size > 0) {
       <button class="btn btn-primary btn-sm" (click)="onMassAction()">
         <i class="ri-exchange-circle-line mr-1"></i>
@@ -9,80 +10,79 @@
     }
   </div>
 
-  <!-- Filtros -->
-  <div class="filters-card mb-3 p-3 rounded">
-    <div class="row">
-      <div class="col-md-2">
-        <input
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Unidade..."
-          (input)="updateFilter('businessUnitName', $any($event.target).value)"
-        />
-      </div>
-      <div class="col-md-2">
-        <input
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Cluster..."
-          (input)="updateFilter('clusterName', $any($event.target).value)"
-        />
-      </div>
-      <div class="col-md-2">
-        <input
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Curso..."
-          (input)="updateFilter('courseName', $any($event.target).value)"
-        />
-      </div>
-      <div class="col-md-2">
-        <input
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Atividade..."
-          (input)="updateFilter('activityTypeName', $any($event.target).value)"
-        />
-      </div>
-      <div class="col-md-2">
-        <input
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Prompt..."
-          (input)="updateFilter('promptTitle', $any($event.target).value)"
-        />
-      </div>
-      <div class="col-md-2">
-        <select
-          class="form-control form-control-sm"
-          (change)="updateFilter('correctionStatus', $any($event.target).value)"
-        >
-          <option value="">Todos Status</option>
-          <option value="Ativo">Ativo</option>
-          <option value="Inativo">Inativo</option>
-        </select>
-      </div>
+  <!-- Fase E.1: Filtros MultiSelect em Cascata -->
+  <div class="filters-panel-v3 row g-2 mb-4">
+    <div class="col-md-2">
+      <app-multi-select-dropdown
+        [label]="'Unidade'"
+        [options]="unitOptions()"
+        [selectedValues]="selectedUnits()"
+        (selectionChange)="selectedUnits.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
+    </div>
+    <div class="col-md-2">
+      <app-multi-select-dropdown
+        [label]="'Cluster'"
+        [options]="clusterOptions()"
+        [selectedValues]="selectedClusters()"
+        (selectionChange)="selectedClusters.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
+    </div>
+    <div class="col-md-2">
+      <app-multi-select-dropdown
+        [label]="'Curso'"
+        [options]="courseOptions()"
+        [selectedValues]="selectedCourses()"
+        (selectionChange)="selectedCourses.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
+    </div>
+    <div class="col-md-2">
+      <app-multi-select-dropdown
+        [label]="'Atividade'"
+        [options]="activityOptions()"
+        [selectedValues]="selectedActivities()"
+        (selectionChange)="selectedActivities.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
+    </div>
+    <div class="col-md-2">
+      <app-multi-select-dropdown
+        [label]="'Prompt'"
+        [options]="promptOptions()"
+        [selectedValues]="selectedPrompts()"
+        (selectionChange)="selectedPrompts.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
+    </div>
+    <div class="col-md-2">
+      <app-multi-select-dropdown
+        [label]="'Status'"
+        [options]="statusOptions"
+        [selectedValues]="selectedStatuses()"
+        (selectionChange)="selectedStatuses.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
     </div>
   </div>
 
-  <!-- Tabela -->
-  <div class="table-responsive">
-    <table class="table table-hover minimalist-table">
+  <!-- Fase E: Tabela Consolidada -->
+  <div class="table-responsive flex-grow-1">
+    <table class="table table-hover minimalist-table mb-0">
       <thead>
         <tr>
-          <th width="50">
-            <input
-              type="checkbox"
-              class="chk-custom"
-              [checked]="allSelected()"
-              (change)="toggleAll($any($event.target).checked)"
-            />
+          <th width="40">
+            <div class="custom-control custom-checkbox">
+              <input
+                type="checkbox"
+                class="custom-control-input"
+                id="chkAllCorr"
+                (change)="toggleAll($any($event.target).checked)"
+              />
+              <label class="custom-control-label" for="chkAllCorr"></label>
+            </div>
           </th>
-          <th>Status</th>
-          <th>Unidade</th>
+          <th width="100">Status</th>
+          <th>Unidade de Negócio</th>
           <th>Cluster</th>
           <th>Curso</th>
-          <th>Atividade</th>
+          <th>Tipo Atividade</th>
           <th>Prompt</th>
         </tr>
       </thead>
@@ -90,69 +90,73 @@
         @for (config of paginatedConfigs(); track config.id) {
           <tr>
             <td>
-              <input
-                type="checkbox"
-                class="chk-custom"
-                [checked]="selectedIds().has(config.id)"
-                (change)="toggleSelection(config.id)"
-              />
+              <div class="custom-control custom-checkbox">
+                <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  [id]="'chk-' + config.id"
+                  [checked]="selectedIds().has(config.id)"
+                  (change)="toggleSelection(config.id)"
+                />
+                <label class="custom-control-label" [for]="'chk-' + config.id"></label>
+              </div>
             </td>
             <td>
-              <span
-                class="badge cursor-pointer"
-                [class.badge-success]="config.correctionStatus === 'Ativo'"
-                [class.badge-secondary]="config.correctionStatus === 'Inativo'"
+              <div
+                class="status-badge-toggle"
+                [class.active]="config.correctionStatus === 'Ativo'"
                 (click)="toggleSingleStatus(config)"
-                title="Clique para alterar"
+                title="Clique para alternar o status"
               >
                 {{ config.correctionStatus }}
-              </span>
+              </div>
             </td>
-            <td>{{ config.businessUnitName }}</td>
-            <td>{{ config.clusterName }}</td>
-            <td>{{ config.courseName }}</td>
-            <td>{{ config.activityTypeName }}</td>
-            <td>{{ config.promptTitle }}</td>
+            <td class="data-text">{{ config.businessUnitName }}</td>
+            <td class="data-text">{{ config.clusterName }}</td>
+            <td class="font-weight-600">{{ config.courseName }}</td>
+            <td class="activity-text">{{ config.activityTypeName }}</td>
+            <td class="font-weight-600">{{ config.promptTitle }}</td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="7" class="text-center text-muted p-4">Nenhum registro encontrado.</td>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="ri-filter-off-line mb-3" style="font-size: 2rem"></i>
+              <p>Nenhum registro encontrado para os filtros selecionados.</p>
+            </td>
           </tr>
         }
       </tbody>
     </table>
   </div>
 
-  <!-- Paginação -->
-  <div class="d-flex justify-content-between align-items-center mt-3">
-    <div class="text-muted">
-      Exibindo {{ paginatedConfigs().length }} de {{ filteredConfigs().length }} registros
-    </div>
-    <div class="d-flex align-items-center">
+  <!-- Fase E.3: Paginação Padronizada (Padrão Auditoria) -->
+  <div class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+    <div class="page-size-selector text-muted small">
+      Exibindo
       <select
-        class="form-control form-control-sm mr-2"
-        style="width: 80px"
-        [value]="itemsPerPage()"
-        (change)="setItemsPerPage($any($event.target).value)"
+        class="custom-select-sm"
+        [ngModel]="itemsPerPage()"
+        (ngModelChange)="onItemsPerPageChange($event)"
       >
-        <option value="10">10</option>
-        <option value="25">25</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="25">25</option>
+        <option [ngValue]="50">50</option>
+        <option [ngValue]="100">100</option>
       </select>
-      <nav>
-        <ul class="pagination mb-0">
-          <li class="page-item" [class.disabled]="currentPage() === 1">
-            <a class="page-link" (click)="prevPage()">Anterior</a>
-          </li>
-          <li class="page-item disabled">
-            <span class="page-link">{{ currentPage() }} / {{ totalPages() }}</span>
-          </li>
-          <li class="page-item" [class.disabled]="currentPage() >= totalPages()">
-            <a class="page-link" (click)="nextPage()">Próxima</a>
-          </li>
-        </ul>
-      </nav>
+      por página
+    </div>
+    <div class="pagination-controls data-text">
+      Página {{ currentPage() }} de {{ totalPages() }}
+      <button class="btn btn-sm btn-light ml-2" [disabled]="currentPage() === 1" (click)="prevPage()">
+        <i class="ri-arrow-left-s-line"></i> Anterior
+      </button>
+      <button
+        class="btn btn-sm btn-light ml-1"
+        [disabled]="currentPage() >= totalPages()"
+        (click)="nextPage()"
+      >
+        Próximo <i class="ri-arrow-right-s-line"></i>
+      </button>
     </div>
   </div>
 </div>
