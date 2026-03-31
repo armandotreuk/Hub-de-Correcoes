@@ -1,12 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { PublicationConfig } from '../models/ia-corrections.models';
+import { PublicationConfig, PublicationGlobalSettings } from '../models/ia-corrections.models';
 import { CorrectionConfigService } from './correction-config.service';
 
 @Injectable({ providedIn: 'root' })
 export class PublicationService {
-
   private correctionConfigService = inject(CorrectionConfigService);
 
   private configs: PublicationConfig[] = [
@@ -21,7 +20,7 @@ export class PublicationService {
       publicationStatus: 'Desabilitado',
       performanceThreshold: null,
       activatedBy: '-',
-      activatedAt: '-'
+      activatedAt: '-',
     },
     {
       id: 'PUB-002',
@@ -34,7 +33,7 @@ export class PublicationService {
       publicationStatus: 'Desabilitado',
       performanceThreshold: null,
       activatedBy: '-',
-      activatedAt: '-'
+      activatedAt: '-',
     },
     {
       id: 'PUB-003',
@@ -47,7 +46,7 @@ export class PublicationService {
       publicationStatus: 'Desabilitado',
       performanceThreshold: null,
       activatedBy: '-',
-      activatedAt: '-'
+      activatedAt: '-',
     },
     {
       id: 'PUB-004',
@@ -60,7 +59,7 @@ export class PublicationService {
       publicationStatus: 'Desabilitado',
       performanceThreshold: null,
       activatedBy: '-',
-      activatedAt: '-'
+      activatedAt: '-',
     },
     {
       id: 'PUB-005',
@@ -73,7 +72,7 @@ export class PublicationService {
       publicationStatus: 'Desabilitado',
       performanceThreshold: null,
       activatedBy: '-',
-      activatedAt: '-'
+      activatedAt: '-',
     },
     {
       id: 'PUB-006',
@@ -86,7 +85,7 @@ export class PublicationService {
       publicationStatus: 'Desabilitado',
       performanceThreshold: null,
       activatedBy: '-',
-      activatedAt: '-'
+      activatedAt: '-',
     },
     {
       id: 'PUB-007',
@@ -99,13 +98,13 @@ export class PublicationService {
       publicationStatus: 'Desabilitado',
       performanceThreshold: null,
       activatedBy: '-',
-      activatedAt: '-'
-    }
+      activatedAt: '-',
+    },
   ];
 
   getPublicationConfigs(): Observable<PublicationConfig[]> {
     // Sincronizar correctionStatus com o serviço de correção
-    this.configs.forEach(config => {
+    this.configs.forEach((config) => {
       const corrId = config.id.replace('PUB-', 'COR-');
       const corrStatus = this.correctionConfigService.getConfigStatus(corrId);
       if (corrStatus) {
@@ -120,8 +119,11 @@ export class PublicationService {
     return of([...this.configs]).pipe(delay(300));
   }
 
-  updatePublicationStatus(id: string, status: 'Habilitado' | 'Desabilitado'): Observable<PublicationConfig> {
-    const index = this.configs.findIndex(c => c.id === id);
+  updatePublicationStatus(
+    id: string,
+    status: 'Habilitado' | 'Desabilitado',
+  ): Observable<PublicationConfig> {
+    const index = this.configs.findIndex((c) => c.id === id);
     if (index < 0) {
       return throwError(() => new Error('Registro não encontrado.'));
     }
@@ -131,9 +133,12 @@ export class PublicationService {
       const corrId = id.replace('PUB-', 'COR-');
       const corrStatus = this.correctionConfigService.getConfigStatus(corrId);
       if (corrStatus === 'Inativo') {
-        return throwError(() => new Error(
-          'Não é possível habilitar a publicação automática enquanto a correção está desabilitada.'
-        ));
+        return throwError(
+          () =>
+            new Error(
+              'Não é possível habilitar a publicação automática enquanto a correção está desabilitada.',
+            ),
+        );
       }
     }
 
@@ -141,16 +146,23 @@ export class PublicationService {
       ...this.configs[index],
       publicationStatus: status,
       activatedBy: status === 'Habilitado' ? 'USR-Current' : this.configs[index].activatedBy,
-      activatedAt: status === 'Habilitado' ? new Date().toISOString().split('T')[0] : this.configs[index].activatedAt,
-      performanceThreshold: status === 'Desabilitado' ? null : this.configs[index].performanceThreshold
+      activatedAt:
+        status === 'Habilitado'
+          ? new Date().toISOString().split('T')[0]
+          : this.configs[index].activatedAt,
+      performanceThreshold:
+        status === 'Desabilitado' ? null : this.configs[index].performanceThreshold,
     };
     return of(this.configs[index]).pipe(delay(300));
   }
 
-  updatePublicationStatuses(ids: string[], status: 'Habilitado' | 'Desabilitado'): Observable<boolean> {
+  updatePublicationStatuses(
+    ids: string[],
+    status: 'Habilitado' | 'Desabilitado',
+  ): Observable<boolean> {
     let blocked = 0;
-    ids.forEach(id => {
-      const index = this.configs.findIndex(c => c.id === id);
+    ids.forEach((id) => {
+      const index = this.configs.findIndex((c) => c.id === id);
       if (index >= 0) {
         if (status === 'Habilitado') {
           const corrId = id.replace('PUB-', 'COR-');
@@ -164,8 +176,12 @@ export class PublicationService {
           ...this.configs[index],
           publicationStatus: status,
           activatedBy: status === 'Habilitado' ? 'USR-Current' : this.configs[index].activatedBy,
-          activatedAt: status === 'Habilitado' ? new Date().toISOString().split('T')[0] : this.configs[index].activatedAt,
-          performanceThreshold: status === 'Desabilitado' ? null : this.configs[index].performanceThreshold
+          activatedAt:
+            status === 'Habilitado'
+              ? new Date().toISOString().split('T')[0]
+              : this.configs[index].activatedAt,
+          performanceThreshold:
+            status === 'Desabilitado' ? null : this.configs[index].performanceThreshold,
         };
       }
     });
@@ -173,10 +189,33 @@ export class PublicationService {
   }
 
   setPerformanceThreshold(id: string, percentage: number): Observable<PublicationConfig> {
-    const index = this.configs.findIndex(c => c.id === id);
+    const index = this.configs.findIndex((c) => c.id === id);
     if (index >= 0) {
       this.configs[index] = { ...this.configs[index], performanceThreshold: percentage };
     }
     return of(this.configs[index]).pipe(delay(300));
+  }
+
+  private globalSettings: PublicationGlobalSettings = {
+    note: null,
+    deadline: null,
+    autoPublicationEnabled: false,
+  };
+
+  getGlobalSettings(): Observable<PublicationGlobalSettings> {
+    return of({ ...this.globalSettings }).pipe(delay(200));
+  }
+
+  saveGlobalSettings(
+    note: number | null,
+    deadline: number | null,
+    enabled: boolean,
+  ): Observable<PublicationGlobalSettings> {
+    this.globalSettings = {
+      note,
+      deadline,
+      autoPublicationEnabled: enabled,
+    };
+    return of({ ...this.globalSettings }).pipe(delay(300));
   }
 }

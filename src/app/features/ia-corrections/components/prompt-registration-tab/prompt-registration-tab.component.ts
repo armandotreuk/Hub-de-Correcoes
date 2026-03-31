@@ -33,6 +33,8 @@ export class PromptRegistrationTabComponent implements OnInit {
     businessUnitName: '',
     activityTypeId: null as number | null,
     activityTypeName: '',
+    status: 'Ativo' as 'Ativo' | 'Inativo',
+    observations: '',
   };
 
   originalFormData: any = null;
@@ -86,6 +88,8 @@ export class PromptRegistrationTabComponent implements OnInit {
         businessUnitName: prompt.businessUnitName,
         activityTypeId: prompt.activityTypeId,
         activityTypeName: prompt.activityTypeName,
+        status: prompt.status || 'Ativo',
+        observations: prompt.observations || '',
       };
       this.isNewPrompt.set(false);
       this.isEditing.set(true);
@@ -146,6 +150,8 @@ export class PromptRegistrationTabComponent implements OnInit {
       businessUnitName: this.formData.businessUnitName,
       activityTypeId: this.formData.activityTypeId!,
       activityTypeName: this.formData.activityTypeName,
+      status: this.formData.status || 'Ativo',
+      observations: this.formData.observations || '',
     };
 
     const operation = this.isNewPrompt()
@@ -196,6 +202,8 @@ export class PromptRegistrationTabComponent implements OnInit {
       businessUnitName: '',
       activityTypeId: null,
       activityTypeName: '',
+      status: 'Ativo',
+      observations: '',
     };
     this.originalFormData = { ...this.formData };
   }

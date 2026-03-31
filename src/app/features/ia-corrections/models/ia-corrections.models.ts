@@ -13,6 +13,15 @@ export interface Prompt {
   activityTypeName: string;
   createdAt: string;
   createdBy: string;
+  status: 'Ativo' | 'Inativo'; // default: 'Ativo'
+  observations: string; // até 10.000 caracteres
+}
+
+/** Configurações Globais de Publicação */
+export interface PublicationGlobalSettings {
+  note: number | null; // 0-100
+  deadline: number | null; // 0-99 (dias)
+  autoPublicationEnabled: boolean; // default: false
 }
 
 /** Vínculo Prompt ↔ Curso — Aba 2 */

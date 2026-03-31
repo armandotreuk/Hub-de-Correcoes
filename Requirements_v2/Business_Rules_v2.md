@@ -29,6 +29,7 @@ A estrutura organizacional segue a seguinte precedência:
   - **Unidade de Negócio** (dropdown, não obrigatório)
   - **Tipo de Atividade** (dropdown, não obrigatório)
   - **Situação** (checkbox múltiplo: Ativo e/ou Inativo). Por padrão, o filtro inicia com "Ativo" marcado. Se nenhuma opção for selecionada, nenhum prompt é exibido.
+  > **Nota de design (UX intencional)**: O comportamento "sem seleção = nenhum resultado" é deliberado. Ao contrário do padrão "filtro vazio = exibir tudo", este módulo lida com prompts Ativos e Inativos simultaneamente. Exigir ao menos uma seleção explícita evita que o usuário visualize acidentalmente prompts inativos (deprecated). Isso também reforça o estado consciente do filtro: o usuário sabe exatamente o que está vendo.
 
 ---
 
@@ -60,7 +61,7 @@ A estrutura organizacional segue a seguinte precedência:
   - Ao selecionar uma opção num filtro, os filtros abaixo na hierarquia devem se atualizar com opções relacionadas (cascata de cima para baixo)
 - **RN15 - Ativação/Desativação Individual**: Deve ser possível ativar ou inativar a correção de um único registro diretamente na lista.
 - **RN16 - Ativação/Desativação em Lote**: Deve ser possível selecionar múltiplos registros e alterar o status de correção em massa através do botão "Alterar Status".
-- **RN16.1 - Paginação Padrão Auditoria**: A paginação deve seguir o padrão da Auditoria (25 default, opções 10/25/50/100, seletor de itens por página e navegação Anterior/Próximo).
+- **RN16.1 - Paginação Padrão Auditoria**: → Ver **RN21** (seção 4. Auditoria de Correções), que define o padrão de paginação centralizado para todo o módulo. Não duplicar especificação aqui.
 
 ---
 

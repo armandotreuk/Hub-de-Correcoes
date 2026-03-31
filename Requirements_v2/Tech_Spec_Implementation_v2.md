@@ -24,8 +24,9 @@ Todos os componentes ficam em `/src/app/features/ia-corrections/`.
 #### 1.0.2 `PromptDetailModalComponent`
 **Diretório**: `components/shared/prompt-detail-modal/`
 - **Função**: Modal centralizado para exibir detalhes de um prompt com campos parcialmente bloqueados.
-- **Inputs**: `prompt: Prompt`, `isOpen: boolean`
-- **Outputs**: `close: EventEmitter`, `saveObservations: EventEmitter<{id, observations}>`
+- **Inputs**: `prompt: Prompt`, `isOpen: boolean`, `allowEdit: boolean` (default: `false`)
+- **Outputs**: `close: EventEmitter`, `saveObservations: EventEmitter<{id, observations}>`, `savePrompt: EventEmitter<{id, title, body}>`
+  > **Nota de escopo**: O `savePrompt` é exposto para casos futuros onde o modal possa ser reutilizado com edição completa (ex: atalho rápido de edição fora da Aba 1). Na **Aba 2 (Relacionar Prompt)**, `allowEdit` será `false` e os campos Título/Corpo permanecem bloqueados (readonly). O evento `savePrompt` **não deve ser conectado** na Aba 2.
 - **Comportamento**:
   - Campos Título, Unidade, Tipo de Atividade, Corpo → **readonly** com background cinza diferenciado.
   - Campo Observações → **editável** + botão "Salvar Comentário".

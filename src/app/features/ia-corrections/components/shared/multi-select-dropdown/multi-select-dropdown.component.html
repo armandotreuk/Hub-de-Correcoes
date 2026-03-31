@@ -1,0 +1,49 @@
+<div class="multi-select-dropdown">
+  <label *ngIf="label" class="dropdown-label">{{ label }}</label>
+
+  <div class="dropdown-trigger" (click)="toggleDropdown()">
+    <span class="dropdown-display">{{ displayText }}</span>
+    <i class="ri-arrow-down-s-line dropdown-icon" [class.rotate]="isOpen()"></i>
+  </div>
+
+  <div class="dropdown-menu" *ngIf="isOpen()">
+    <div class="dropdown-search">
+      <input
+        type="text"
+        [placeholder]="placeholder"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        (click)="$event.stopPropagation()"
+      />
+    </div>
+
+    <div class="dropdown-options">
+      <div class="dropdown-option select-all" (click)="toggleSelectAll()">
+        <input
+          type="checkbox"
+          [checked]="allSelected"
+          [indeterminate]="someSelected"
+          (click)="$event.stopPropagation()"
+        />
+        <span>Selecionar todas</span>
+      </div>
+
+      <div
+        class="dropdown-option"
+        *ngFor="let opt of filteredOptions"
+        (click)="toggleOption(opt.value)"
+      >
+        <input
+          type="checkbox"
+          [checked]="isSelected(opt.value)"
+          (click)="$event.stopPropagation()"
+        />
+        <span>{{ opt.label }}</span>
+      </div>
+
+      <div class="dropdown-empty" *ngIf="filteredOptions.length === 0">
+        Nenhuma opção encontrada
+      </div>
+    </div>
+  </div>
+</div>

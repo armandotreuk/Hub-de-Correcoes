@@ -5,7 +5,6 @@ import { Prompt, BusinessUnit, ActivityType } from '../models/ia-corrections.mod
 
 @Injectable({ providedIn: 'root' })
 export class PromptService {
-
   private prompts: Prompt[] = [
     {
       id: 'PRM-001',
@@ -16,7 +15,9 @@ export class PromptService {
       activityTypeId: 1,
       activityTypeName: 'Desafio Profissional',
       createdAt: '2026-01-10',
-      createdBy: 'USR-AdminPedagogico'
+      createdBy: 'USR-AdminPedagogico',
+      status: 'Ativo',
+      observations: '',
     },
     {
       id: 'PRM-002',
@@ -27,7 +28,9 @@ export class PromptService {
       activityTypeId: 2,
       activityTypeName: 'Resenha',
       createdAt: '2026-01-15',
-      createdBy: 'USR-CoordPedagogico'
+      createdBy: 'USR-CoordPedagogico',
+      status: 'Ativo',
+      observations: '',
     },
     {
       id: 'PRM-003',
@@ -38,7 +41,9 @@ export class PromptService {
       activityTypeId: 3,
       activityTypeName: 'MAPA',
       createdAt: '2026-02-01',
-      createdBy: 'USR-AdminPedagogico'
+      createdBy: 'USR-AdminPedagogico',
+      status: 'Ativo',
+      observations: '',
     },
     {
       id: 'PRM-004',
@@ -49,20 +54,22 @@ export class PromptService {
       activityTypeId: 4,
       activityTypeName: 'Prova',
       createdAt: '2026-02-20',
-      createdBy: 'USR-CoordPedagogico'
-    }
+      createdBy: 'USR-CoordPedagogico',
+      status: 'Ativo',
+      observations: '',
+    },
   ];
 
   private businessUnits: BusinessUnit[] = [
     { id: 1, name: 'Uniasselvi' },
-    { id: 2, name: 'Unicesumar' }
+    { id: 2, name: 'Unicesumar' },
   ];
 
   private activityTypes: ActivityType[] = [
     { id: 1, name: 'Desafio Profissional' },
     { id: 2, name: 'Resenha' },
     { id: 3, name: 'MAPA' },
-    { id: 4, name: 'Prova' }
+    { id: 4, name: 'Prova' },
   ];
 
   getPrompts(): Observable<Prompt[]> {
@@ -70,7 +77,7 @@ export class PromptService {
   }
 
   getPromptById(id: string): Observable<Prompt | undefined> {
-    return of(this.prompts.find(p => p.id === id)).pipe(delay(200));
+    return of(this.prompts.find((p) => p.id === id)).pipe(delay(200));
   }
 
   createPrompt(payload: Omit<Prompt, 'id' | 'createdAt' | 'createdBy'>): Observable<Prompt> {
@@ -78,18 +85,36 @@ export class PromptService {
       ...payload,
       id: `PRM-${String(this.prompts.length + 1).padStart(3, '0')}`,
       createdAt: new Date().toISOString().split('T')[0],
-      createdBy: 'USR-Current'
+      createdBy: 'USR-Current',
+      status: payload.status || 'Ativo',
+      observations: payload.observations || '',
     };
     this.prompts.push(newPrompt);
     return of(newPrompt).pipe(delay(400));
   }
 
   updatePrompt(id: string, payload: Partial<Prompt>): Observable<Prompt> {
-    const index = this.prompts.findIndex(p => p.id === id);
+    const index = this.prompts.findIndex((p) => p.id === id);
     if (index >= 0) {
       this.prompts[index] = { ...this.prompts[index], ...payload };
     }
     return of(this.prompts[index]).pipe(delay(400));
+  }
+
+  updatePromptStatus(id: string, status: 'Ativo' | 'Inativo'): Observable<Prompt> {
+    const index = this.prompts.findIndex((p) => p.id === id);
+    if (index >= 0) {
+      this.prompts[index].status = status;
+    }
+    return of(this.prompts[index]).pipe(delay(200));
+  }
+
+  updatePromptObservations(id: string, observations: string): Observable<Prompt> {
+    const index = this.prompts.findIndex((p) => p.id === id);
+    if (index >= 0) {
+      this.prompts[index].observations = observations;
+    }
+    return of(this.prompts[index]).pipe(delay(200));
   }
 
   getBusinessUnits(): Observable<BusinessUnit[]> {

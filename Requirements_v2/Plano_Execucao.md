@@ -43,8 +43,11 @@ Modal centralizado para exibir/editar detalhes de um prompt.
 ```typescript
 @Input() prompt: Prompt | null = null;
 @Input() isOpen: boolean = false;
+@Input() allowEdit: boolean = false;       // false = campos bloqueados (padrão Aba 2)
 @Output() close = new EventEmitter<void>();
 @Output() saveObservations = new EventEmitter<{ id: string; observations: string }>();
+@Output() savePrompt = new EventEmitter<{ id: string; title: string; body: string }>();
+// savePrompt NÃO deve ser conectado na Aba 2 (campos readonly quando allowEdit = false)
 ```
 
 **Visual**:
@@ -306,13 +309,15 @@ Mesmo padrão da Auditoria.
 ### G.2 Commit e merge
 
 ```bash
-git checkout -b feature/v3-tab-enhancements
+git checkout feature/v3-tab-enhancements
 git add .
-git commit -m "feat: v3 enhancements - multi-select filters, prompt status/observations, bulk linking, publication split layout"
+git commit -m "feat(v3-tab-enhancements): multi-select filters, prompt status/observations, bulk linking, publication split layout"
 git checkout master
 git merge feature/v3-tab-enhancements
 git push origin master
 ```
+
+> **Nota**: A branch `feature/v3-tab-enhancements` já deve existir (criada na etapa de planejamento). Use `git checkout` ao invés de `git checkout -b` se ela já existir localmente.
 
 ---
 
@@ -356,8 +361,9 @@ graph TD
     FB --> FE[Fase E: Aba 3 - Configurar Correção]
     FC --> FD[Fase D: Aba 2 - Relacionar Prompt]
     FE --> FF[Fase F: Aba 5 - Publicação de Notas]
+    FD --> FF
     FD --> FG[Fase G: QA & Merge]
     FF --> FG
 ```
 
-> **Nota**: Fases C e E podem rodar em paralelo (ambas dependem apenas de B). Fase D depende de C (precisa do modal e prompt atualizado). Fase F depende de E (reutiliza filtros multi-select).
+> **Nota**: Fases C e E podem rodar em paralelo (ambas dependem apenas de B). Fase D depende de C (precisa do modal e prompt atualizado). Fase F depende de **E e D** (reutiliza filtros multi-select da Fase E e dados de vínculo Prompt-Curso da Fase D para exibir a coluna Prompt na tabela de publicação).
