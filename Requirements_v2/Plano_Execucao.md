@@ -1,63 +1,96 @@
-# Plano de Execução v3 — Atualizações das 4 Abas
+# Plano de Execução v4 — Implementação das Mudanças
 
 > **Projeto**: vitru-angular (mesmo repositório)
-> **Branch de trabalho**: `feature/v3-tab-enhancements`
-> **Base**: código atual em `master` (Fases 1-8 v2 concluídas)
+> **Branch de trabalho**: `feature/v4-discipline-hierarchy`
+> **Base**: código atual em `master` (v3 concluída — hash `9c32e25`)
 > **Referência**: `Requirements_v2/` (Business_Rules_v2, User_Stories_v2, Tech_Spec_Implementation_v2)
+> **Importante**: Este plano é destinado a outro agente que fará a implementação. Não altere a estrutura de pastas nem o padrão de componentes existentes.
 
 ---
 
-## Fase A — Componentes Compartilhados
+## Pré-requisitos
 
-### A.1 Criar `MultiSelectDropdownComponent`
+Antes de iniciar, o agente executor deve:
 
-**Diretório**: `components/shared/multi-select-dropdown/`
+1. Criar a branch: `git checkout -b feature/v4-discipline-hierarchy`
+2. Instalar a dependência de Sweet Alerts: `npm install sweetalert2`
+3. Verificar que o servidor compila sem erros: `npm start`
+4. Ler todos os documentos em `Requirements_v2/` para compreender o contexto completo.
 
-Componente reutilizável para filtros com dropdown, busca e seleção múltipla.
+---
 
-**Inputs/Outputs**:
-```typescript
-@Input() options: { value: any; label: string }[] = [];
-@Input() label: string = '';
-@Input() placeholder: string = 'Buscar...';
-@Output() selectionChange = new EventEmitter<any[]>();
+## Fase A — Dependências, Serviço de Sweet Alerts e Componentes Compartilhados
+
+### A.1 Instalar `sweetalert2`
+
+```bash
+npm install sweetalert2
 ```
 
-**Comportamento**:
-- Campo de texto para busca por digitação (filtra as opções visíveis no dropdown)
-- Ícone de seta (ri-arrow-down-s-line) para abrir/fechar dropdown
-- Primeira opção: "Selecionar todas"
-  - Se nem todas selecionadas → seleciona todas
-  - Se todas selecionadas → desseleciona todas
-- Checkbox a frente de cada opção
-- Emite `selectionChange` com array de valores selecionados
-- Click outside → fecha dropdown
+### A.2 Criar `SweetAlertService`
 
-### A.2 Criar `PromptDetailModalComponent`
+**Arquivo**: `services/sweet-alert.service.ts`
 
-**Diretório**: `components/shared/prompt-detail-modal/`
+Criar um serviço Angular injectable centralizado para sweet alerts:
 
-Modal centralizado para exibir/editar detalhes de um prompt.
-
-**Inputs/Outputs**:
 ```typescript
-@Input() prompt: Prompt | null = null;
-@Input() isOpen: boolean = false;
-@Input() allowEdit: boolean = false;       // false = campos bloqueados (padrão Aba 2)
-@Output() close = new EventEmitter<void>();
-@Output() saveObservations = new EventEmitter<{ id: string; observations: string }>();
-@Output() savePrompt = new EventEmitter<{ id: string; title: string; body: string }>();
-// savePrompt NÃO deve ser conectado na Aba 2 (campos readonly quando allowEdit = false)
+import { Injectable } from '@angular/core';
+import Swal from 'sweetalert2';
+
+@Injectable({ providedIn: 'root' })
+export class SweetAlertService {
+
+  showLoading(message: string = 'Processando...'): void {
+    Swal.fire({
+      title: message,
+      text: 'Aguarde enquanto os dados são processados.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => Swal.showLoading()
+    });
+  }
+
+  closeLoading(): void {
+    Swal.close();
+  }
+
+  async confirmAction(title: string, message: string): Promise<boolean> {
+    const result = await Swal.fire({
+      title,
+      text: message,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#405189',
+      cancelButtonColor: '#f06548',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar'
+    });
+    return result.isConfirmed;
+  }
+
+  showSuccess(title: string, message: string): void {
+    Swal.fire({ title, text: message, icon: 'success', confirmButtonColor: '#405189' });
+  }
+
+  showError(title: string, message: string): void {
+    Swal.fire({ title, text: message, icon: 'error', confirmButtonColor: '#405189' });
+  }
+}
 ```
 
-**Visual**:
-- Overlay escuro semi-transparente
-- Card centralizado (max-width: 700px)
-- Campos bloqueados: Título, Unidade, Tipo de Atividade, Corpo do Prompt → `readonly`, `background: #f0f0f0`, `cursor: not-allowed`
-- Campo editável: Observações (textarea, max 10.000 chars) + botão "Salvar Comentário"
-- Botão X para fechar
+### A.3 Atualizar `PromptDetailModalComponent`
 
-**Critério de aceite**: Componentes compilam, renderizam isoladamente, emitem eventos corretamente.
+**Arquivo**: `components/shared/prompt-detail-modal/`
+
+O modal precisa exibir **dois campos readonly** para o corpo do prompt:
+
+1. Substituir o campo único `Corpo do Prompt` por dois campos:
+   - **"Corpo do Prompt de Avaliação"** — textarea readonly, background `#f0f0f0`
+   - **"Corpo do Prompt de Feedback"** — textarea readonly, background `#f0f0f0`
+2. O input do componente agora recebe `prompt.bodyEvaluation` e `prompt.bodyFeedback` (ao invés de `prompt.body`).
+3. Manter o campo Observações editável + botão "Salvar Comentário".
+
+**Critério de aceite**: Modal compila, exibe os dois campos de corpo em readonly, observações salva independentemente.
 
 ---
 
@@ -65,104 +98,278 @@ Modal centralizado para exibir/editar detalhes de um prompt.
 
 ### B.1 Atualizar `ia-corrections.models.ts`
 
-Adicionar campos à interface `Prompt`:
+**Arquivo**: `models/ia-corrections.models.ts`
+
+#### B.1.1 Interface `Prompt`
+Substituir o campo `body: string` por:
 ```typescript
-status: 'Ativo' | 'Inativo';    // default: 'Ativo'
-observations: string;             // até 10.000 caracteres
+bodyEvaluation: string;  // até 10.000 caracteres (Prompt de Avaliação)
+bodyFeedback: string;     // até 10.000 caracteres (Prompt de Feedback)
 ```
 
-Nova interface:
+#### B.1.2 Nova interface `Discipline`
 ```typescript
-export interface PublicationGlobalSettings {
-  note: number | null;             // 0-100
-  deadline: number | null;         // 0-99 (dias)
-  autoPublicationEnabled: boolean; // default: false
+export interface Discipline {
+  id: number;
+  name: string;
+  courseId: number;
+  courseName: string;
+  clusterId: number;
+  clusterName: string;
+  businessUnitId: number;
 }
+```
+
+#### B.1.3 Interface `PromptLink`
+Adicionar campos de disciplina (manter campos de curso para contexto):
+```typescript
+export interface PromptLink {
+  id: string;
+  promptId: string;
+  promptTitle: string;
+  disciplineId: number;     // NOVO — principal entidade de vínculo
+  disciplineName: string;   // NOVO
+  courseId: number;          // mantido para contexto na tabela
+  courseName: string;       // mantido para contexto na tabela
+  clusterId: number;
+  clusterName: string;
+  activityTypeName: string;
+}
+```
+
+#### B.1.4 Interface `CorrectionConfig`
+Adicionar campos:
+```typescript
+disciplineName: string;   // NOVO
+createdAt: string;        // NOVO — para exportação
+createdBy: string;        // NOVO — para exportação
+updatedAt: string;        // NOVO — para exportação
+updatedBy: string;        // NOVO — para exportação
+```
+
+#### B.1.5 Interface `PublicationConfig`
+Adicionar campo:
+```typescript
+disciplineName: string;   // NOVO
 ```
 
 ### B.2 Atualizar `prompt.service.ts`
 
-| Método novo | Descrição |
-|---|---|
-| `updatePromptStatus(id, status)` | Alterna Ativo/Inativo |
-| `updatePromptObservations(id, observations)` | Salva apenas o campo observações |
+**Alterações**:
+1. Atualizar **todos os prompts do mock** para usar `bodyEvaluation` e `bodyFeedback` ao invés de `body`.
+2. Atualizar `createPrompt()` e `updatePrompt()` para aceitar os novos campos.
+3. Manter `getPrompts()`, `getPromptById()`, `updatePromptStatus()`, `updatePromptObservations()` etc. sem mudanças de API (apenas os dados internos mudam).
 
-Atualizar mock data: adicionar `status: 'Ativo'` e `observations: ''` a todos os prompts.
+**Dados mock de referência** (substitua os existentes):
+```typescript
+{
+  id: 'PRM-001',
+  title: 'Prompt Corretor Padrão',
+  bodyEvaluation: 'Avalie a submissão do aluno considerando os critérios...',
+  bodyFeedback: 'Forneça feedback construtivo ao aluno sobre...',
+  businessUnitId: 1,
+  businessUnitName: 'Uniasselvi',
+  activityTypeId: 1,
+  activityTypeName: 'Desafio Profissional',
+  createdAt: '2026-01-15 10:30',
+  createdBy: 'USR-Admin',
+  status: 'Ativo',
+  observations: ''
+}
+```
 
 ### B.3 Atualizar `prompt-linking.service.ts`
 
-| Método novo | Descrição |
-|---|---|
-| `linkPromptToCourses(promptId, promptTitle, courseIds[], activityTypeName)` | Vinculação em lote |
+**Alterações maiores — migração de Curso para Disciplina**:
 
-### B.4 Atualizar `publication.service.ts`
+1. **Adicionar array de disciplinas** ao serviço (pelo menos 5 por curso, conforme user request):
 
-| Método novo | Descrição |
-|---|---|
-| `getGlobalSettings()` | Retorna `PublicationGlobalSettings` |
-| `saveGlobalSettings(note, deadline, enabled)` | Grava configurações globais |
+```typescript
+private disciplines: Discipline[] = [
+  // Engenharia de Software (courseId: 101)
+  { id: 1001, name: 'Algoritmos', courseId: 101, courseName: 'Engenharia de Software', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  { id: 1002, name: 'Banco de Dados', courseId: 101, courseName: 'Engenharia de Software', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  { id: 1003, name: 'Engenharia de Requisitos', courseId: 101, courseName: 'Engenharia de Software', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  { id: 1004, name: 'Arquitetura de Software', courseId: 101, courseName: 'Engenharia de Software', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  { id: 1005, name: 'Testes de Software', courseId: 101, courseName: 'Engenharia de Software', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  // Administração (courseId: 102)
+  { id: 1006, name: 'Gestão de Projetos', courseId: 102, courseName: 'Administração', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  { id: 1007, name: 'Marketing', courseId: 102, courseName: 'Administração', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  { id: 1008, name: 'Contabilidade Gerencial', courseId: 102, courseName: 'Administração', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  { id: 1009, name: 'Recursos Humanos', courseId: 102, courseName: 'Administração', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  { id: 1010, name: 'Logística', courseId: 102, courseName: 'Administração', clusterId: 1, clusterName: 'Cluster Sul', businessUnitId: 1 },
+  // ... (mínimo de 5 disciplinas por curso. Gerar para TODOS os cursos existentes no mock de courses)
+];
+```
 
-**Critério de aceite**: Todos os services compilam, novos métodos retornam dados, mock data atualizado.
+2. **Novos métodos**:
+   - `getAllDisciplines(): Observable<Discipline[]>`
+   - `getDisciplinesByFilters(unitIds?, clusterIds?, courseIds?): Observable<Discipline[]>` — retorna disciplinas filtradas pela hierarquia.
+   - `linkPromptToDisciplines(promptId, promptTitle, disciplineIds[], activityTypeName): Observable<{created: PromptLink[], skipped: number}>` — vinculação em massa com validação de existente (retorna quantos foram criados e quantos ignorados por já possuir o mesmo prompt).
+
+3. **Atualizar links existentes** no mock para usar `disciplineId`/`disciplineName`.
+
+4. **Atualizar validação de unicidade** (RN07): de `(Course + Atividade)` para `(Discipline + Atividade)`.
+
+### B.4 Atualizar `correction-config.service.ts`
+
+**Alterações**:
+1. Adicionar `disciplineName` a todos os registros do mock.
+2. Adicionar campos de auditoria (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`) a todos os registros.
+3. Novo método: `exportConfigs(): Observable<CorrectionConfig[]>` — retorna todos os configs para exportação.
+4. Atualizar `updateStatus()` para gravar `updatedAt` e `updatedBy`.
+
+### B.5 Atualizar `publication.service.ts`
+
+**Alterações**:
+1. Adicionar `disciplineName` a todos os registros do mock `PublicationConfig`.
+2. Manter demais métodos sem alteração.
+
+**Critério de aceite**: Todos os services compilam, novos métodos retornam dados, mock data atualizado com disciplinas, todos os modelos refletem os novos campos.
 
 ---
 
-## Fase C — Aba 1: Cadastro Prompt (Aprimoramentos)
+## Fase C — Aba 1: Cadastro Prompt (Alterações Visuais e Funcionais)
 
-### C.1 Filtros na Lista de Prompts (painel esquerdo)
+### C.1 Dois Campos de Corpo do Prompt
 
-Acima da lista de prompts, adicionar:
+**Arquivo**: `components/prompt-registration-tab/prompt-registration-tab.component.html`
+
+Substituir o textarea único "Corpo do Prompt" por dois textareas em sequência:
+
 ```
-┌─────────────────────────────┐
-│  Unidade: [dropdown___▼]    │
-│  Atividade: [dropdown___▼]  │
-│  Situação: ☑ Ativo ☐ Inativo│
-├─────────────────────────────┤
-│  ● Prompt Corretor v1 ✓    │
-│  ● Prompt Resenha v2       │
-│  ● Prompt MAPA padrão      │
-└─────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  Corpo do Prompt de Avaliação            │
+│  ┌──────────────────────────────────────┐│
+│  │  textarea (10.000 chars)             ││
+│  └──────────────────────────────────────┘│
+│  X / 10.000 caracteres                   │
+│                                          │
+│  Corpo do Prompt de Feedback             │
+│  ┌──────────────────────────────────────┐│
+│  │  textarea (10.000 chars)             ││
+│  └──────────────────────────────────────┘│
+│  X / 10.000 caracteres                   │
+└──────────────────────────────────────────┘
 ```
 
-**Lógica**: `filteredPrompts = computed(() => { ... })` que aplica filtros de Unidade, Atividade e Situação.
+**Arquivo**: `components/prompt-registration-tab/prompt-registration-tab.component.ts`
 
-### C.2 Badge Situação no Editor (painel direito)
+Atualizar `formData` para incluir `bodyEvaluation` e `bodyFeedback` ao invés de `body`. Atualizar `checkFormDirty()`, `save()`, `selectPrompt()`, `resetForm()` e `isFormValid()` para usar os novos campos.
 
-Ao lado do título "Editar Prompt" / "Novo Prompt", exibir badge clicável:
-- `Ativo` (badge-success) / `Inativo` (badge-secondary)
-- Ao clicar: `promptService.updatePromptStatus(id, newStatus)`
+### C.2 Dropdown de Situação (Mover para linha dos dropdowns)
 
-### C.3 Campo Observações
+**Mudança visual**: Transformar o badge de Ativo/Inativo em um **dropdown `<select>`** no padrão visual dos demais dropdowns.
 
-Abaixo do textarea de corpo do prompt:
-- Textarea `Observações` (10.000 chars, contador)
-- Botão "Salvar Comentário" (invoca `promptService.updatePromptObservations(id, text)`)
+**Posição**: Na mesma **linha** dos dropdowns de Unidade e Atividade. A linha passa de 2 colunas (`col-md-6 col-md-6`) para **3 colunas** (`col-md-4 col-md-4 col-md-4`):
 
-**Critério de aceite**: Filtros funcionam cumulativamente, badge alterna status, observações salvam independentemente.
+```
+┌────────────────┬────────────────┬────────────────┐
+│ Unidade de     │ Tipo de        │ Situação       │
+│ Negócio [▼]    │ Atividade [▼]  │ [Ativo ▼]      │
+└────────────────┴────────────────┴────────────────┘
+```
+
+**Remover**: O badge/toggle clicável de status do header do editor (não é mais necessário, pois o dropdown já cumpre essa função). O badge pode ser mantido como informação visual na lista, mas a edição se dá pelo dropdown.
+
+### C.3 Contorno nos Cards de Prompt (Lista)
+
+**Arquivo**: `components/prompt-registration-tab/prompt-registration-tab.component.css`
+
+Adicionar borda visível a cada `.prompt-item`:
+
+```css
+.prompt-item {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.prompt-item:hover {
+  border-color: #405189;
+  background-color: #f8f9fa;
+}
+
+.prompt-item.active {
+  border-color: #405189;
+  border-left: 3px solid #405189;
+  background-color: #eef1f7;
+}
+```
+
+### C.4 Badge de "Ativo" mais Legível
+
+Alterar o estilo do badge "Ativo" nos cards da lista de prompts para garantir legibilidade:
+
+```css
+.prompt-item .badge-success {
+  background-color: #0ab39c;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+}
+
+.prompt-item .badge-secondary {
+  background-color: #878a99;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+}
+```
+
+> **Nota**: Se o verde `#0ab39c` escuro com fonte branca ainda parecer pouco legível, considere usar `background-color: #e9f8f5; color: #0ab39c; border: 1px solid #0ab39c;` como alternativa ("outlined badge").
+
+**Critério de aceite**: Dois textareas funcionam e salvam independentemente, dropdown de Situação funciona na mesma linha dos demais, cards possuem contorno visível, badge de Ativo é facilmente legível.
 
 ---
 
-## Fase D — Aba 2: Relacionar Prompt (Reestruturação)
+## Fase D — Aba 2: Relacionar Prompt (Hierarquia com Disciplina)
 
-### D.1 Substituir layout de filtros
+### D.1 Adicionar filtros Cluster, Curso e Disciplina
 
-**Antes**: Dropdown de prompt + filtros de texto
-**Depois**: 3 `MultiSelectDropdownComponent` em hierarquia:
-1. Unidade de Negócio
-2. Tipo de Atividade (cascata de Unidade)
-3. Prompt (cascata de Unidade + Atividade)
+**Arquivo**: `components/prompt-linking-tab/prompt-linking-tab.component.ts`
 
-### D.2 Área de vinculação em massa
-
-```
-┌──────────────────────────────────────────────────────────┐
-│  Prompt: [dropdown hierárquico___▼]   [Vincular]         │
-│  (aplica aos registros selecionados com checkbox)        │
-└──────────────────────────────────────────────────────────┘
+Adicionar signals para os novos filtros:
+```typescript
+selectedClusters = signal<number[]>([]);
+selectedCourses = signal<number[]>([]);
+selectedDisciplines = signal<number[]>([]);
 ```
 
-### D.3 Reestruturar tabela
+A hierarquia de cascata dos filtros deve seguir:
+```
+Unidade → Cluster → Curso → Disciplina → Tipo de Atividade
+```
 
-Nova ordem de colunas:
+Cada filtro abaixo deve ter suas opções recalculadas via `computed()` baseado na seleção do filtro acima.
+
+### D.2 Botão Pesquisar
+
+Adicionar um botão "Pesquisar" ao lado dos filtros. Os filtros **NÃO** aplicam filtragem imediatamente na tabela. A tabela só é atualizada ao clicar no botão.
+
+**Lógica**:
+```typescript
+onSearch() {
+  this.sweetAlertService.showLoading('Buscando registros...');
+  // Simular chamada ao backend com delay
+  this.linkingService.getDisciplinesByFilters(
+    this.selectedUnits(), this.selectedClusters(), this.selectedCourses()
+  ).subscribe(disciplines => {
+    // Filtrar e popular tabela
+    this.sweetAlertService.closeLoading();
+  });
+}
+```
+
+### D.3 Coluna Disciplina na Tabela
+
+Adicionar coluna **Disciplina** na tabela, entre Curso e Prompt Vinculado:
+
 | # | Coluna | Nota |
 |---|---|---|
 | 1 | ☐ Checkbox | Seleção para vinculação em massa |
@@ -170,113 +377,191 @@ Nova ordem de colunas:
 | 3 | Tipo de Atividade | Texto |
 | 4 | Cluster | Texto |
 | 5 | Curso | Texto |
-| 6 | Prompt Vinculado | **Clicável** → abre modal |
+| 6 | **Disciplina** | **NOVO** — Texto |
+| 7 | Prompt Vinculado | **Clicável** → abre modal |
 
-### D.4 Integrar `PromptDetailModalComponent`
+### D.4 Lógica Inteligente de Vinculação em Massa
 
-Ao clicar no nome do prompt vinculado (coluna 6):
-- Buscar prompt completo via `promptService.getPromptById(id)`
-- Abrir `PromptDetailModalComponent` com dados preenchidos
-- Hook `(saveObservations)` → `promptService.updatePromptObservations(id, text)`
+O botão "Vincular Prompt em Massa" deve:
 
-### D.5 Padronizar paginação
+1. **Exibir contagem dinâmica**:
+   - Se há checkboxes marcados: `"Vincular Prompt em Massa (X selecionados)"`
+   - Se não há: `"Vincular Prompt em Massa (Y filtrados)"`
 
-Substituir o HTML de paginação atual pelo padrão da Auditoria:
-- Seletor "Exibindo [10/25/50/100] por página"
-- "Página X de Y"
-- Botões "← Anterior" / "Próximo →" com ícones `ri-arrow-left-s-line` / `ri-arrow-right-s-line`
-- Default: 25 itens por página
+2. **Ao clicar**:
+   ```typescript
+   async onBulkLink() {
+     const targets = this.selectedIds().length > 0
+       ? this.selectedIds()
+       : this.filteredRecords().map(r => r.id);
 
-**Critério de aceite**: Filtros em cascata, vinculação em massa funciona, modal abre com campos bloqueados, comentários salvam, paginação padronizada.
+     const confirmed = await this.sweetAlertService.confirmAction(
+       'Confirmar Vinculação',
+       `Deseja vincular o prompt "${this.selectedPromptTitle()}" a ${targets.length} registro(s)?`
+     );
+     if (!confirmed) return;
 
----
+     this.sweetAlertService.showLoading('Vinculando...');
+     this.linkingService.linkPromptToDisciplines(/*...*/).subscribe(result => {
+       this.sweetAlertService.closeLoading();
+       this.sweetAlertService.showSuccess(
+         'Concluído!',
+         `${result.created.length} registros vinculados.
+          ${result.skipped} registros já possuíam este prompt.`
+       );
+       this.loadData(); // Recarregar lista
+     });
+   }
+   ```
 
-## Fase E — Aba 3: Configurar Correção (Multi-Select Filters)
+3. **Validação de vínculo existente** (RN09.1.1): O service `linkPromptToDisciplines` deve validar internamente se o registro já possui o mesmo prompt. Se sim, **não atualiza** mas contabiliza como "skipped" no retorno.
 
-### E.1 Substituir filtros por `MultiSelectDropdownComponent`
+### D.5 Manter Modal e Paginação
 
-**Antes**: Inputs de texto simples + dropdown de status
-**Depois**: 6 instâncias do `MultiSelectDropdownComponent` em linha:
-1. Unidade (popula com valores distintos da lista)
-2. Cluster (cascata de Unidade)
-3. Curso (cascata de Cluster)
-4. Atividade (cascata de Curso)
-5. Prompt (cascata de Atividade)
-6. Status (opções fixas: Ativo, Inativo)
+- Modal de detalhe do prompt (usando `PromptDetailModalComponent` atualizado).
+- Paginação padrão Auditoria (sem alterações).
 
-### E.2 Lógica de cascata hierárquica
-
-```typescript
-// Pseudocódigo
-availableClusters = computed(() => {
-  const data = this.configs();
-  const selectedUnits = this.selectedUnits();
-  if (selectedUnits.length === 0) return uniqueValues(data, 'clusterName');
-  return uniqueValues(data.filter(c => selectedUnits.includes(c.businessUnitName)), 'clusterName');
-});
-// Repetir pattern para cada nível
-```
-
-### E.3 Padronizar paginação
-
-Mesmo padrão da Auditoria (substitui o HTML de paginação atual).
-
-**Critério de aceite**: Filtros multi-select funcionam com cascata, opções se atualizam ao selecionar filtro superior, "Selecionar todas" funciona, paginação padronizada.
+**Critério de aceite**: Filtros em cascata com 5 níveis, botão pesquisar com sweet alert de loading, coluna Disciplina na tabela, vinculação em massa inteligente com sweet alerts de confirmação e conclusão, validação de vínculo existente.
 
 ---
 
-## Fase F — Aba 5: Publicação de Notas (Layout Split + Global Settings)
+## Fase E — Aba 3: Ativar Correção por IA
 
-### F.1 Reestruturar painel superior
+### E.1 Renomear aba
 
-**Antes**: Card full-width com regras
-**Depois**: Layout 50/50
+**Arquivo**: `ia-corrections-page.component.html`
 
-```
-┌───────────────────────────────┬───────────────────────────────┐
-│ Regras de Publicação          │ Configurações Globais         │
-│ Automática                    │                               │
-│                               │ Nota:    [___] (0-100)        │
-│ • Notas ≥ valor → publicadas  │ Prazo:   [___] dias (0-99)    │
-│   automaticamente             │                               │
-│ • Notas < valor → retidas     │ Publicação Automática:        │
-│   para curadoria manual       │ [Toggle ON/OFF]               │
-│ • Valores ajustáveis a        │ "Aprovar liberação de nota    │
-│   qualquer momento            │  automática"                  │
-└───────────────────────────────┴───────────────────────────────┘
-```
+Alterar o texto da terceira aba de `"Configurar Correção"` para `"Ativar Correção por IA"`.
 
-### F.2 Lógica do toggle
+### E.2 Botão Pesquisar nos Filtros
 
+Mesmo comportamento da Aba 2 (D.2): botão "Pesquisar" ao lado dos filtros, sweet alert de loading.
+
+### E.3 Coluna Disciplina na Tabela
+
+Adicionar coluna **Disciplina** na tabela, entre Curso e Tipo de Atividade:
+
+| # | Coluna |
+|---|---|
+| 1 | ☐ Checkbox |
+| 2 | Status (badge clicável) |
+| 3 | Unidade |
+| 4 | Cluster |
+| 5 | Curso |
+| 6 | **Disciplina** |
+| 7 | Tipo de Atividade |
+| 8 | Prompt (clicável → modal) |
+
+### E.4 Botão "Ativar em Massa" (Substituir "Alterar Status")
+
+1. **Renomear** o botão de "Alterar Status" para **"Ativar em Massa"**.
+2. **Fixar** o botão na tela (posição fixa, mesmo padrão do "Vincular Prompt em Massa" da Aba 2).
+3. **Contagem dinâmica** no texto do botão.
+4. **Lógica inteligente**:
+   ```typescript
+   async onBulkActivate() {
+     const targets = this.selectedIds().length > 0
+       ? this.getSelectedConfigs()
+       : this.filteredConfigs();
+
+     const hasInactive = targets.some(t => t.correctionStatus === 'Inativo');
+     const newStatus = hasInactive ? 'Ativo' : 'Inativo';
+     const action = hasInactive ? 'ativar' : 'inativar';
+
+     const confirmed = await this.sweetAlertService.confirmAction(
+       'Confirmar Ação',
+       `Deseja ${action} ${targets.length} registro(s)?`
+     );
+     if (!confirmed) return;
+
+     this.sweetAlertService.showLoading('Processando...');
+     this.configService.updateStatuses(targets.map(t => t.id), newStatus).subscribe(() => {
+       this.sweetAlertService.closeLoading();
+       this.sweetAlertService.showSuccess('Concluído!', `${targets.length} registros ${action === 'ativar' ? 'ativados' : 'inativados'}.`);
+       this.loadData();
+     });
+   }
+   ```
+
+### E.5 Modal de Prompt (ao clicar no nome)
+
+Ao clicar no texto do prompt na coluna, abrir o `PromptDetailModalComponent` com os dados do prompt (US06.1 / US10.1).
+
+### E.6 Botão de Exportação
+
+Adicionar um botão com ícone de download/exportação. Ao clicar, gera um arquivo CSV com as colunas:
+- Status, Unidade de Negócio, Cluster, Curso, Tipo de Atividade, Prompt, Criado em, Criado por, Atualizado em, Atualizado por.
+
+**Implementação sugerida**: Usar a API nativa do browser para gerar e baixar CSV, sem dependências externas:
 ```typescript
-canEnableAutoPublication = computed(() => {
-  const note = this.globalNote();
-  const deadline = this.globalDeadline();
-  return note !== null && deadline !== null
-    && Number.isInteger(note) && Number.isInteger(deadline)
-    && note >= 0 && note <= 100
-    && deadline >= 0 && deadline <= 99;
-});
-
-toggleAutoPublication() {
-  const newState = !this.isAutoPublicationEnabled();
-  this.service.saveGlobalSettings(
-    this.globalNote()!, this.globalDeadline()!, newState
-  ).subscribe(() => {
-    this.isAutoPublicationEnabled.set(newState);
-  });
+exportToCSV() {
+  const headers = ['Status', 'Unidade de Negócio', 'Cluster', 'Curso', 'Tipo de Atividade', 'Prompt', 'Criado em', 'Criado por', 'Atualizado em', 'Atualizado por'];
+  const rows = this.configs().map(c => [
+    c.correctionStatus, c.businessUnitName, c.clusterName, c.courseName,
+    c.activityTypeName, c.promptTitle, c.createdAt, c.createdBy, c.updatedAt, c.updatedBy
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(';')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM para Excel
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `correcoes-ia-export-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 ```
 
-### F.3 Substituir filtros por `MultiSelectDropdownComponent`
+### E.7 Adicionar Disciplina nos Filtros
 
-Mesmos filtros multi-select hierárquicos da Aba 3.
+Adicionar o filtro de **Disciplina** na hierarquia de filtros (entre Curso e Atividade).
 
-### F.4 Padronizar paginação
+**Critério de aceite**: Aba renomeada, botão pesquisar com loading, coluna Disciplina, botão "Ativar em Massa" fixo com lógica inteligente e sweet alerts, modal do prompt funciona, exportação gera CSV válido.
 
-Mesmo padrão da Auditoria.
+---
 
-**Critério de aceite**: Layout 50/50, toggle desabilitado sem nota/prazo, ao ativar grava tudo, filtros multi-select com cascata, paginação padronizada.
+## Fase F — Aba 5: Publicação de Notas
+
+### F.1 Remover "%" do campo Nota
+
+**Arquivo**: `components/publication-tab/publication-tab.component.html`
+
+Remover qualquer símbolo de `%` ao lado ou dentro do campo de Nota. O campo deve ser apenas numérico inteiro (0–100), sem sufixo.
+
+### F.2 Coluna Disciplina na Tabela
+
+Adicionar coluna **Disciplina** na tabela, **após a coluna Curso**.
+
+### F.3 Filtro Disciplina
+
+Adicionar o `MultiSelectDropdownComponent` para Disciplina **após o filtro de Curso** na barra de filtros.
+
+### F.4 Botão Pesquisar
+
+Mesmo comportamento da Aba 2 (D.2): botão "Pesquisar" após os filtros, sweet alert de loading.
+
+### F.5 Substituir Toggle por Botão "Ativar Publicação"
+
+1. **Remover** o toggle liga/desliga de Publicação Automática do painel de configurações globais.
+2. **Adicionar** botão **"Ativar Publicação"** fixo no padrão dos demais botões de massa.
+3. **Lógica inteligente** (mesma dos Casos 1/2/3 descritos na Fase E.4):
+   - Checkboxes marcados com ao menos 1 publicação inativa → ativa todos os marcados.
+   - Todos marcados ativos → inativa todos.
+   - Nenhum marcado → aplica aos registros filtrados.
+4. **Contagem dinâmica** no texto do botão.
+5. **Sweet alerts** de confirmação e conclusão.
+
+### F.6 Atualizar Regra de Dependência (US14)
+
+**Remover** a validação que bloqueia "Correção Desabilitada + Publicação Ativa" como estado inválido. A regra deve ser:
+- Se Correção está **Inativa**, o botão de publicação fica **indisponível** para o registro (não pode ativar).
+- Se Correção está **Ativa** e publicação está **Desabilitada**, é um estado **válido**.
+- **Não** há bloqueio retroativo: se a correção for desabilitada depois, a publicação já ativa não é automaticamente desabilitada.
+
+### F.7 Manter Validação do Botão
+
+O botão "Ativar Publicação" só pode ser utilizado quando Nota e Prazo estiverem preenchidos com valores válidos.
+
+**Critério de aceite**: Campo Nota sem %, coluna/filtro Disciplina, botão pesquisar, botão "Ativar Publicação" com lógica inteligente e sweet alerts, regra de dependência atualizada.
 
 ---
 
@@ -286,38 +571,45 @@ Mesmo padrão da Auditoria.
 
 | Fluxo | Validação |
 |---|---|
-| Aba 1 → Filtro Situação | Default "Ativo" marcado → só ativos visíveis |
-| Aba 1 → Desmarcar todos | Nenhum prompt exibido |
-| Aba 1 → Badge Inativo/Ativo | Status muda e persiste |
-| Aba 1 → Observações | Digitar + "Salvar Comentário" → salva separado |
-| Aba 1 → Filtros Unidade/Atividade | Filtram cumulativamente |
-| Aba 2 → Filtros hierárquicos | Cascata Unidade → Atividade → Prompt |
-| Aba 2 → Vinculação em massa | Checkbox + dropdown + Vincular |
-| Aba 2 → Modal prompt | Campos bloqueados, observações editáveis |
+| Aba 1 → Dois textareas | Campo Avaliação e Feedback renderizam e salvam independente |
+| Aba 1 → Dropdown Situação | Dropdown na mesma linha de Unidade e Atividade, padrão visual consistente |
+| Aba 1 → Contorno nos cards | Borda visível em cada prompt-item |
+| Aba 1 → Badge Ativo | Legível, cor diferenciada, contraste adequado |
+| Aba 2 → Filtros 5 níveis | Cascata Unidade → Cluster → Curso → Disciplina → Atividade |
+| Aba 2 → Botão Pesquisar | Sweet alert loading, tabela atualiza só ao clicar |
+| Aba 2 → Coluna Disciplina | Exibida na tabela com dados corretos |
+| Aba 2 → Vinculação em massa (selecionados) | Vincula apenas os marcados com sweet alert de confirmação/conclusão |
+| Aba 2 → Vinculação em massa (filtrados) | Vincula todos os filtrados com sweet alert de confirmação/conclusão |
+| Aba 2 → Validação vínculo existente | Registros já vinculados com o mesmo prompt são contabilizados separadamente |
+| Aba 2 → Contagem dinâmica no botão | Exibe quantidade correta (selecionados vs filtrados) |
 | Aba 2 → Paginação | Padrão Auditoria (25 default) |
-| Aba 3 → MultiSelect | Abrir, buscar, selecionar múltiplos, "Selecionar todas" |
-| Aba 3 → Cascata | Selecionar Unidade → Cluster filtra |
-| Aba 3 → Paginação | Padrão Auditoria (25 default) |
+| Aba 3 → Nome da aba | "Ativar Correção por IA" |
+| Aba 3 → Botão Pesquisar | Sweet alert loading |
+| Aba 3 → Coluna Disciplina | Exibida na tabela |
+| Aba 3 → "Ativar em Massa" (ao menos 1 inativo) | Ativa todos os selecionados/filtrados |
+| Aba 3 → "Ativar em Massa" (todos ativos) | Inativa todos os selecionados/filtrados |
+| Aba 3 → Contagem dinâmica no botão | Exibe quantidade correta |
+| Aba 3 → Sweet alerts confirmação/conclusão | Funcionam |
+| Aba 3 → Modal do prompt | Abre ao clicar no nome, campos bloqueados |
+| Aba 3 → Exportação CSV | Gera arquivo com colunas corretas |
 | Aba 4 → Regressão | Auditoria funciona sem alterações |
-| Aba 5 → Layout 50/50 | Regras à esquerda, campos à direita |
-| Aba 5 → Toggle desabilitado | Sem Nota/Prazo → toggle cinza |
-| Aba 5 → Toggle habilitado | Com valores válidos → clicável |
-| Aba 5 → Gravar | Ativar toggle → grava Nota + Prazo + status |
-| Aba 5 → Filtros multi-select | Mesmos da Aba 3 |
+| Aba 5 → Campo Nota sem % | Apenas numérico, sem símbolo |
+| Aba 5 → Coluna/Filtro Disciplina | Adicionados corretamente |
+| Aba 5 → Botão Pesquisar | Sweet alert loading |
+| Aba 5 → Botão "Ativar Publicação" | Substituiu o toggle, lógica inteligente funciona |
+| Aba 5 → Regra de dependência | Publicação indisponível se correção inativa, sem bloqueio retroativo |
 | Aba 5 → Paginação | Padrão Auditoria (25 default) |
 
 ### G.2 Commit e merge
 
 ```bash
-git checkout feature/v3-tab-enhancements
+git checkout feature/v4-discipline-hierarchy
 git add .
-git commit -m "feat(v3-tab-enhancements): multi-select filters, prompt status/observations, bulk linking, publication split layout"
+git commit -m "feat(v4): discipline hierarchy, dual prompt body, search button, smart bulk actions, sweet alerts, export"
 git checkout master
-git merge feature/v3-tab-enhancements
+git merge feature/v4-discipline-hierarchy
 git push origin master
 ```
-
-> **Nota**: A branch `feature/v3-tab-enhancements` já deve existir (criada na etapa de planejamento). Use `git checkout` ao invés de `git checkout -b` se ela já existir localmente.
 
 ---
 
@@ -326,44 +618,47 @@ git push origin master
 ### Novos
 | Arquivo | Fase |
 |---|---|
-| `components/shared/multi-select-dropdown/*` | A |
-| `components/shared/prompt-detail-modal/*` | A |
+| `services/sweet-alert.service.ts` | A |
 
 ### Modificados
-| Arquivo | Fase |
-|---|---|
-| `models/ia-corrections.models.ts` | B |
-| `services/prompt.service.ts` | B |
-| `services/prompt-linking.service.ts` | B |
-| `services/publication.service.ts` | B |
-| `components/prompt-registration-tab/*` | C |
-| `components/prompt-linking-tab/*` | D |
-| `components/correction-config-tab/*` | E |
-| `components/publication-tab/*` | F |
+| Arquivo | Fase | Alteração Principal |
+|---|---|---|
+| `models/ia-corrections.models.ts` | B | `Prompt.body` → `bodyEvaluation`/`bodyFeedback`, nova `Discipline`, campos auditoria |
+| `services/prompt.service.ts` | B | Mock data com dois corpos |
+| `services/prompt-linking.service.ts` | B | Migrar Curso→Disciplina, mock de disciplinas, `linkPromptToDisciplines` |
+| `services/correction-config.service.ts` | B | `disciplineName`, campos auditoria, `exportConfigs()` |
+| `services/publication.service.ts` | B | `disciplineName` |
+| `components/shared/prompt-detail-modal/*` | A | Dois campos de corpo readonly |
+| `components/prompt-registration-tab/*` | C | Dois textareas, dropdown situação, contorno cards, badge legível |
+| `components/prompt-linking-tab/*` | D | Filtros 5 níveis, botão pesquisar, disciplina, vinculação inteligente |
+| `components/correction-config-tab/*` | E | Renomear aba, pesquisar, ativar em massa, disciplina, modal, exportação |
+| `components/publication-tab/*` | F | Sem %, disciplina, pesquisar, ativar publicação, regra dependência |
+| `ia-corrections-page.component.html` | E | Renomear texto da aba 3 |
 
 ### Mantidos (sem alteração)
 | Arquivo | Fase |
 |---|---|
 | `components/audit-tab/*` | — (referência de paginação) |
 | `services/ia-config.service.ts` | — |
-| `services/correction-config.service.ts` | — |
+| `components/shared/multi-select-dropdown/*` | — |
 | `guards/unsaved-changes.guard.ts` | — |
-| `ia-corrections-page.component.*` | — |
 
 ---
 
-## Ordem de Execução
+## Dependências do Grafo de Execução
 
 ```mermaid
 graph TD
-    FA[Fase A: Componentes Compartilhados] --> FB[Fase B: Models & Services]
+    FA[Fase A: Dependências & Shared] --> FB[Fase B: Models & Services]
     FB --> FC[Fase C: Aba 1 - Cadastro Prompt]
-    FB --> FE[Fase E: Aba 3 - Configurar Correção]
-    FC --> FD[Fase D: Aba 2 - Relacionar Prompt]
-    FE --> FF[Fase F: Aba 5 - Publicação de Notas]
-    FD --> FF
-    FD --> FG[Fase G: QA & Merge]
+    FB --> FD[Fase D: Aba 2 - Relacionar Prompt]
+    FB --> FE[Fase E: Aba 3 - Ativar Correção por IA]
+    FB --> FF[Fase F: Aba 5 - Publicação de Notas]
+    FC --> FG[Fase G: QA & Merge]
+    FD --> FG
+    FE --> FG
     FF --> FG
 ```
 
-> **Nota**: Fases C e E podem rodar em paralelo (ambas dependem apenas de B). Fase D depende de C (precisa do modal e prompt atualizado). Fase F depende de **E e D** (reutiliza filtros multi-select da Fase E e dados de vínculo Prompt-Curso da Fase D para exibir a coluna Prompt na tabela de publicação).
+> **Nota**: Fases C, D, E e F podem ser executadas em **paralelo** (todas dependem apenas de B). A Fase G (QA) só pode iniciar após todas as anteriores estarem concluídas.
+> **Importante**: Se o agente executor optar por sequencial, a ordem recomendada é: A → B → C → D → E → F → G.
