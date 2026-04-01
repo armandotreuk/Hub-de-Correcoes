@@ -25,17 +25,24 @@ export class PromptDetailModalComponent implements OnChanges {
 
   @Output() close = new EventEmitter<void>();
   @Output() saveObservations = new EventEmitter<{ id: string; observations: string }>();
-  @Output() savePrompt = new EventEmitter<{ id: string; title: string; body: string }>();
+  @Output() savePrompt = new EventEmitter<{
+    id: string;
+    title: string;
+    bodyEvaluation: string;
+    bodyFeedback: string;
+  }>();
 
   observations = signal('');
   editedTitle = signal('');
-  editedBody = signal('');
+  editedBodyEvaluation = signal('');
+  editedBodyFeedback = signal('');
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['prompt'] && this.prompt) {
       this.observations.set((this.prompt as any).observations || '');
       this.editedTitle.set(this.prompt.title);
-      this.editedBody.set(this.prompt.body);
+      this.editedBodyEvaluation.set((this.prompt as any).bodyEvaluation || '');
+      this.editedBodyFeedback.set((this.prompt as any).bodyFeedback || '');
     }
   }
 
@@ -63,7 +70,8 @@ export class PromptDetailModalComponent implements OnChanges {
       this.savePrompt.emit({
         id: this.prompt.id,
         title: this.editedTitle(),
-        body: this.editedBody(),
+        bodyEvaluation: this.editedBodyEvaluation(),
+        bodyFeedback: this.editedBodyFeedback(),
       });
     }
   }

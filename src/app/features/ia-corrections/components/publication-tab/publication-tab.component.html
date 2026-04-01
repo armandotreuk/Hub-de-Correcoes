@@ -1,4 +1,4 @@
-<!-- Fase F: Publicação de Notas (Modernized v3) -->
+<!-- Fase F: Publicação de Notas (v4) -->
 <div class="card param-container h-100 p-3">
   <!-- Fase F.1: Bloco Superior (Layout Split 50/50) -->
   <div class="row g-3 mb-4">
@@ -8,9 +8,19 @@
           <i class="ri-information-line mr-2"></i> Regras de Publicação Automática
         </h6>
         <ul class="list-unstyled small mb-0 rules-v3-list">
-          <li class="mb-2">• Submissões avaliadas pela IA cujo desempenho (%) fique <strong>igual ou acima</strong> da Nota configurada terão a nota registrada automaticamente.</li>
-          <li class="mb-2">• Submissões com desempenho abaixo da nota mínima ficarão retidas para curadoria manual dentro do prazo (em dias) configurado.</li>
-          <li>• Os valores de Nota e Prazo podem ser ajustados a qualquer momento pela equipe pedagógica.</li>
+          <li class="mb-2">
+            • Submissões avaliadas pela IA cujo desempenho (%) fique
+            <strong>igual ou acima</strong> da Nota configurada terão a nota registrada
+            automaticamente.
+          </li>
+          <li class="mb-2">
+            • Submissões com desempenho abaixo da nota mínima ficarão retidas para curadoria manual
+            dentro do prazo (em dias) configurado.
+          </li>
+          <li>
+            • Os valores de Nota e Prazo podem ser ajustados a qualquer momento pela equipe
+            pedagógica.
+          </li>
         </ul>
       </div>
     </div>
@@ -19,73 +29,144 @@
         <h6 class="mb-3 text-muted">Configurações Globais</h6>
         <div class="row g-3 mb-3">
           <div class="col-md-6">
+            <!-- v4: F.1 Remover "%" -->
             <label class="small font-weight-bold text-muted">Nota Mínima (0-100):</label>
-            <div class="input-group input-group-sm">
-              <input type="number" class="form-control" [(ngModel)]="globalNote" (ngModelChange)="globalNote.set($event)" min="0" max="100">
-              <span class="input-group-text">%</span>
-            </div>
+            <input
+              type="number"
+              class="form-control form-control-sm"
+              [(ngModel)]="globalNote"
+              (ngModelChange)="globalNote.set($event)"
+              min="0"
+              max="100"
+              placeholder="0"
+            />
           </div>
           <div class="col-md-6">
             <label class="small font-weight-bold text-muted">Prazo (dias 0-99):</label>
-            <input type="number" class="form-control form-control-sm" [(ngModel)]="globalDeadline" (ngModelChange)="globalDeadline.set($event)" min="0" max="99">
+            <input
+              type="number"
+              class="form-control form-control-sm"
+              [(ngModel)]="globalDeadline"
+              (ngModelChange)="globalDeadline.set($event)"
+              min="0"
+              max="99"
+              placeholder="0"
+            />
           </div>
         </div>
-        <div class="d-flex align-items-center justify-content-between pt-2 border-top">
-          <div class="toggle-info">
-            <span class="d-block small font-weight-bold">Publicação Automática</span>
-            <span class="text-muted" style="font-size: 0.75rem;">Aprovar liberação de nota automática</span>
-          </div>
-          <div 
-            class="toggle-v3" 
-            [class.active]="isAutoPublicationEnabled()" 
-            [class.disabled]="!canEnableAutoPublication()"
-            (click)="toggleAutoPublication()">
-            <div class="toggle-switch"></div>
+        <!-- v4: F.5 Remover Toggle, just display status or info -->
+        <div class="d-flex align-items-center pt-2 border-top">
+          <div class="text-muted small">
+            <i class="ri-information-circle-line mr-1"></i> Use o botão "Ativar Publicação" abaixo
+            para gerenciar a publicação por registros.
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Fase F.3: Filtros MultiSelect Cascata -->
+  <!-- v4: Filtros (F.3 & F.4) -->
   <div class="filters-panel-v3 row g-2 mb-4">
     <div class="col-md-2">
-      <app-multi-select-dropdown [label]="'Unidade'" [options]="unitOptions()" [selectedValues]="selectedUnits()" (selectionChange)="selectedUnits.set($event); currentPage.set(1)"></app-multi-select-dropdown>
+      <app-multi-select-dropdown
+        [label]="'Unidade'"
+        [options]="unitOptions()"
+        [selectedValues]="selectedUnits()"
+        (selectionChange)="selectedUnits.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
     </div>
     <div class="col-md-2">
-      <app-multi-select-dropdown [label]="'Cluster'" [options]="clusterOptions()" [selectedValues]="selectedClusters()" (selectionChange)="selectedClusters.set($event); currentPage.set(1)"></app-multi-select-dropdown>
+      <app-multi-select-dropdown
+        [label]="'Cluster'"
+        [options]="clusterOptions()"
+        [selectedValues]="selectedClusters()"
+        (selectionChange)="selectedClusters.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
     </div>
     <div class="col-md-2">
-      <app-multi-select-dropdown [label]="'Curso'" [options]="courseOptions()" [selectedValues]="selectedCourses()" (selectionChange)="selectedCourses.set($event); currentPage.set(1)"></app-multi-select-dropdown>
+      <app-multi-select-dropdown
+        [label]="'Curso'"
+        [options]="courseOptions()"
+        [selectedValues]="selectedCourses()"
+        (selectionChange)="selectedCourses.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
     </div>
     <div class="col-md-2">
-      <app-multi-select-dropdown [label]="'Atividade'" [options]="activityOptions()" [selectedValues]="selectedActivities()" (selectionChange)="selectedActivities.set($event); currentPage.set(1)"></app-multi-select-dropdown>
+      <!-- v4: F.3 Filtro Disciplina -->
+      <app-multi-select-dropdown
+        [label]="'Disciplina'"
+        [options]="disciplineOptions()"
+        [selectedValues]="selectedDisciplines()"
+        (selectionChange)="selectedDisciplines.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
     </div>
     <div class="col-md-2">
-      <app-multi-select-dropdown [label]="'Prompt'" [options]="promptOptions()" [selectedValues]="selectedPrompts()" (selectionChange)="selectedPrompts.set($event); currentPage.set(1)"></app-multi-select-dropdown>
+      <app-multi-select-dropdown
+        [label]="'Atividade'"
+        [options]="activityOptions()"
+        [selectedValues]="selectedActivities()"
+        (selectionChange)="selectedActivities.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
     </div>
-    <div class="col-md-2">
-      <app-multi-select-dropdown [label]="'Status Pub.'" [options]="statusOptions" [selectedValues]="selectedStatusesArr()" (selectionChange)="selectedStatusesArr.set($event); currentPage.set(1)"></app-multi-select-dropdown>
+    <div class="col-md-2 d-flex align-items-end">
+      <!-- v4: F.4 Botão Pesquisar -->
+      <button class="btn btn-primary w-100" (click)="onSearch()">
+        <i class="ri-search-line mr-1"></i> Pesquisar
+      </button>
     </div>
   </div>
 
+  <!-- Second row of filters -->
+  <div class="row g-2 mb-4">
+    <div class="col-md-2">
+      <app-multi-select-dropdown
+        [label]="'Prompt'"
+        [options]="promptOptions()"
+        [selectedValues]="selectedPrompts()"
+        (selectionChange)="selectedPrompts.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
+    </div>
+    <div class="col-md-2">
+      <app-multi-select-dropdown
+        [label]="'Status Pub.'"
+        [options]="statusOptions"
+        [selectedValues]="selectedStatusesArr()"
+        (selectionChange)="selectedStatusesArr.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
+    </div>
+  </div>
+
+  <!-- v4: Action Bar -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h6 class="m-0 text-muted">Configurações de Publicação por Disciplina</h6>
-    @if (selectedIds().size > 0) {
-      <button class="btn btn-primary btn-sm" (click)="onMassAction()">
-        <i class="ri-exchange-circle-line mr-1"></i> Alterar Status ({{ selectedIds().size }})
-      </button>
-    }
+    <!-- v4: F.5 Botão Ativar Publicação -->
+    <button
+      class="btn btn-primary btn-sm"
+      (click)="onMassAction()"
+      [disabled]="filteredConfigs().length === 0"
+    >
+      <i class="ri-upload-cloud-line mr-1"></i>
+      @if (selectedIds().size > 0) {
+        Ativar Publicação ({{ selectedIds().size }} selecionados)
+      } @else {
+        Ativar Publicação ({{ filteredConfigs().length }} filtrados)
+      }
+    </button>
   </div>
 
-  <!-- Fase F.4: Tabela e Paginação Padronizada -->
+  <!-- v4: Tabela com Disciplina -->
   <div class="table-responsive flex-grow-1">
     <table class="table table-hover minimalist-table mb-0">
       <thead>
         <tr>
           <th width="40">
             <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="chkAllPub" (change)="toggleAll($any($event.target).checked)">
+              <input
+                type="checkbox"
+                class="custom-control-input"
+                id="chkAllPub"
+                (change)="toggleAll($any($event.target).checked)"
+              />
               <label class="custom-control-label" for="chkAllPub"></label>
             </div>
           </th>
@@ -94,6 +175,8 @@
           <th>Unidade de Negócio</th>
           <th>Cluster</th>
           <th>Curso</th>
+          <!-- v4: F.2 Coluna Disciplina -->
+          <th>Disciplina</th>
           <th>Atividade</th>
           <th>Prompt</th>
         </tr>
@@ -103,35 +186,54 @@
           <tr>
             <td>
               <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" [id]="'chk-pub-' + config.id" [checked]="selectedIds().has(config.id)" (change)="toggleSelection(config.id)" [disabled]="config.correctionStatus === 'Inativo'">
+                <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  [id]="'chk-pub-' + config.id"
+                  [checked]="selectedIds().has(config.id)"
+                  (change)="toggleSelection(config.id)"
+                  [disabled]="config.correctionStatus === 'Inativo'"
+                />
                 <label class="custom-control-label" [for]="'chk-pub-' + config.id"></label>
               </div>
             </td>
             <td>
               @if (config.correctionStatus === 'Inativo') {
-                <span class="badge badge-secondary p-2 d-inline-flex align-items-center" title="Correção inativa - publicação bloqueada">
+                <span
+                  class="badge badge-secondary p-2 d-inline-flex align-items-center"
+                  title="Correção inativa - publicação bloqueada"
+                >
                   <i class="ri-lock-line mr-1"></i> Bloqueado
                 </span>
               } @else {
-                <div class="status-badge-toggle" [class.active]="config.publicationStatus === 'Habilitado'" (click)="toggleSingleStatus(config)">
+                <div
+                  class="status-badge-toggle"
+                  [class.active]="config.publicationStatus === 'Habilitado'"
+                  (click)="toggleSingleStatus(config)"
+                >
                   {{ config.publicationStatus }}
                 </div>
               }
             </td>
             <td>
-              <span class="badge" [class.badge-success]="config.correctionStatus === 'Ativo'" [class.badge-secondary]="config.correctionStatus === 'Inativo'">
+              <span
+                class="badge"
+                [class.badge-success]="config.correctionStatus === 'Ativo'"
+                [class.badge-secondary]="config.correctionStatus === 'Inativo'"
+              >
                 {{ config.correctionStatus }}
               </span>
             </td>
             <td class="data-text">{{ config.businessUnitName }}</td>
             <td class="data-text">{{ config.clusterName }}</td>
             <td class="font-weight-600">{{ config.courseName }}</td>
+            <td class="font-weight-600">{{ config.disciplineName }}</td>
             <td class="activity-text">{{ config.activityTypeName }}</td>
             <td class="font-weight-600">{{ config.promptTitle }}</td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="8" class="text-center py-5 text-muted">
+            <td colspan="9" class="text-center py-5 text-muted">
               <i class="ri-filter-off-line mb-3" style="font-size: 2rem"></i>
               <p>Nenhum registro encontrado para os filtros selecionados.</p>
             </td>
@@ -141,10 +243,16 @@
     </table>
   </div>
 
-  <div class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+  <div
+    class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top"
+  >
     <div class="page-size-selector text-muted small">
       Exibindo
-      <select class="custom-select-sm" [ngModel]="itemsPerPage()" (ngModelChange)="onItemsPerPageChange($event)">
+      <select
+        class="custom-select-sm"
+        [ngModel]="itemsPerPage()"
+        (ngModelChange)="onItemsPerPageChange($event)"
+      >
         <option [ngValue]="10">10</option>
         <option [ngValue]="25">25</option>
         <option [ngValue]="50">50</option>
@@ -154,10 +262,18 @@
     </div>
     <div class="pagination-controls data-text">
       Página {{ currentPage() }} de {{ totalPages() }}
-      <button class="btn btn-sm btn-light ml-2" [disabled]="currentPage() === 1" (click)="prevPage()">
+      <button
+        class="btn btn-sm btn-light ml-2"
+        [disabled]="currentPage() === 1"
+        (click)="prevPage()"
+      >
         <i class="ri-arrow-left-s-line"></i> Anterior
       </button>
-      <button class="btn btn-sm btn-light ml-1" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
+      <button
+        class="btn btn-sm btn-light ml-1"
+        [disabled]="currentPage() >= totalPages()"
+        (click)="nextPage()"
+      >
         Próximo <i class="ri-arrow-right-s-line"></i>
       </button>
     </div>

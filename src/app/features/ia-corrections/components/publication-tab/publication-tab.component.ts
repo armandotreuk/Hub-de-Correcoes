@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PublicationService } from '../../services/publication.service';
+import { SweetAlertService } from '../../services/sweet-alert.service';
 import { PublicationConfig, PublicationGlobalSettings } from '../../models/ia-corrections.models';
 import {
   MultiSelectOption,
@@ -11,24 +12,22 @@ import {
 @Component({
   selector: 'app-publication-tab',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MultiSelectDropdownComponent,
-  ],
+  imports: [CommonModule, FormsModule, MultiSelectDropdownComponent],
   templateUrl: './publication-tab.component.html',
   styleUrls: ['./publication-tab.component.css'],
 })
 export class PublicationTabComponent implements OnInit {
   private service = inject(PublicationService);
+  private sweetAlertService = inject(SweetAlertService);
 
   configs = signal<PublicationConfig[]>([]);
+  displayedConfigs = signal<PublicationConfig[]>([]); // v4: Searched data
   isLoading = signal(true);
 
-  // Configurações Globais (Fase F.1, F.2)
+  // Configurações Globais
   globalNote = signal<number | null>(null);
   globalDeadline = signal<number | null>(null);
-  isAutoPublicationEnabled = signal(false);
+  // v4: F.5 Remover toggle, usar botão "Ativar Publicação"
 
   canEnableAutoPublication = computed(() => {
     const note = this.globalNote();
@@ -45,26 +44,43 @@ export class PublicationTabComponent implements OnInit {
     );
   });
 
-  // Filtros MultiSelect (Fase F.3)
+  // v4: Filtros (F.3 & F.4)
   selectedUnits = signal<string[]>([]);
   selectedClusters = signal<string[]>([]);
   selectedCourses = signal<string[]>([]);
+  selectedDisciplines = signal<string[]>([]);
   selectedActivities = signal<string[]>([]);
   selectedPrompts = signal<string[]>([]);
   selectedStatusesArr = signal<string[]>([]);
 
-  // Opções para MultiSelect (Reutilizando lógica da Aba 3)
+  // Options
   unitOptions = computed(() => this.getUniqueOptions(this.configs(), 'businessUnitName'));
   clusterOptions = computed(() => {
     const units = this.selectedUnits();
-    const data = units.length === 0 ? this.configs() : this.configs().filter(c => units.includes(c.businessUnitName));
+    const data =
+      units.length === 0
+        ? this.configs()
+        : this.configs().filter((c) => units.includes(c.businessUnitName));
     return this.getUniqueOptions(data, 'clusterName');
   });
   courseOptions = computed(() => {
     const clusters = this.selectedClusters();
-    const data = clusters.length === 0 ? this.configs() : this.configs().filter(c => clusters.includes(c.clusterName));
+    const data =
+      clusters.length === 0
+        ? this.configs()
+        : this.configs().filter((c) => clusters.includes(c.clusterName));
     return this.getUniqueOptions(data, 'courseName');
   });
+  // v4: F.3 Disciplina Options
+  disciplineOptions = computed(() => {
+    const courses = this.selectedCourses();
+    const data =
+      courses.length === 0
+        ? this.configs()
+        : this.configs().filter((c) => courses.includes(c.courseName));
+    return this.getUniqueOptions(data, 'disciplineName');
+  });
+
   activityOptions = computed(() => this.getUniqueOptions(this.configs(), 'activityTypeName'));
   promptOptions = computed(() => this.getUniqueOptions(this.configs(), 'promptTitle'));
   statusOptions: MultiSelectOption[] = [
@@ -73,24 +89,44 @@ export class PublicationTabComponent implements OnInit {
   ];
 
   private getUniqueOptions(data: any[], key: string): MultiSelectOption[] {
-    const unique = Array.from(new Set(data.map(item => item[key]))).sort();
-    return unique.map(val => ({ value: val, label: val as string }));
+    const unique = Array.from(new Set(data.map((item) => item[key]))).sort();
+    return unique.map((val) => ({ value: val, label: val as string }));
   }
 
-  // Seleção e Paginação (Fase F.4)
+  // Selection
   selectedIds = signal<Set<string>>(new Set());
   currentPage = signal(1);
   itemsPerPage = signal(25);
 
+  // v4: F.6 Updated logic to include status in filtering (applied to displayedConfigs)
   filteredConfigs = computed(() => {
-    return this.configs().filter(c => {
-      const matchUnit = this.selectedUnits().length === 0 || this.selectedUnits().includes(c.businessUnitName);
-      const matchCluster = this.selectedClusters().length === 0 || this.selectedClusters().includes(c.clusterName);
-      const matchCourse = this.selectedCourses().length === 0 || this.selectedCourses().includes(c.courseName);
-      const matchActivity = this.selectedActivities().length === 0 || this.selectedActivities().includes(c.activityTypeName);
-      const matchPrompt = this.selectedPrompts().length === 0 || this.selectedPrompts().includes(c.promptTitle);
-      const matchStatus = this.selectedStatusesArr().length === 0 || this.selectedStatusesArr().includes(c.publicationStatus);
-      return matchUnit && matchCluster && matchCourse && matchActivity && matchPrompt && matchStatus;
+    return this.displayedConfigs().filter((c) => {
+      const matchUnit =
+        this.selectedUnits().length === 0 || this.selectedUnits().includes(c.businessUnitName);
+      const matchCluster =
+        this.selectedClusters().length === 0 || this.selectedClusters().includes(c.clusterName);
+      const matchCourse =
+        this.selectedCourses().length === 0 || this.selectedCourses().includes(c.courseName);
+      const matchDiscipline =
+        this.selectedDisciplines().length === 0 ||
+        this.selectedDisciplines().includes(c.disciplineName);
+      const matchActivity =
+        this.selectedActivities().length === 0 ||
+        this.selectedActivities().includes(c.activityTypeName);
+      const matchPrompt =
+        this.selectedPrompts().length === 0 || this.selectedPrompts().includes(c.promptTitle);
+      const matchStatus =
+        this.selectedStatusesArr().length === 0 ||
+        this.selectedStatusesArr().includes(c.publicationStatus);
+      return (
+        matchUnit &&
+        matchCluster &&
+        matchCourse &&
+        matchDiscipline &&
+        matchActivity &&
+        matchPrompt &&
+        matchStatus
+      );
     });
   });
 
@@ -100,7 +136,9 @@ export class PublicationTabComponent implements OnInit {
     return this.filteredConfigs().slice(start, end);
   });
 
-  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredConfigs().length / this.itemsPerPage())));
+  totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredConfigs().length / this.itemsPerPage())),
+  );
 
   ngOnInit() {
     this.loadData();
@@ -109,67 +147,135 @@ export class PublicationTabComponent implements OnInit {
 
   loadData() {
     this.isLoading.set(true);
-    this.service.getPublicationConfigs().subscribe(data => {
+    this.service.getPublicationConfigs().subscribe((data) => {
       this.configs.set(data);
+      this.displayedConfigs.set(data); // v4: Initial load
       this.isLoading.set(false);
     });
   }
 
   loadGlobalSettings() {
-    this.service.getGlobalSettings().subscribe(s => {
+    this.service.getGlobalSettings().subscribe((s) => {
       this.globalNote.set(s.note);
       this.globalDeadline.set(s.deadline);
-      this.isAutoPublicationEnabled.set(s.autoPublicationEnabled);
+    });
+  }
+
+  // v4: F.4 Botão Pesquisar
+  onSearch() {
+    this.sweetAlertService.showLoading('Buscando registros...');
+    this.service.getPublicationConfigs().subscribe({
+      next: (data) => {
+        this.displayedConfigs.set(data);
+        this.currentPage.set(1);
+        this.sweetAlertService.closeLoading();
+      },
+      error: () => this.sweetAlertService.closeLoading(),
     });
   }
 
   toggleAutoPublication() {
+    // v4: F.5 This logic is replaced by the mass button, but keeping for global config if needed
+    // Or removed entirely if "Ativar Publicação" replaces it completely for row actions too.
+    // Let's assume we keep global settings but trigger via button now? Actually, let's keep simple.
     if (!this.canEnableAutoPublication()) return;
-    const newState = !this.isAutoPublicationEnabled();
-    this.service.saveGlobalSettings(this.globalNote()!, this.globalDeadline()!, newState).subscribe(() => {
-      this.isAutoPublicationEnabled.set(newState);
-      alert(newState ? 'Publicação automática ativada!' : 'Publicação automática desativada.');
-    });
+    // Logic for global auto publication toggle if still needed.
+    // The requirement says "Remover o toggle ... do painel de configurações globais".
+    // So we should probably remove this method or make it do nothing/disable.
   }
 
   toggleSingleStatus(config: PublicationConfig) {
-    if (config.correctionStatus === 'Inativo') return;
+    // v4: F.6 Update logic: If correction is Inativo, disable button, but do NOT auto-toggle publication.
+    if (config.correctionStatus === 'Inativo') return; // Cannot toggle if correction is inactive
+
     const newStatus = config.publicationStatus === 'Habilitado' ? 'Desabilitado' : 'Habilitado';
-    this.service.updatePublicationStatus(config.id, newStatus).subscribe(updated => {
-      this.configs.update(list => list.map(c => c.id === updated.id ? updated : c));
+    this.service.updatePublicationStatus(config.id, newStatus).subscribe((updated) => {
+      this.configs.update((list) => list.map((c) => (c.id === updated.id ? updated : c)));
+      this.displayedConfigs.update((list) => list.map((c) => (c.id === updated.id ? updated : c)));
     });
   }
 
-  onMassAction() {
-    const ids = Array.from(this.selectedIds());
-    const first = this.configs().find(c => c.id === ids[0]);
-    if (!first) return;
-    const newStatus = first.publicationStatus === 'Habilitado' ? 'Desabilitado' : 'Habilitado';
-    this.service.updatePublicationStatuses(ids, newStatus).subscribe(() => {
-      this.loadData();
-      this.selectedIds.set(new Set());
-      alert('Status de publicação atualizados!');
-    });
+  // v4: F.5 Botão "Ativar Publicação" (Smart Logic)
+  async onMassAction() {
+    const selectedCount = this.selectedIds().size;
+    const filteredCount = this.filteredConfigs().length;
+
+    // v4: Use selected IDs if any, else use filtered IDs
+    const targets =
+      selectedCount > 0
+        ? this.filteredConfigs().filter((c) => this.selectedIds().has(c.id))
+        : this.filteredConfigs();
+
+    // Filter out targets where correction is inactive (F.6)
+    const validTargets = targets.filter((t) => t.correctionStatus === 'Ativo');
+
+    if (validTargets.length === 0) {
+      this.sweetAlertService.showError(
+        'Erro',
+        'Nenhum registro elegível para publicação. Verifique se a correção está ativa.',
+      );
+      return;
+    }
+
+    const hasDisabled = validTargets.some((t) => t.publicationStatus === 'Desabilitado');
+    const newStatus = hasDisabled ? 'Habilitado' : 'Desabilitado';
+    const action = hasDisabled ? 'habilitar' : 'desabilitar';
+
+    const count = validTargets.length;
+    const label = selectedCount > 0 ? `${count} selecionados` : `${count} filtrados`;
+
+    const confirmed = await this.sweetAlertService.confirmAction(
+      'Confirmar Publicação',
+      `Deseja ${action} a publicação para ${label}?`,
+    );
+
+    if (!confirmed) return;
+
+    this.sweetAlertService.showLoading('Processando...');
+    this.service
+      .updatePublicationStatuses(
+        validTargets.map((t) => t.id),
+        newStatus,
+      )
+      .subscribe(() => {
+        this.sweetAlertService.closeLoading();
+        this.sweetAlertService.showSuccess(
+          'Concluído!',
+          `${count} registros ${action === 'habilitar' ? 'habilitados' : 'desabilitados'}.`,
+        );
+        this.loadData();
+        this.selectedIds.set(new Set());
+      });
   }
 
   toggleSelection(id: string) {
-    this.selectedIds.update(set => {
+    this.selectedIds.update((set) => {
       const newSet = new Set(set);
-      if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
       return newSet;
     });
   }
 
   toggleAll(checked: boolean) {
     if (checked) {
-      const ids = this.paginatedConfigs().filter(c => c.correctionStatus === 'Ativo').map(c => c.id);
+      // v4: Only select rows where correction is active? Or just all filtered?
+      // Usually select all visible (paginated)
+      const ids = this.paginatedConfigs().map((c) => c.id);
       this.selectedIds.set(new Set(ids));
     } else {
       this.selectedIds.set(new Set());
     }
   }
 
-  prevPage() { if (this.currentPage() > 1) this.currentPage.set(this.currentPage() - 1); }
-  nextPage() { if (this.currentPage() < this.totalPages()) this.currentPage.set(this.currentPage() + 1); }
-  onItemsPerPageChange(size: number) { this.itemsPerPage.set(size); this.currentPage.set(1); }
+  prevPage() {
+    if (this.currentPage() > 1) this.currentPage.set(this.currentPage() - 1);
+  }
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) this.currentPage.set(this.currentPage() + 1);
+  }
+  onItemsPerPageChange(size: number) {
+    this.itemsPerPage.set(size);
+    this.currentPage.set(1);
+  }
 }

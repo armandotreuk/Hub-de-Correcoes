@@ -9,11 +9,13 @@ export class PublicationService {
   private correctionConfigService = inject(CorrectionConfigService);
 
   private configs: PublicationConfig[] = [
+    // Alinhado com IDs do CorrectionConfigService (roughly)
     {
       id: 'PUB-001',
       businessUnitName: 'Uniasselvi',
       clusterName: 'Cluster Sul',
       courseName: 'Engenharia de Software',
+      disciplineName: 'Algoritmos',
       activityTypeName: 'Desafio Profissional',
       promptTitle: 'Prompt Corretor Padrão',
       correctionStatus: 'Inativo',
@@ -27,6 +29,7 @@ export class PublicationService {
       businessUnitName: 'Uniasselvi',
       clusterName: 'Cluster Norte',
       courseName: 'Ciência da Computação',
+      disciplineName: 'Estrutura de Dados',
       activityTypeName: 'Desafio Profissional',
       promptTitle: 'Prompt Corretor Padrão',
       correctionStatus: 'Inativo',
@@ -40,6 +43,7 @@ export class PublicationService {
       businessUnitName: 'Uniasselvi',
       clusterName: 'Cluster Sul',
       courseName: 'Administração',
+      disciplineName: 'Gestão de Projetos',
       activityTypeName: 'Resenha',
       promptTitle: 'Prompt Resenha Crítica',
       correctionStatus: 'Inativo',
@@ -53,6 +57,7 @@ export class PublicationService {
       businessUnitName: 'Unicesumar',
       clusterName: 'Cluster Centro',
       courseName: 'Engenharia Civil',
+      disciplineName: 'Materiais de Construção',
       activityTypeName: 'MAPA',
       promptTitle: 'Prompt MAPA Avaliativo',
       correctionStatus: 'Inativo',
@@ -66,6 +71,7 @@ export class PublicationService {
       businessUnitName: 'Unicesumar',
       clusterName: 'Cluster Oeste',
       courseName: 'Design Gráfico',
+      disciplineName: 'Design de Identidade',
       activityTypeName: 'Prova',
       promptTitle: 'Prompt Prova Dissertativa',
       correctionStatus: 'Inativo',
@@ -79,6 +85,7 @@ export class PublicationService {
       businessUnitName: 'Uniasselvi',
       clusterName: 'Cluster Sul',
       courseName: 'Pedagogia',
+      disciplineName: 'Didática',
       activityTypeName: 'Desafio Profissional',
       promptTitle: 'Prompt Corretor Padrão',
       correctionStatus: 'Inativo',
@@ -92,6 +99,7 @@ export class PublicationService {
       businessUnitName: 'Unicesumar',
       clusterName: 'Cluster Centro',
       courseName: 'Psicologia',
+      disciplineName: 'Psicologia Geral',
       activityTypeName: 'Prova',
       promptTitle: 'Prompt Prova Dissertativa',
       correctionStatus: 'Inativo',
@@ -109,11 +117,7 @@ export class PublicationService {
       const corrStatus = this.correctionConfigService.getConfigStatus(corrId);
       if (corrStatus) {
         config.correctionStatus = corrStatus;
-        // RN24: Se correção ficou Inativa, forçar publicação Desabilitada
-        if (corrStatus === 'Inativo' && config.publicationStatus === 'Habilitado') {
-          config.publicationStatus = 'Desabilitado';
-          config.performanceThreshold = null;
-        }
+        // F.6: Não há bloqueio retroativo. A publicação continua ativa mesmo se a correção for inativada posteriormente.
       }
     });
     return of([...this.configs]).pipe(delay(300));

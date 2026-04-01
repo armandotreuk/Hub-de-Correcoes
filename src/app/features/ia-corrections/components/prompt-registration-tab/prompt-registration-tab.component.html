@@ -102,16 +102,6 @@
       @if (isEditing()) {
         <div class="editor-header d-flex justify-content-between align-items-center">
           <h5 class="m-0">{{ isNewPrompt() ? 'Novo Prompt' : 'Editar Prompt' }}</h5>
-          @if (!isNewPrompt()) {
-            <div
-              class="status-badge-toggle"
-              [class.active]="formData.status === 'Ativo'"
-              (click)="togglePromptStatus()"
-              title="Clique para alternar o status"
-            >
-              {{ formData.status }}
-            </div>
-          }
         </div>
 
         <div class="editor-form">
@@ -128,7 +118,7 @@
           </div>
 
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="required">Unidade de Negócio</label>
                 <select
@@ -143,7 +133,7 @@
                 </select>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-group">
                 <label class="required">Tipo de Atividade</label>
                 <select
@@ -158,19 +148,46 @@
                 </select>
               </div>
             </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="required">Situação</label>
+                <select
+                  class="form-control cust-select"
+                  [(ngModel)]="formData.status"
+                  (ngModelChange)="checkFormDirty()"
+                >
+                  <option [ngValue]="'Ativo'">Ativo</option>
+                  <option [ngValue]="'Inativo'">Inativo</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="form-group flex-grow-1 mb-3">
-            <label class="required">Corpo do Prompt</label>
+            <label class="required">Corpo do Prompt de Avaliação</label>
             <textarea
               class="form-control prompt-textarea"
-              [(ngModel)]="formData.body"
-              placeholder="Digite as instruções para a IA..."
+              [(ngModel)]="formData.bodyEvaluation"
+              placeholder="Digite as instruções de avaliação para a IA..."
               maxlength="10000"
               (ngModelChange)="checkFormDirty()"
             ></textarea>
             <small class="text-muted float-right"
-              >{{ formData.body.length }} / 10.000 caracteres</small
+              >{{ formData.bodyEvaluation.length }} / 10.000 caracteres</small
+            >
+          </div>
+
+          <div class="form-group flex-grow-1 mb-3">
+            <label class="required">Corpo do Prompt de Feedback</label>
+            <textarea
+              class="form-control prompt-textarea"
+              [(ngModel)]="formData.bodyFeedback"
+              placeholder="Digite as instruções de feedback para a IA..."
+              maxlength="10000"
+              (ngModelChange)="checkFormDirty()"
+            ></textarea>
+            <small class="text-muted float-right"
+              >{{ formData.bodyFeedback.length }} / 10.000 caracteres</small
             >
           </div>
 

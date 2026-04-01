@@ -9,7 +9,10 @@ export class PromptService {
     {
       id: 'PRM-001',
       title: 'Prompt Corretor Padrão',
-      body: 'Você é um corretor acadêmico especializado. Avalie a resposta do aluno considerando: 1) Adequação ao tema proposto; 2) Fundamentação teórica; 3) Coerência argumentativa; 4) Uso correto da norma culta da língua portuguesa. Atribua uma nota de 0 a 100 e forneça feedback construtivo detalhado ao aluno, indicando pontos fortes e sugestões de melhoria.',
+      bodyEvaluation:
+        'Avalie a submissão do aluno considerando: 1) Adequação ao tema proposto; 2) Fundamentação teórica; 3) Coerência argumentativa; 4) Uso correto da norma culta da língua portuguesa. Atribua uma nota de 0 a 100.',
+      bodyFeedback:
+        'Forneça feedback construtivo detalhado ao aluno, indicando pontos fortes e sugestões de melhoria.',
       businessUnitId: 1,
       businessUnitName: 'Uniasselvi',
       activityTypeId: 1,
@@ -22,7 +25,9 @@ export class PromptService {
     {
       id: 'PRM-002',
       title: 'Prompt Resenha Crítica',
-      body: 'Você é um avaliador acadêmico especializado em resenhas críticas. Analise o texto submetido verificando: 1) Identificação clara da obra resenhada; 2) Resumo objetivo do conteúdo; 3) Análise crítica fundamentada com argumentos do aluno; 4) Posicionamento pessoal coerente; 5) Qualidade da redação e norma culta. Forneça nota de 0 a 100 e comentários específicos por critério.',
+      bodyEvaluation:
+        'Você é um avaliador acadêmico especializado em resenhas críticas. Analise o texto submetido verificando: 1) Identificação clara da obra resenhada; 2) Resumo objetivo do conteúdo; 3) Análise crítica fundamentada com argumentos do aluno; 4) Posicionamento pessoal coerente; 5) Qualidade da redação e norma culta.',
+      bodyFeedback: 'Forneça nota de 0 a 100 e comentários específicos por critério.',
       businessUnitId: 1,
       businessUnitName: 'Uniasselvi',
       activityTypeId: 2,
@@ -35,7 +40,9 @@ export class PromptService {
     {
       id: 'PRM-003',
       title: 'Prompt MAPA Avaliativo',
-      body: 'Você é um avaliador de Material de Avaliação Prática da Aprendizagem (MAPA). Analise a submissão do aluno considerando: 1) Aplicação prática dos conceitos teóricos estudados; 2) Resolução correta dos problemas propostos; 3) Clareza na apresentação da solução; 4) Criatividade e originalidade na abordagem. Atribua nota de 0 a 100 com justificativa detalhada.',
+      bodyEvaluation:
+        'Você é um avaliador de Material de Avaliação Prática da Aprendizagem (MAPA). Analise a submissão do aluno considerando: 1) Aplicação prática dos conceitos teóricos estudados; 2) Resolução correta dos problemas propostos; 3) Clareza na apresentação da solução; 4) Criatividade e originalidade na abordagem.',
+      bodyFeedback: 'Atribua nota de 0 a 100 com justificativa detalhada.',
       businessUnitId: 2,
       businessUnitName: 'Unicesumar',
       activityTypeId: 3,
@@ -48,7 +55,10 @@ export class PromptService {
     {
       id: 'PRM-004',
       title: 'Prompt Prova Dissertativa',
-      body: 'Você é um corretor de provas dissertativas. Avalie cada questão respondida pelo aluno verificando: 1) Compreensão do enunciado; 2) Precisão conceitual nas respostas; 3) Profundidade da argumentação; 4) Exemplificação quando pertinente; 5) Organização textual. Atribua nota parcial por questão e nota total de 0 a 100. Indique acertos e erros específicos.',
+      bodyEvaluation:
+        'Você é um corretor de provas dissertativas. Avalie cada questão respondida pelo aluno verificando: 1) Compreensão do enunciado; 2) Precisão conceitual nas respostas; 3) Profundidade da argumentação; 4) Exemplificação quando pertinente; 5) Organização textual.',
+      bodyFeedback:
+        'Atribua nota parcial por questão e nota total de 0 a 100. Indique acertos e erros específicos.',
       businessUnitId: 2,
       businessUnitName: 'Unicesumar',
       activityTypeId: 4,

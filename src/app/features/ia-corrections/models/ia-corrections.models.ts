@@ -1,13 +1,14 @@
-// [Updated: 2026-03-31]
+// [Updated: 2026-04-01]
 // ============================================================
-// Modelos de dados centrais para o módulo Correções por IA v2
+// Modelos de dados centrais para o módulo Correções por IA v4
 // ============================================================
 
 /** Entidade Prompt — CRUD na Aba 1 */
 export interface Prompt {
   id: string;
   title: string;
-  body: string; // até 10.000 caracteres
+  bodyEvaluation: string; // até 10.000 caracteres (v4)
+  bodyFeedback: string; // até 10.000 caracteres (v4)
   businessUnitId: number;
   businessUnitName: string;
   activityTypeId: number;
@@ -25,13 +26,26 @@ export interface PublicationGlobalSettings {
   autoPublicationEnabled: boolean; // default: false
 }
 
-/** Vínculo Prompt ↔ Curso — Aba 2 */
+/** Disciplina — v4 */
+export interface Discipline {
+  id: number;
+  name: string;
+  courseId: number;
+  courseName: string;
+  clusterId: number;
+  clusterName: string;
+  businessUnitId: number;
+}
+
+/** Vínculo Prompt ↔ Disciplina — Aba 2 */
 export interface PromptLink {
   id: string;
   promptId: string;
   promptTitle: string;
-  courseId: number;
-  courseName: string;
+  disciplineId: number; // v4: principal entidade de vínculo
+  disciplineName: string; // v4
+  courseId: number; // mantido para contexto na tabela
+  courseName: string; // mantido para contexto na tabela
   clusterId: number;
   clusterName: string;
   activityTypeName: string;
@@ -43,9 +57,14 @@ export interface CorrectionConfig {
   businessUnitName: string;
   clusterName: string;
   courseName: string;
+  disciplineName: string; // v4
   activityTypeName: string;
   promptTitle: string;
   correctionStatus: 'Ativo' | 'Inativo'; // default: Inativo
+  createdAt: string; // v4: auditoria
+  createdBy: string; // v4: auditoria
+  updatedAt: string; // v4: auditoria
+  updatedBy: string; // v4: auditoria
 }
 
 /** Configuração de Publicação — Aba 5 */
@@ -54,6 +73,7 @@ export interface PublicationConfig {
   businessUnitName: string;
   clusterName: string;
   courseName: string;
+  disciplineName: string; // v4
   activityTypeName: string;
   promptTitle: string;
   correctionStatus: 'Ativo' | 'Inativo';

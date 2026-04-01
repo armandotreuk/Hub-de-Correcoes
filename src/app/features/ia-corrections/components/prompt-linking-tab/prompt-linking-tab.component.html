@@ -3,7 +3,7 @@
   <div class="filters-panel mb-4">
     <h6 class="mb-3 text-muted">Filtros Hierárquicos</h6>
     <div class="row g-3">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <app-multi-select-dropdown
           [label]="'Unidade de Negócio'"
           [options]="unitOptions()"
@@ -11,7 +11,33 @@
           (selectionChange)="selectedUnits.set($event); currentPage.set(1)"
         ></app-multi-select-dropdown>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
+        <app-multi-select-dropdown
+          [label]="'Cluster'"
+          [options]="clusterOptions()"
+          [selectedValues]="selectedClusters()"
+          (selectionChange)="selectedClusters.set($event); currentPage.set(1)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-3">
+        <app-multi-select-dropdown
+          [label]="'Curso'"
+          [options]="courseOptions()"
+          [selectedValues]="selectedCourses()"
+          (selectionChange)="selectedCourses.set($event); currentPage.set(1)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-3">
+        <app-multi-select-dropdown
+          [label]="'Disciplina'"
+          [options]="disciplineOptions()"
+          [selectedValues]="selectedDisciplines()"
+          (selectionChange)="selectedDisciplines.set($event); currentPage.set(1)"
+        ></app-multi-select-dropdown>
+      </div>
+    </div>
+    <div class="row g-3 mt-1">
+      <div class="col-md-3">
         <app-multi-select-dropdown
           [label]="'Tipo de Atividade'"
           [options]="activityTypeOptions()"
@@ -19,7 +45,7 @@
           (selectionChange)="selectedActivityTypes.set($event); currentPage.set(1)"
         ></app-multi-select-dropdown>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <app-multi-select-dropdown
           [label]="'Prompt Vinculado'"
           [options]="promptOptions()"
@@ -27,10 +53,15 @@
           (selectionChange)="selectedPromptIds.set($event); currentPage.set(1)"
         ></app-multi-select-dropdown>
       </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary w-100" (click)="onSearch()">
+          <i class="ri-search-line mr-1"></i> Pesquisar
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Fase D.2: Área de Vinculação em Massa -->
+  <!-- Fase D.4: Área de Vinculação em Massa -->
   <div class="bulk-linking-area bg-light p-3 rounded mb-4 border">
     <div class="d-flex align-items-center gap-3">
       <div style="flex: 1">
@@ -43,21 +74,23 @@
         </select>
       </div>
       <div class="pt-4">
-        <button
-          class="btn btn-sm btn-primary"
-          [disabled]="!bulkPromptId() || selectedCourseIds().size === 0"
-          (click)="linkSelectedCourses()"
-        >
-          <i class="ri-links-line mr-1"></i> Vincular Selecionados ({{ selectedCourseIds().size }})
+        <!-- v4: Smart logic button -->
+        <button class="btn btn-sm btn-primary" [disabled]="!bulkPromptId()" (click)="onBulkLink()">
+          <i class="ri-links-line mr-1"></i>
+          @if (selectedDisciplineIds().size > 0) {
+            Vincular Selecionados ({{ selectedDisciplineIds().size }})
+          } @else {
+            Vincular ({{ displayedRecords().length }} filtrados)
+          }
         </button>
       </div>
     </div>
     <small class="text-muted mt-2 d-block">
-      Selecione os cursos na tabela abaixo e escolha um prompt para realizar o vínculo em lote.
+      Selecione as disciplinas na tabela abaixo e escolha um prompt para realizar o vínculo em lote.
     </small>
   </div>
 
-  <!-- Fase D.3: Tabela Reestruturada -->
+  <!-- Fase D.3: Tabela Reestruturada (Disciplina) -->
   <div class="table-responsive flex-grow-1">
     <table class="table table-hover minimalist-table mb-0">
       <thead>
@@ -77,37 +110,39 @@
           <th>Tipo de Atividade</th>
           <th>Cluster</th>
           <th>Curso</th>
+          <th>Disciplina</th>
           <th>Prompt Vinculado</th>
           <th width="80">Ação</th>
         </tr>
       </thead>
       <tbody>
-        @for (course of paginatedCourses(); track course.id) {
+        @for (disc of paginatedRecords(); track disc.id) {
           <tr>
             <td>
               <div class="custom-control custom-checkbox">
                 <input
                   type="checkbox"
                   class="custom-control-input"
-                  [id]="'chk-' + course.id"
-                  [checked]="selectedCourseIds().has(course.id)"
-                  (change)="toggleCourseSelection(course.id)"
+                  [id]="'chk-' + disc.id"
+                  [checked]="selectedDisciplineIds().has(disc.id)"
+                  (change)="toggleDisciplineSelection(disc.id)"
                 />
-                <label class="custom-control-label" [for]="'chk-' + course.id"></label>
+                <label class="custom-control-label" [for]="'chk-' + disc.id"></label>
               </div>
             </td>
-            <td class="data-text">{{ course.businessUnitId === 1 ? 'Uniasselvi' : 'Unicesumar' }}</td>
+            <td class="data-text">{{ disc.businessUnitId === 1 ? 'Uniasselvi' : 'Unicesumar' }}</td>
             <td>
-              @if (getLinkedPrompt(course.id); as link) {
+              @if (getLinkedPrompt(disc.id); as link) {
                 <span class="activity-text">{{ link.activityTypeName }}</span>
               } @else {
                 <span class="text-muted small">Pendente</span>
               }
             </td>
-            <td class="data-text">{{ course.clusterName }}</td>
-            <td class="font-weight-600">{{ course.name }}</td>
+            <td class="data-text">{{ disc.clusterName }}</td>
+            <td class="font-weight-600">{{ disc.courseName }}</td>
+            <td class="font-weight-600">{{ disc.name }}</td>
             <td>
-              @if (getLinkedPrompt(course.id); as link) {
+              @if (getLinkedPrompt(disc.id); as link) {
                 <a
                   href="javascript:void(0)"
                   class="prompt-link-text"
@@ -120,7 +155,7 @@
               }
             </td>
             <td class="text-center">
-              @if (getLinkedPrompt(course.id); as link) {
+              @if (getLinkedPrompt(disc.id); as link) {
                 <button
                   class="btn btn-sm btn-ghost text-danger"
                   title="Remover Vínculo"
@@ -132,7 +167,7 @@
                 <button
                   class="btn btn-sm btn-ghost text-success"
                   title="Vincular Prompt"
-                  (click)="linkPrompt(course.id)"
+                  (click)="linkPrompt(disc.id)"
                 >
                   <i class="ri-add-circle-line"></i>
                 </button>
@@ -141,7 +176,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="7" class="text-center py-5 text-muted">
+            <td colspan="8" class="text-center py-5 text-muted">
               <i class="ri-filter-off-line mb-2" style="font-size: 2rem"></i>
               <p>Nenhum registro encontrado com os filtros aplicados.</p>
             </td>
@@ -152,7 +187,9 @@
   </div>
 
   <!-- Fase D.5: Paginação Padronizada (Padrão Auditoria) -->
-  <div class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+  <div
+    class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top"
+  >
     <div class="page-size-selector text-muted small">
       Exibindo
       <select
@@ -169,7 +206,11 @@
     </div>
     <div class="pagination-controls data-text">
       Página {{ currentPage() }} de {{ totalPages() }}
-      <button class="btn btn-sm btn-light ml-2" [disabled]="currentPage() === 1" (click)="prevPage()">
+      <button
+        class="btn btn-sm btn-light ml-2"
+        [disabled]="currentPage() === 1"
+        (click)="prevPage()"
+      >
         <i class="ri-arrow-left-s-line"></i> Anterior
       </button>
       <button

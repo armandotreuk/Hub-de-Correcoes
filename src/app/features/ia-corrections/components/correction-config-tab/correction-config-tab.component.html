@@ -1,16 +1,29 @@
 <div class="card param-container h-100 p-3">
-  <!-- Fase E: Configurações de Correção por IA -->
+  <!-- v4: Header with Search and Mass Action -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h6 class="m-0 text-muted">Configurações de Correção por IA</h6>
-    @if (selectedIds().size > 0) {
-      <button class="btn btn-primary btn-sm" (click)="onMassAction()">
-        <i class="ri-exchange-circle-line mr-1"></i>
-        Alterar Status ({{ selectedIds().size }})
-      </button>
-    }
+
+    <!-- v4: E.6 Botão de Exportação -->
+    <button class="btn btn-outline-secondary btn-sm mr-2" (click)="exportToCSV()">
+      <i class="ri-download-line mr-1"></i> Exportar
+    </button>
+
+    <!-- v4: E.4 Botão Ativar em Massa -->
+    <button
+      class="btn btn-primary btn-sm"
+      (click)="onMassAction()"
+      [disabled]="filteredConfigs().length === 0"
+    >
+      <i class="ri-exchange-circle-line mr-1"></i>
+      @if (selectedIds().size > 0) {
+        Ativar em Massa ({{ selectedIds().size }} selecionados)
+      } @else {
+        Ativar em Massa ({{ filteredConfigs().length }} filtrados)
+      }
+    </button>
   </div>
 
-  <!-- Fase E.1: Filtros MultiSelect em Cascata -->
+  <!-- v4: Filtros (E.2 & E.7) -->
   <div class="filters-panel-v3 row g-2 mb-4">
     <div class="col-md-2">
       <app-multi-select-dropdown
@@ -38,12 +51,29 @@
     </div>
     <div class="col-md-2">
       <app-multi-select-dropdown
+        [label]="'Disciplina'"
+        [options]="disciplineOptions()"
+        [selectedValues]="selectedDisciplines()"
+        (selectionChange)="selectedDisciplines.set($event); currentPage.set(1)"
+      ></app-multi-select-dropdown>
+    </div>
+    <div class="col-md-2">
+      <app-multi-select-dropdown
         [label]="'Atividade'"
         [options]="activityOptions()"
         [selectedValues]="selectedActivities()"
         (selectionChange)="selectedActivities.set($event); currentPage.set(1)"
       ></app-multi-select-dropdown>
     </div>
+    <div class="col-md-2">
+      <button class="btn btn-primary w-100 mt-4" (click)="onSearch()">
+        <i class="ri-search-line mr-1"></i> Pesquisar
+      </button>
+    </div>
+  </div>
+
+  <!-- Second row of filters -->
+  <div class="row g-2 mb-4">
     <div class="col-md-2">
       <app-multi-select-dropdown
         [label]="'Prompt'"
@@ -62,7 +92,7 @@
     </div>
   </div>
 
-  <!-- Fase E: Tabela Consolidada -->
+  <!-- v4: Tabela com Disciplina e Modal -->
   <div class="table-responsive flex-grow-1">
     <table class="table table-hover minimalist-table mb-0">
       <thead>
@@ -82,6 +112,7 @@
           <th>Unidade de Negócio</th>
           <th>Cluster</th>
           <th>Curso</th>
+          <th>Disciplina</th>
           <th>Tipo Atividade</th>
           <th>Prompt</th>
         </tr>
@@ -114,12 +145,22 @@
             <td class="data-text">{{ config.businessUnitName }}</td>
             <td class="data-text">{{ config.clusterName }}</td>
             <td class="font-weight-600">{{ config.courseName }}</td>
+            <td class="font-weight-600">{{ config.disciplineName }}</td>
             <td class="activity-text">{{ config.activityTypeName }}</td>
-            <td class="font-weight-600">{{ config.promptTitle }}</td>
+            <!-- v4: E.5 Prompt Clicável -->
+            <td class="font-weight-600">
+              <a
+                href="javascript:void(0)"
+                class="text-primary"
+                (click)="openPromptModal(config.promptTitle)"
+              >
+                {{ config.promptTitle }}
+              </a>
+            </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="7" class="text-center py-5 text-muted">
+            <td colspan="8" class="text-center py-5 text-muted">
               <i class="ri-filter-off-line mb-3" style="font-size: 2rem"></i>
               <p>Nenhum registro encontrado para os filtros selecionados.</p>
             </td>
@@ -129,8 +170,10 @@
     </table>
   </div>
 
-  <!-- Fase E.3: Paginação Padronizada (Padrão Auditoria) -->
-  <div class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+  <!-- Pagination -->
+  <div
+    class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top"
+  >
     <div class="page-size-selector text-muted small">
       Exibindo
       <select
@@ -147,7 +190,11 @@
     </div>
     <div class="pagination-controls data-text">
       Página {{ currentPage() }} de {{ totalPages() }}
-      <button class="btn btn-sm btn-light ml-2" [disabled]="currentPage() === 1" (click)="prevPage()">
+      <button
+        class="btn btn-sm btn-light ml-2"
+        [disabled]="currentPage() === 1"
+        (click)="prevPage()"
+      >
         <i class="ri-arrow-left-s-line"></i> Anterior
       </button>
       <button
@@ -160,3 +207,12 @@
     </div>
   </div>
 </div>
+
+<!-- v4: Modal de Detalhe do Prompt -->
+<app-prompt-detail-modal
+  [prompt]="modalPrompt()"
+  [isOpen]="isModalOpen()"
+  [allowEdit]="false"
+  (close)="isModalOpen.set(false)"
+  (saveObservations)="onSaveObservations($event)"
+></app-prompt-detail-modal>

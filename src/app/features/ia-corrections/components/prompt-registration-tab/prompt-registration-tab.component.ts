@@ -49,7 +49,8 @@ export class PromptRegistrationTabComponent implements OnInit {
   formData = {
     id: '',
     title: '',
-    body: '',
+    bodyEvaluation: '',
+    bodyFeedback: '',
     businessUnitId: null as number | null,
     businessUnitName: '',
     activityTypeId: null as number | null,
@@ -104,7 +105,8 @@ export class PromptRegistrationTabComponent implements OnInit {
       this.formData = {
         id: prompt.id,
         title: prompt.title,
-        body: prompt.body,
+        bodyEvaluation: (prompt as any).bodyEvaluation || (prompt as any).body || '',
+        bodyFeedback: (prompt as any).bodyFeedback || '',
         businessUnitId: prompt.businessUnitId,
         businessUnitName: prompt.businessUnitName,
         activityTypeId: prompt.activityTypeId,
@@ -172,7 +174,8 @@ export class PromptRegistrationTabComponent implements OnInit {
   checkFormDirty() {
     const current = JSON.stringify({
       title: this.formData.title,
-      body: this.formData.body,
+      bodyEvaluation: this.formData.bodyEvaluation,
+      bodyFeedback: this.formData.bodyFeedback,
       businessUnitId: this.formData.businessUnitId,
       activityTypeId: this.formData.activityTypeId,
       status: this.formData.status,
@@ -180,7 +183,8 @@ export class PromptRegistrationTabComponent implements OnInit {
     });
     const original = JSON.stringify({
       title: this.originalFormData.title,
-      body: this.originalFormData.body,
+      bodyEvaluation: this.originalFormData.bodyEvaluation,
+      bodyFeedback: this.originalFormData.bodyFeedback,
       businessUnitId: this.originalFormData.businessUnitId,
       activityTypeId: this.originalFormData.activityTypeId,
       status: this.originalFormData.status,
@@ -192,7 +196,8 @@ export class PromptRegistrationTabComponent implements OnInit {
   isFormValid(): boolean {
     return !!(
       this.formData.title?.trim() &&
-      this.formData.body?.trim() &&
+      this.formData.bodyEvaluation?.trim() &&
+      this.formData.bodyFeedback?.trim() &&
       this.formData.businessUnitId &&
       this.formData.activityTypeId
     );
@@ -204,7 +209,8 @@ export class PromptRegistrationTabComponent implements OnInit {
     this.isSaving.set(true);
     const payload = {
       title: this.formData.title,
-      body: this.formData.body,
+      bodyEvaluation: this.formData.bodyEvaluation,
+      bodyFeedback: this.formData.bodyFeedback,
       businessUnitId: this.formData.businessUnitId!,
       businessUnitName: this.formData.businessUnitName,
       activityTypeId: this.formData.activityTypeId!,
@@ -256,7 +262,8 @@ export class PromptRegistrationTabComponent implements OnInit {
     this.formData = {
       id: '',
       title: '',
-      body: '',
+      bodyEvaluation: '',
+      bodyFeedback: '',
       businessUnitId: null,
       businessUnitName: '',
       activityTypeId: null,

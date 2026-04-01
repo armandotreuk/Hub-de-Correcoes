@@ -39,18 +39,21 @@
   border-radius: 4px;
   cursor: pointer;
   margin-bottom: 0.5rem;
-  border: 1px solid transparent;
-  transition: all 0.2s;
+  border: 1px solid #ced4da;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
 }
 
 .prompt-item:hover {
-  background: #f8f9fa;
-  border-color: #e9ecef;
+  border-color: #405189;
+  background-color: #f8f9fa;
 }
 
 .prompt-item.active {
-  background: #e7f1ff;
   border-color: #405189;
+  border-left: 3px solid #405189;
+  background-color: #eef1f7;
 }
 
 .prompt-title {
@@ -144,6 +147,23 @@
 
 .status-badge-toggle:hover {
   filter: brightness(0.9);
+}
+
+/* v4: Badge de Ativo legível na lista */
+.prompt-item .badge-success {
+  background-color: #0ab39c;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+}
+
+.prompt-item .badge-secondary {
+  background-color: #878a99;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 3px 8px;
+  font-size: 0.75rem;
 }
 
 .editor-form {
