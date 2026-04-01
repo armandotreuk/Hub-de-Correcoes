@@ -391,6 +391,8 @@ O botão "Vincular Prompt em Massa" deve:
 2. **Ao clicar**:
    ```typescript
    async onBulkLink() {
+     // Atenção: filteredRecords deve conter TODOS os registros
+     // filtrados na base, e não apenas os da página atual.
      const targets = this.selectedIds().length > 0
        ? this.selectedIds()
        : this.filteredRecords().map(r => r.id);
@@ -460,6 +462,8 @@ Adicionar coluna **Disciplina** na tabela, entre Curso e Tipo de Atividade:
 4. **Lógica inteligente**:
    ```typescript
    async onBulkActivate() {
+     // Atenção: filteredConfigs deve conter TODOS os registros
+     // filtrados na base, e não apenas os da página atual.
      const targets = this.selectedIds().length > 0
        ? this.getSelectedConfigs()
        : this.filteredConfigs();
@@ -490,14 +494,14 @@ Ao clicar no texto do prompt na coluna, abrir o `PromptDetailModalComponent` com
 ### E.6 Botão de Exportação
 
 Adicionar um botão com ícone de download/exportação. Ao clicar, gera um arquivo CSV com as colunas:
-- Status, Unidade de Negócio, Cluster, Curso, Tipo de Atividade, Prompt, Criado em, Criado por, Atualizado em, Atualizado por.
+- Status, Unidade de Negócio, Cluster, Curso, Disciplina, Tipo de Atividade, Prompt, Criado em, Criado por, Atualizado em, Atualizado por.
 
 **Implementação sugerida**: Usar a API nativa do browser para gerar e baixar CSV, sem dependências externas:
 ```typescript
 exportToCSV() {
-  const headers = ['Status', 'Unidade de Negócio', 'Cluster', 'Curso', 'Tipo de Atividade', 'Prompt', 'Criado em', 'Criado por', 'Atualizado em', 'Atualizado por'];
+  const headers = ['Status', 'Unidade de Negócio', 'Cluster', 'Curso', 'Disciplina', 'Tipo de Atividade', 'Prompt', 'Criado em', 'Criado por', 'Atualizado em', 'Atualizado por'];
   const rows = this.configs().map(c => [
-    c.correctionStatus, c.businessUnitName, c.clusterName, c.courseName,
+    c.correctionStatus, c.businessUnitName, c.clusterName, c.courseName, c.disciplineName,
     c.activityTypeName, c.promptTitle, c.createdAt, c.createdBy, c.updatedAt, c.updatedBy
   ]);
   const csv = [headers, ...rows].map(r => r.join(';')).join('\n');
@@ -510,6 +514,11 @@ exportToCSV() {
   URL.revokeObjectURL(url);
 }
 ```
+
+### E.6.1 Aba 4 (Auditoria) — Atualização Menor
+
+Embora a Aba 4 de Auditoria permaneça quase inalterada, é necessário **adicionar a coluna Disciplina** na tabela HTML e no filtro por colunas para respeitar a RN18.
+- **Ação**: Inserir a coluna `Disciplina` entre Curso e Prompt no HTML do `AuditTabComponent`.
 
 ### E.7 Adicionar Disciplina nos Filtros
 
@@ -635,10 +644,14 @@ git push origin master
 | `components/publication-tab/*` | F | Sem %, disciplina, pesquisar, ativar publicação, regra dependência |
 | `ia-corrections-page.component.html` | E | Renomear texto da aba 3 |
 
+### Modificações Menores
+| Arquivo | Fase | Alteração Principal |
+|---|---|---|
+| `components/audit-tab/*` | E | Adicionar coluna Disciplina na tabela HTML (RN18) |
+
 ### Mantidos (sem alteração)
 | Arquivo | Fase |
 |---|---|
-| `components/audit-tab/*` | — (referência de paginação) |
 | `services/ia-config.service.ts` | — |
 | `components/shared/multi-select-dropdown/*` | — |
 | `guards/unsaved-changes.guard.ts` | — |
