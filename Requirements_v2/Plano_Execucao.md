@@ -85,8 +85,8 @@ export class SweetAlertService {
 O modal precisa exibir **dois campos readonly** para o corpo do prompt:
 
 1. Substituir o campo único `Corpo do Prompt` por dois campos:
-   - **"Corpo do Prompt de Avaliação"** — textarea readonly, background `#f0f0f0`
-   - **"Corpo do Prompt de Feedback"** — textarea readonly, background `#f0f0f0`
+   - **"Prompt Avaliação"** — textarea readonly, background `#f0f0f0`
+   - **"Prompt Feedback"** — textarea readonly, background `#f0f0f0`
 2. O input do componente agora recebe `prompt.bodyEvaluation` e `prompt.bodyFeedback` (ao invés de `prompt.body`).
 3. Manter o campo Observações editável + botão "Salvar Comentário".
 
@@ -239,13 +239,13 @@ Substituir o textarea único "Corpo do Prompt" por dois textareas em sequência:
 
 ```
 ┌──────────────────────────────────────────┐
-│  Corpo do Prompt de Avaliação            │
+│  Prompt Avaliação                       │
 │  ┌──────────────────────────────────────┐│
 │  │  textarea (10.000 chars)             ││
 │  └──────────────────────────────────────┘│
 │  X / 10.000 caracteres                   │
 │                                          │
-│  Corpo do Prompt de Feedback             │
+│  Prompt Feedback                         │
 │  ┌──────────────────────────────────────┐│
 │  │  textarea (10.000 chars)             ││
 │  └──────────────────────────────────────┘│
@@ -619,6 +619,7 @@ git checkout master
 git merge feature/v4-discipline-hierarchy
 git push origin master
 ```
+**Status**: CONCLUÍDO (Merge efetuado para master)
 
 ---
 

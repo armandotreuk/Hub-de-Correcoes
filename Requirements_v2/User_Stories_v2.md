@@ -13,7 +13,7 @@ Este documento traduz as Regras de Negócio (RN01 a RN33) em Histórias de Usuá
 - **Relacionado a:** RN01, RN01.1, RN02
 - **Critérios de Aceite:**
   - [ ] Deve existir um botão "Criar Novo Prompt" na tela.
-  - [ ] Ao clicar, libera os campos: Título (texto curto), **Corpo do Prompt de Avaliação** (textarea até 10.000 caracteres), **Corpo do Prompt de Feedback** (textarea até 10.000 caracteres, posicionado abaixo do de Avaliação), dropdown de Unidade de Negócio, dropdown de Tipo de Atividade, dropdown de Situação (padrão: Ativo).
+  - [ ] Ao clicar, libera os campos: Título (texto curto), **Prompt Avaliação** (textarea até 10.000 caracteres), **Prompt Feedback** (textarea até 10.000 caracteres, posicionado abaixo do de Avaliação), dropdown de Unidade de Negócio, dropdown de Tipo de Atividade, dropdown de Situação (padrão: Ativo).
   - [ ] Os campos de Unidade de Negócio e Tipo de Atividade são **obrigatórios** na criação.
   - [ ] Cada textarea deve possuir contador de caracteres independente (X / 10.000).
   - [ ] O prompt é criado com a Situação **Ativo** por padrão.
@@ -54,7 +54,7 @@ Este documento traduz as Regras de Negócio (RN01 a RN33) em Histórias de Usuá
 **Para que** minha equipe possa deixar comentários e anotações sobre o uso ou histórico daquele prompt.
 - **Relacionado a:** RN05.2
 - **Critérios de Aceite:**
-  - [ ] Abaixo dos campos "Corpo do Prompt de Feedback" deve existir um textarea "Observações" (até 10.000 caracteres).
+  - [ ] Abaixo dos campos "Prompt Feedback" deve existir um textarea "Observações" (até 10.000 caracteres).
   - [ ] Deve possuir um botão próprio "Salvar Comentário" independente do botão "Salvar" do prompt.
   - [ ] O botão salva apenas o campo Observações, sem alterar os demais campos do prompt.
 

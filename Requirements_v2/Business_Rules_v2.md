@@ -20,7 +20,7 @@ A estrutura organizacional segue a seguinte precedência:
 
 ## 1. Cadastro de Prompt
 
-- **RN01 - Entidade Prompt**: O Prompt é uma entidade de primeira classe composta por: **Título** (identificador textual), **Corpo do Prompt de Avaliação** (textarea até 10.000 caracteres), **Corpo do Prompt de Feedback** (textarea até 10.000 caracteres), **Unidade de Negócio** e **Tipo de Atividade** vinculados obrigatoriamente na criação, **Observações** (campo de texto livre até 10.000 caracteres para comentários de usuários), e **Situação** (Ativo ou Inativo, default: Ativo).
+- **RN01 - Entidade Prompt**: O Prompt é uma entidade de primeira classe composta por: **Título** (identificador textual), **Prompt Avaliação** (textarea até 10.000 caracteres), **Prompt Feedback** (textarea até 10.000 caracteres), **Unidade de Negócio** e **Tipo de Atividade** vinculados obrigatoriamente na criação, **Observações** (campo de texto livre até 10.000 caracteres para comentários de usuários), e **Situação** (Ativo ou Inativo, default: Ativo).
 - **RN01.1 - Dois Tipos de Corpo de Prompt**: Na tela de criação/edição do prompt devem existir **dois campos de texto** (textareas) para o corpo do prompt:
   - O primeiro campo é destinado ao **Prompt de Avaliação**.
   - O segundo campo (abaixo do primeiro) é destinado ao **Prompt de Feedback**.
@@ -57,7 +57,7 @@ A estrutura organizacional segue a seguinte precedência:
 - **RN09.2 - Registros sem Vínculo**: Podem existir registros na tabela sem vínculo com nenhum prompt.
 - **RN09.3 - Modal de Detalhe do Prompt**: Ao clicar no prompt vinculado a um registro, deve abrir um modal centralizado na tela com layout idêntico ao editor da Aba 1:
   - Campos Título, Unidade de Negócio e Tipo de Atividade **bloqueados** para edição (visual diferenciado com outra cor de fundo).
-  - Campos Corpo do Prompt de Avaliação e Corpo do Prompt de Feedback **bloqueados** para edição.
+  - Campos Prompt Avaliação e Prompt Feedback **bloqueados** para edição.
   - Campo Observações **liberado** para edição com botão "Salvar Comentário".
 - **RN10 - Paginação de Registros**: A lista de disciplinas/vínculos deve seguir o padrão de paginação da Auditoria (25 default, opções 10/25/50/100, seletor de itens por página e navegação Anterior/Próximo).
 

@@ -164,7 +164,7 @@
           </div>
 
           <div class="form-group flex-grow-1 mb-3">
-            <label class="required">Corpo do Prompt de Avaliação</label>
+            <label class="required">Prompt Avaliação</label>
             <textarea
               class="form-control prompt-textarea"
               [(ngModel)]="formData.bodyEvaluation"
@@ -178,7 +178,7 @@
           </div>
 
           <div class="form-group flex-grow-1 mb-3">
-            <label class="required">Corpo do Prompt de Feedback</label>
+            <label class="required">Prompt Feedback</label>
             <textarea
               class="form-control prompt-textarea"
               [(ngModel)]="formData.bodyFeedback"
@@ -189,6 +189,18 @@
             <small class="text-muted float-right"
               >{{ formData.bodyFeedback.length }} / 10.000 caracteres</small
             >
+          </div>
+
+          <div class="editor-actions mt-2 mb-3">
+            <button class="btn btn-outline-secondary mr-2" (click)="cancelEdit()">Cancelar</button>
+            <button
+              class="btn btn-primary submit-btn"
+              (click)="save()"
+              [disabled]="!isFormValid() || isSaving() || !formDirty()"
+            >
+              <i class="ri-save-line mr-1"></i>
+              {{ isSaving() ? 'Salvando...' : 'Salvar Prompt' }}
+            </button>
           </div>
 
           <!-- Campo Observações (RN05.2) -->
@@ -218,17 +230,7 @@
             >
           </div>
 
-          <div class="editor-actions mt-4">
-            <button class="btn btn-outline-secondary mr-2" (click)="cancelEdit()">Cancelar</button>
-            <button
-              class="btn btn-primary submit-btn"
-              (click)="save()"
-              [disabled]="!isFormValid() || isSaving() || !formDirty()"
-            >
-              <i class="ri-save-line mr-1"></i>
-              {{ isSaving() ? 'Salvando...' : 'Salvar Prompt' }}
-            </button>
-          </div>
+
         </div>
       } @else {
         <div class="empty-editor">

@@ -19,8 +19,8 @@ Todos os componentes ficam em `/src/app/features/ia-corrections/`.
 - **Inputs**: `prompt: Prompt` (agora possui `bodyEvaluation` e `bodyFeedback`), `isOpen: boolean`, `allowEdit: boolean`
 - **Layout atualizado**:
   - Campos Título, Unidade, Tipo de Atividade → **readonly** com background cinza diferenciado.
-  - Campo **Corpo do Prompt de Avaliação** → **readonly** com background cinza.
-  - Campo **Corpo do Prompt de Feedback** → **readonly** com background cinza.
+  - Campo **Prompt Avaliação** → **readonly** com background cinza.
+  - Campo **Prompt Feedback** → **readonly** com background cinza.
   - Campo Observações → **editável** + botão "Salvar Comentário".
 
 #### 1.0.3 `SweetAlertService` (NOVO v4)
@@ -51,8 +51,8 @@ Todos os componentes ficam em `/src/app/features/ia-corrections/`.
 - **Função**: CRUD de Prompts (US01, US02, US03, US03.1, US03.2, US03.3, US03.4).
 - **Alterações v4**:
   - **Dois campos de corpo**: Substituir o campo único "Corpo do Prompt" por dois textareas:
-    1. **Corpo do Prompt de Avaliação** (textarea, até 10.000 chars)
-    2. **Corpo do Prompt de Feedback** (textarea abaixo, até 10.000 chars)
+    1. **Prompt Avaliação** (textarea, até 10.000 chars)
+    2. **Prompt Feedback** (textarea abaixo, até 10.000 chars)
   - **Situação como Dropdown**: Mover o badge de Ativo/Inativo para um **dropdown** (`<select>`) posicionado **à direita do dropdown de Tipo de Atividade**, na mesma linha (3 colunas: Unidade | Atividade | Situação). O dropdown deve seguir o mesmo estilo visual (mesma altura, borda, cor) dos demais.
   - **Contorno nos Cards**: Adicionar `border` visível a cada `.prompt-item` na lista.
   - **Badge de "Ativo" legível**: Alterar a cor de fundo e fonte do badge "Ativo" nos cards da lista para garantir alta legibilidade (ex: fundo `#0ab39c` com texto branco, ou fundo escuro com texto claro).
@@ -63,8 +63,8 @@ Todos os componentes ficam em `/src/app/features/ia-corrections/`.
   - **Painel Direito / Editor**:
     - Campo `Título` (input text)
     - **Linha de 3 colunas**: `Unidade de Negócio` | `Tipo de Atividade` | `Situação` (dropdown, Ativo por padrão)
-    - Campo `Corpo do Prompt de Avaliação` (textarea, 10.000 chars)
-    - Campo `Corpo do Prompt de Feedback` (textarea abaixo, 10.000 chars)
+    - Campo `Prompt Avaliação` (textarea, 10.000 chars)
+    - Campo `Prompt Feedback` (textarea abaixo, 10.000 chars)
     - Campo `Observações` (textarea, 10.000 chars) + botão "Salvar Comentário"
   - **Ações**: "Criar Novo Prompt", "Salvar", "Salvar Comentário"
   - **Guard de Navegação**: Intercepta mudança de aba/rota se há alterações não salvas
