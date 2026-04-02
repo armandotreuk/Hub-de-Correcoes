@@ -86,7 +86,7 @@
 
 > **NOVO na v5**: Este tema unifica as funcionalidades dos antigos Temas 2 (Relacionar Prompt), 3 (Ativar Correção) e 5 (Publicação de Notas) em uma única visão matricial.
 
-### US20 - Visão Matricial Consolidada
+### US20 - Visão Matricial Consolidada (US Separada 1)
 **Como um** coordenador de correção,
 **Eu quero** visualizar uma tabela unificada que cruza Disciplina × Tipo de Atividade com as três dimensões de configuração (Prompt, Correção, Publicação)
 **Para que** eu configure todo o pipeline de IA sem navegar entre múltiplas abas.
@@ -96,7 +96,7 @@
   - [ ] Cada linha mostra: hierarquia, prompt vinculado, status de correção IA, status de publicação.
   - [ ] Dados são produzidos pelo join em memória de PromptLinkingService, CorrectionConfigService e PublicationService.
 
-### US21 - Painel de Filtros Completo
+### US21 - Painel de Filtros Completo (US Separada 1)
 **Como um** coordenador de correção,
 **Eu quero** filtrar a matriz usando 8 filtros organizados em duas linhas
 **Para que** eu localize rapidamente as combinações que preciso configurar.
@@ -107,7 +107,7 @@
   - [ ] Cada filtro usa o componente `MultiSelectDropdownComponent`.
   - [ ] O botão "Pesquisar e Filtrar" aplica todos os filtros de uma vez. Sweet alert de loading durante processamento.
 
-### US22 - Cores Diferenciadas por Tipo de Atividade
+### US22 - Cores Diferenciadas por Tipo de Atividade (US Separada 1)
 **Como um** coordenador de correção,
 **Eu quero** que cada tipo de atividade na tabela possua uma tag com cor diferenciada
 **Para que** eu identifique visualmente o tipo de atividade sem precisar ler o texto.
@@ -116,7 +116,7 @@
   - [ ] As tags de atividade devem seguir o mapeamento: Desafio Profissional (azul), Resenha (ciano), Fórum (verde), MAPA (cinza), Prova (vermelho).
   - [ ] Tipos não mapeados recebem um estilo neutro (dark).
 
-### US23 - Modal de Detalhe do Prompt na Matriz
+### US23 - Modal de Detalhe do Prompt na Matriz (US Separada 1)
 **Como um** coordenador de correção,
 **Eu quero** clicar no nome de um prompt vinculado na tabela e visualizar seus detalhes em um modal
 **Para que** eu consulte corpo de avaliação, feedback e observações sem sair da matriz.
@@ -127,7 +127,7 @@
   - [ ] Campo Observações está **liberado** para edição com botão "Salvar Comentário".
   - [ ] Ao clicar em "Não vinculado", nenhuma ação é executada.
 
-### US24 - Barra de Ações em Massa com Contagem Dinâmica
+### US24 - Barra de Ações em Massa com Contagem Dinâmica (US Separada 1)
 **Como um** coordenador de correção,
 **Eu quero** ver quantos registros serão afetados pelas ações em massa
 **Para que** eu tenha clareza sobre o impacto antes de executar qualquer operação.
@@ -137,7 +137,7 @@
   - [ ] Quando há checkboxes marcados: "**Y** selecionados".
   - [ ] Se nenhum resultado, a barra não é exibida.
 
-### US25 - Vincular Prompt em Massa (com Validação de Atividade)
+### US25 - Vincular Prompt em Massa (com Validação de Atividade) (US Separada 2)
 **Como um** coordenador de correção,
 **Eu quero** vincular um prompt a múltiplas disciplinas com validação de atividade obrigatória
 **Para que** os vínculos sejam sempre compatíveis com o tipo de atividade.
@@ -149,7 +149,7 @@
   - [ ] Se não existem prompts para a atividade, exibe alerta informativo.
   - [ ] Sweet alert de confirmação antes, sweet alert de conclusão após.
 
-### US26 - Ativar Correção em Massa
+### US26 - Ativar Correção em Massa (US Separada 3)
 **Como um** coordenador de correção,
 **Eu quero** ativar a correção por IA para múltiplos registros simultaneamente
 **Para que** eu economize tempo ao habilitar a IA para grandes volumes.
@@ -158,7 +158,7 @@
   - [ ] Ao clicar em "Ativar Correção", o status de todos os registros-alvo muda para Ativo.
   - [ ] Sweet alert de confirmação antes, sweet alert de conclusão após.
 
-### US27 - Configurar Publicação em Massa (com Nota e Prazo)
+### US27 - Configurar Publicação em Massa (com Nota e Prazo) (US Separada 4)
 **Como um** coordenador de correção,
 **Eu quero** configurar publicação em massa preenchendo Nota Mínima e Prazo obrigatoriamente
 **Para que** todas as publicações automáticas tenham parâmetros válidos.
@@ -169,7 +169,7 @@
   - [ ] Após confirmação, os registros-alvo recebem publicação Ativa com os valores de Nota e Prazo informados.
   - [ ] Sweet alert de conclusão com contagem de registros atualizados.
 
-### US28 - Parametrização Individual (Side Drawer)
+### US28 - Parametrização Individual (Side Drawer) (US Separada 1)
 **Como um** coordenador de correção,
 **Eu quero** configurar individualmente um registro através de um painel lateral
 **Para que** eu faça ajustes finos sem uso de ações em massa.
@@ -182,7 +182,7 @@
   - [ ] O drawer possui **apenas um** botão de fechar (X) no cabeçalho.
   - [ ] Botão "Salvar Tudo" grava todas as configurações de uma vez.
 
-### US29 - Modal de Regras do Processo
+### US29 - Modal de Regras do Processo (US Separada 1)
 **Como um** coordenador de correção,
 **Eu quero** consultar as regras de publicação em um modal informativo bem formatado
 **Para que** eu tenha referência imediata das condições de publicação automática.
@@ -192,7 +192,7 @@
   - [ ] Possui apenas o botão **"OK"** (sem botão Cancelar).
   - [ ] Ícone de informação (`info`).
 
-### US30 - Paginação Padronizada
+### US30 - Paginação Padronizada (US Separada 1)
 **Como um** coordenador de correção,
 **Eu quero** que a paginação da Matriz siga o mesmo padrão visual da Auditoria
 **Para que** haja consistência em todo o módulo.
@@ -203,7 +203,7 @@
   - [ ] Indicador "Página X de Y".
   - [ ] Botões Anterior/Próximo com ícones e estados disabled.
 
-### US31 - Exportação de Registros da Matriz (Auditoria)
+### US31 - Exportação de Registros da Matriz (Auditoria) (US Separada 5)
 **Como um** coordenador de correção,
 **Eu quero** exportar os registros da Matriz de Configurações
 **Para que** eu tenha um relatório auditável offline com todas as parametrizações, sabendo exatamente quem e quando ativou ou inativou as configurações.
