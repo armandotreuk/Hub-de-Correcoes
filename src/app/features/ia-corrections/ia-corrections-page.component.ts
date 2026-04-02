@@ -1,31 +1,39 @@
-import { Component, signal, ViewChild } from '@angular/core';
+import { Component, signal, ViewChild, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+// Existing Tabs
 import { PromptRegistrationTabComponent } from './components/prompt-registration-tab/prompt-registration-tab.component';
 import { PromptLinkingTabComponent } from './components/prompt-linking-tab/prompt-linking-tab.component';
 import { CorrectionConfigTabComponent } from './components/correction-config-tab/correction-config-tab.component';
 import { AuditTabComponent } from './components/audit-tab/audit-tab.component';
 import { PublicationTabComponent } from './components/publication-tab/publication-tab.component';
 
+// Prototype Tab
+import { MatrixConfigurationTabComponent } from './components/matrix-configuration-tab/matrix-configuration-tab.component';
+
 type TabType =
   | 'prompt-registration'
   | 'prompt-linking'
   | 'correction-config'
   | 'audit'
-  | 'publication';
+  | 'publication'
+  | 'matrix-configuration';
 
 @Component({
   selector: 'app-ia-corrections-page',
   standalone: true,
   imports: [
     CommonModule,
+    AuditTabComponent,
+    CorrectionConfigTabComponent,
+    MatrixConfigurationTabComponent,
     PromptRegistrationTabComponent,
     PromptLinkingTabComponent,
-    CorrectionConfigTabComponent,
-    AuditTabComponent,
     PublicationTabComponent,
   ],
   templateUrl: './ia-corrections-page.component.html',
   styleUrls: ['./ia-corrections-page.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class IaCorrectionsPageComponent {
   @ViewChild(PromptRegistrationTabComponent) promptRegistrationTab?: PromptRegistrationTabComponent;

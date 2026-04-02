@@ -1,0 +1,281 @@
+<div class="card param-container h-100 p-3">
+  <!-- Header com Botão de Regras -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="m-0 text-primary"><i class="ri-table-alt-line mr-1"></i> Matriz de Configurações (Protótipo Unificado)</h5>
+    <button class="btn btn-outline-info btn-sm" (click)="showRegras()">
+      <i class="ri-information-line mr-1"></i> Ver Regras do Processo
+    </button>
+  </div>
+
+  <!-- 1. Painel de Filtros Hierárquicos -->
+  <div class="filters-panel mb-4 bg-light p-3 rounded border shadow-sm">
+    <div class="row g-3 mb-3">
+      <div class="col-md-2">
+        <app-multi-select-dropdown
+          [label]="'Atividade'"
+          [options]="activityTypeOptions()"
+          [selectedValues]="selectedActivityTypes()"
+          (selectionChange)="selectedActivityTypes.set($event)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-2">
+        <app-multi-select-dropdown
+          [label]="'Unidade'"
+          [options]="unitOptions()"
+          [selectedValues]="selectedUnits()"
+          (selectionChange)="selectedUnits.set($event)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-2">
+        <app-multi-select-dropdown
+          [label]="'Cluster'"
+          [options]="clusterOptions()"
+          [selectedValues]="selectedClusters()"
+          (selectionChange)="selectedClusters.set($event)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-3">
+        <app-multi-select-dropdown
+          [label]="'Curso'"
+          [options]="courseOptions()"
+          [selectedValues]="selectedCourses()"
+          (selectionChange)="selectedCourses.set($event)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-3">
+        <app-multi-select-dropdown
+          [label]="'Disciplina'"
+          [options]="disciplineOptions()"
+          [selectedValues]="selectedDisciplines()"
+          (selectionChange)="selectedDisciplines.set($event)"
+        ></app-multi-select-dropdown>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <app-multi-select-dropdown
+          [label]="'Prompt'"
+          [options]="promptFilterOptions()"
+          [selectedValues]="selectedPrompts()"
+          (selectionChange)="selectedPrompts.set($event)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-3">
+        <app-multi-select-dropdown
+          [label]="'Correção por IA'"
+          [options]="iaStatusOptions()"
+          [selectedValues]="selectedIaStatuses()"
+          (selectionChange)="selectedIaStatuses.set($event)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-3">
+        <app-multi-select-dropdown
+          [label]="'Publicação'"
+          [options]="publicationStatusOptions()"
+          [selectedValues]="selectedPublicationStatuses()"
+          (selectionChange)="selectedPublicationStatuses.set($event)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary w-100" (click)="onSearch()">
+          <i class="ri-search-line mr-1"></i> Filtrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Action Bar de Ações em Massa -->
+  <div class="bulk-actions-bar d-flex align-items-center gap-2 mb-3 p-2 bg-soft-primary rounded border-primary-subtle" *ngIf="filteredRows().length > 0">
+    <span class="small font-weight-bold text-primary mr-3">
+      <i class="ri-checkbox-multiple-line mr-1"></i> 
+      {{ selectedIds().size > 0 ? selectedIds().size + ' selecionados' : 'Ações em massa para todos os ' + filteredRows().length + ' resultados filtrados' }}
+    </span>
+    
+    <button class="btn btn-sm btn-white border" (click)="onBulkLinkPrompt()">
+      <i class="ri-links-line mr-1"></i> Vincular Prompt
+    </button>
+    <button class="btn btn-sm btn-white border" (click)="onBulkManageCorrection()">
+      <i class="ri-flashlight-line mr-1"></i> Gerenciar Correção
+    </button>
+    <button class="btn btn-sm btn-white border" (click)="onBulkManagePublication()">
+      <i class="ri-notification-badge-line mr-1"></i> Gerenciar Publicação
+    </button>
+    <div class="ml-auto flex-shrink-0" style="margin-left: auto;">
+      <button class="btn btn-sm btn-success" (click)="onExportMatrix()">
+        <i class="ri-file-excel-2-line mr-1"></i> Exportar
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. Grid Centralizado (Tabela) -->
+  <div class="table-responsive flex-grow-1 border rounded">
+    <table class="table table-hover minimalist-table mb-0">
+      <thead class="bg-light">
+        <tr>
+          <th width="40">
+            <div class="custom-control custom-checkbox h-center">
+              <input type="checkbox" class="custom-control-input" id="chkAllMatrix" (change)="toggleAll($event)">
+              <label class="custom-control-label" for="chkAllMatrix"></label>
+            </div>
+          </th>
+          <th>Disciplina</th>
+          <th>Prompt</th>
+          <th class="text-center">Correção por IA</th>
+          <th>Publicação</th>
+          <th width="60" class="text-center">Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of paginatedRows()" [class.table-active]="selectedIds().has(row.id)">
+          <td>
+            <div class="custom-control custom-checkbox h-center">
+              <input type="checkbox" class="custom-control-input" [id]="'chk-' + row.id" 
+                     [checked]="selectedIds().has(row.id)" (change)="toggleSelection(row.id)">
+              <label class="custom-control-label" [for]="'chk-' + row.id"></label>
+            </div>
+          </td>
+          <td>
+            <div class="d-flex flex-column">
+              <span class="font-weight-600 text-dark">{{ row.disciplineName }}</span>
+              <span class="small text-muted">{{ row.courseName }} • <span class="badge" [ngClass]="getActivityColorClass(row.activityTypeName)">{{ row.activityTypeName }}</span></span>
+              <span class="x-small text-uppercase text-muted mt-1">{{ row.businessUnitName }} | {{ row.clusterName }}</span>
+            </div>
+          </td>
+          <td>
+            <span *ngIf="row.promptTitle" class="text-primary font-weight-500 cursor-pointer" (click)="openPromptDetail(row)">
+              <i class="ri-file-code-line mr-1"></i>{{ row.promptTitle }}
+            </span>
+            <span *ngIf="!row.promptTitle" class="text-danger small italic text-muted">
+              <i class="ri-alert-line mr-1"></i>Não vinculado
+            </span>
+          </td>
+          <td class="text-center">
+            <span class="badge" [ngClass]="row.correctionStatus === 'Ativo' ? 'badge-soft-success' : 'badge-soft-secondary'">
+              {{ row.correctionStatus }}
+            </span>
+          </td>
+          <td>
+            <div class="d-flex flex-column align-items-start">
+              <span class="badge mb-1" [ngClass]="row.publicationStatus === 'Ativa' ? 'badge-soft-success' : 'badge-soft-secondary'">
+                <i [class]="row.publicationStatus === 'Ativa' ? 'ri-checkbox-circle-line' : 'ri-close-circle-line'" class="mr-1"></i>
+                {{ row.publicationStatus === 'Ativa' ? 'Ativa' : 'Inativo' }}
+              </span>
+              <span class="x-small font-weight-bold" *ngIf="row.note">Nota: {{ row.note }} | Prazo: {{ row.deadline }}d</span>
+            </div>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-ghost-primary" (click)="openDrawer(row)">
+              <i class="ri-settings-line" style="font-size: 1.1rem"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredRows().length === 0">
+          <td colspan="6" class="text-center py-5 text-muted">
+             <i class="ri-search-eye-line mb-2" style="font-size: 2rem"></i>
+             <p>Utilize os filtros acima e clique em "Pesquisar" para carregar a matriz.</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4. Paginação Padronizada -->
+  <div class="pagination-footer d-flex justify-content-between align-items-center mt-3 pt-3 border-top" *ngIf="filteredRows().length > 0">
+    <div class="page-size-selector text-muted small">
+      Exibindo
+      <select class="custom-select-sm" [ngModel]="itemsPerPage()" (ngModelChange)="onItemsPerPageChange($event)">
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="25">25</option>
+        <option [ngValue]="50">50</option>
+        <option [ngValue]="100">100</option>
+      </select>
+      por página
+    </div>
+    <div class="pagination-controls data-text">
+      Página {{ currentPage() }} de {{ totalPages() }}
+      <button class="btn btn-sm btn-light ml-2" [disabled]="currentPage() === 1" (click)="prevPage()">
+        <i class="ri-arrow-left-s-line"></i> Anterior
+      </button>
+      <button class="btn btn-sm btn-light ml-1" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
+        Próximo <i class="ri-arrow-right-s-line"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Drawer/Modal de Parametrização Individual -->
+<div class="drawer-overlay" *ngIf="isDrawerOpen()" (click)="closeDrawer()"></div>
+<div class="side-drawer" [class.open]="isDrawerOpen()">
+  <div class="drawer-header border-bottom p-3 d-flex justify-content-between align-items-center bg-light">
+    <h6 class="m-0 font-weight-bold"><i class="ri-equalizer-line mr-1"></i> Parametrização Individual</h6>
+    <button class="btn-close" (click)="closeDrawer()" aria-label="Close"></button>
+  </div>
+  
+  <div class="drawer-body p-4" *ngIf="editingRow() as row">
+    <div class="row-info mb-4 p-2 bg-soft-info rounded border">
+      <div class="small font-weight-bold">{{ row.courseName }}</div>
+      <div class="x-small text-muted">{{ row.disciplineName }} | {{ row.activityTypeName }}</div>
+    </div>
+
+    <!-- Etapa 1: Prompt -->
+    <div class="form-group mb-4">
+      <label class="font-weight-bold small">1. Vincular Prompt</label>
+      <select class="form-control form-control-sm" [(ngModel)]="row.promptId" (change)="row.promptId ? null : (row.correctionStatus = 'Inativo'); row.correctionStatus === 'Inativo' ? (row.publicationStatus = 'Inativa') : null">
+        <option [value]="undefined">Selecione um prompt...</option>
+        <option *ngFor="let p of compatibleDrawerPrompts()" [value]="p.id">{{ p.title }} ({{ p.activityTypeName }})</option>
+      </select>
+    </div>
+
+    <!-- Etapa 2: Correção -->
+    <div class="form-group mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <label class="font-weight-bold small m-0">2. Ativar Correção por IA</label>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" [checked]="row.correctionStatus === 'Ativo'"
+                 (change)="row.correctionStatus = $any($event).target.checked ? 'Ativo' : 'Inativo'; row.correctionStatus === 'Inativo' ? (row.publicationStatus = 'Inativa') : null"
+                 [disabled]="!row.promptId">
+        </div>
+      </div>
+      <small class="text-muted d-block mt-1">Requer um prompt vinculado para ativação.</small>
+    </div>
+
+    <hr>
+
+    <!-- Etapa 3: Publicação -->
+    <div class="form-group mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <label class="font-weight-bold small m-0">3. Publicação Automática</label>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" [checked]="row.publicationStatus === 'Ativa'"
+                 (change)="row.publicationStatus = $any($event).target.checked ? 'Ativa' : 'Inativa'"
+                 [disabled]="row.correctionStatus === 'Inativo'">
+        </div>
+      </div>
+      
+      <div class="row g-2 mt-2" *ngIf="row.publicationStatus === 'Ativa'">
+        <div class="col-6">
+          <label class="x-small font-weight-bold text-muted">Nota Mínima (0-100)</label>
+          <input type="number" class="form-control form-control-sm" [(ngModel)]="row.note">
+        </div>
+        <div class="col-6">
+          <label class="x-small font-weight-bold text-muted">Prazo (Dias)</label>
+          <input type="number" class="form-control form-control-sm" [(ngModel)]="row.deadline">
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <button class="btn btn-primary w-100 mb-2" (click)="saveIndividualConfig()">
+        Salvar Tudo
+      </button>
+      <button class="btn btn-light w-100" (click)="closeDrawer()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalhe do Prompt (US06.1) -->
+<app-prompt-detail-modal
+  [prompt]="selectedPromptForDetail()"
+  [isOpen]="isPromptModalOpen()"
+  (close)="closePromptModal()"
+></app-prompt-detail-modal>

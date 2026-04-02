@@ -59,6 +59,15 @@
           <i class="ri-upload-cloud-line mr-2"></i> Publicação de Notas
         </a>
       </li>
+      <li class="nav-item">
+        <a
+          class="nav-link cursor-pointer"
+          [class.active]="activeTab() === 'matrix-configuration'"
+          (click)="setTab('matrix-configuration')"
+        >
+          <i class="ri-table-alt-line mr-2"></i> Matriz de Configurações
+        </a>
+      </li>
     </ul>
   </div>
 
@@ -91,6 +100,12 @@
     @if (activeTab() === 'publication') {
       <div class="fade-in">
         <app-publication-tab></app-publication-tab>
+      </div>
+    }
+
+    @if (activeTab() === 'matrix-configuration') {
+      <div class="fade-in">
+        <app-matrix-configuration-tab></app-matrix-configuration-tab>
       </div>
     }
   </div>

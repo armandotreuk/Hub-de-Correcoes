@@ -264,33 +264,6 @@ export class PromptLinkingTabComponent implements OnInit {
       });
   }
 
-  linkPrompt(disciplineId: number) {
-    const promptId = this.bulkPromptId();
-    const prompt = this.prompts().find((p) => p.id === promptId);
-    if (!prompt) {
-      alert('Selecione um prompt no seletor superior para vincular.');
-      return;
-    }
-
-    this.promptLinkingService
-      .linkPromptToDiscipline(prompt.id, prompt.title, disciplineId, prompt.activityTypeName)
-      .subscribe({
-        next: (newLink) => {
-          this.links.update((list) => [...list, newLink]);
-          alert('Vínculo criado!');
-        },
-        error: (err) => alert(err.message),
-      });
-  }
-
-  unlinkPrompt(linkId: string) {
-    if (!confirm('Deseja remover este vínculo?')) return;
-    this.promptLinkingService.unlinkPromptFromDiscipline(linkId).subscribe(() => {
-      this.links.update((list) => list.filter((l) => l.id !== linkId));
-      alert('Vínculo removido.');
-    });
-  }
-
   openPromptModal(promptId: string) {
     const prompt = this.prompts().find((p) => p.id === promptId);
     if (prompt) {

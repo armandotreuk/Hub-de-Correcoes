@@ -112,7 +112,6 @@
           <th>Curso</th>
           <th>Disciplina</th>
           <th>Prompt Vinculado</th>
-          <th width="80">Ação</th>
         </tr>
       </thead>
       <tbody>
@@ -152,25 +151,6 @@
                 </a>
               } @else {
                 <span class="text-muted">—</span>
-              }
-            </td>
-            <td class="text-center">
-              @if (getLinkedPrompt(disc.id); as link) {
-                <button
-                  class="btn btn-sm btn-ghost text-danger"
-                  title="Remover Vínculo"
-                  (click)="unlinkPrompt(link.id)"
-                >
-                  <i class="ri-delete-bin-line"></i>
-                </button>
-              } @else {
-                <button
-                  class="btn btn-sm btn-ghost text-success"
-                  title="Vincular Prompt"
-                  (click)="linkPrompt(disc.id)"
-                >
-                  <i class="ri-add-circle-line"></i>
-                </button>
               }
             </td>
           </tr>

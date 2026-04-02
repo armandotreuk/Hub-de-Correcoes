@@ -1,0 +1,144 @@
+.param-container {
+  min-height: 500px;
+  background-color: #ffffff;
+}
+
+.bg-soft-primary {
+  background-color: #eef1f7;
+}
+
+.border-primary-subtle {
+  border-color: #cfd9e8 !important;
+}
+
+.badge-soft-info {
+  background-color: #d8effb;
+  color: #299cdb;
+}
+
+.badge-soft-primary {
+  background-color: #eef1f7;
+  color: #405189;
+}
+
+.badge-soft-danger {
+  background-color: #fce4e4;
+  color: #f06548;
+}
+
+.badge-soft-warning {
+  background-color: #fff2e1;
+  color: #f7b84b;
+}
+
+.badge-soft-success {
+  background-color: #d1f1eb;
+  color: #0ab39c;
+}
+
+.badge-soft-secondary {
+  background-color: #f3f3f9;
+  color: #878a99;
+}
+
+.h-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.minimalist-table th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+  color: #495057;
+  padding: 12px 15px;
+}
+
+.minimalist-table td {
+  padding: 12px 15px;
+  vertical-align: middle;
+}
+
+.font-weight-500 {
+  font-weight: 500;
+}
+
+.font-weight-600 {
+  font-weight: 600;
+}
+
+.x-small {
+  font-size: 0.7rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-pointer:hover {
+  text-decoration: underline;
+}
+
+.btn-ghost-primary {
+  background-color: transparent;
+  color: #405189;
+  border: none;
+}
+
+.btn-ghost-primary:hover {
+  background-color: #eef1f7;
+}
+
+/* Side Drawer Styles */
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1040;
+}
+
+.side-drawer {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background-color: #ffffff;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  z-index: 1050;
+  transition: right 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-drawer.open {
+  right: 0;
+}
+
+.drawer-header {
+  height: 60px;
+}
+
+.drawer-body {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.form-switch .form-check-input {
+  width: 2.5em;
+  height: 1.25em;
+}
+
+.btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+}
+
+.italic {
+  font-style: italic;
+}

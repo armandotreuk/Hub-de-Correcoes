@@ -221,12 +221,19 @@ export class PublicationTabComponent implements OnInit {
     const newStatus = hasDisabled ? 'Habilitado' : 'Desabilitado';
     const action = hasDisabled ? 'habilitar' : 'desabilitar';
 
-    const count = validTargets.length;
-    const label = selectedCount > 0 ? `${count} selecionados` : `${count} filtrados`;
+    const eligibleCount = validTargets.length;
+    const ineligibleCount = targets.length - validTargets.length;
+    const mode = selectedCount > 0 ? 'selecionados' : 'filtrados';
+
+    let message = `Deseja ${action} a publicação para os registros elegíveis (${mode})?\n\n`;
+    message += `• ${eligibleCount} Elegíveis (Correção Ativa)\n`;
+    if (ineligibleCount > 0) {
+      message += `• ${ineligibleCount} Inelegíveis (Correção Inativa)\n`;
+    }
 
     const confirmed = await this.sweetAlertService.confirmAction(
       'Confirmar Publicação',
-      `Deseja ${action} a publicação para ${label}?`,
+      message
     );
 
     if (!confirmed) return;
@@ -241,7 +248,7 @@ export class PublicationTabComponent implements OnInit {
         this.sweetAlertService.closeLoading();
         this.sweetAlertService.showSuccess(
           'Concluído!',
-          `${count} registros ${action === 'habilitar' ? 'habilitados' : 'desabilitados'}.`,
+          `${eligibleCount} registros ${action === 'habilitar' ? 'habilitados' : 'desabilitados'}.`,
         );
         this.loadData();
         this.selectedIds.set(new Set());

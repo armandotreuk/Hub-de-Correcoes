@@ -103,3 +103,19 @@ export interface ActivityType {
   id: number;
   name: string;
 }
+/** Modelo Unificado para a Matriz de Configurações — v5 */
+export interface UnifiedConfigRow {
+  id: string;
+  disciplineId: number;
+  disciplineName: string;
+  courseName: string;
+  clusterName: string;
+  businessUnitName: string;
+  activityTypeName: string;
+  promptId?: string;
+  promptTitle?: string;
+  correctionStatus: 'Ativo' | 'Inativo';
+  publicationStatus: 'Ativa' | 'Inativa';
+  note?: number | null;
+  deadline?: number | null;
+}

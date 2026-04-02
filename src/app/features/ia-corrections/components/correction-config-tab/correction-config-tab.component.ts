@@ -214,9 +214,19 @@ export class CorrectionConfigTabComponent implements OnInit {
     const count = targets.length;
     const label = selectedCount > 0 ? `${count} selecionados` : `${count} filtrados`;
 
+    const willChange = targets.filter(t => t.correctionStatus !== newStatus).length;
+    const alreadyStatus = targets.length - willChange;
+    const modeLabel = selectedCount > 0 ? 'selecionados' : 'filtrados';
+
+    let message = `Deseja ${action} ${count} registros (${modeLabel})?\n\n`;
+    message += `• ${willChange} serão alterados para ${newStatus}\n`;
+    if (alreadyStatus > 0) {
+      message += `• ${alreadyStatus} já estão como ${newStatus}\n`;
+    }
+
     const confirmed = await this.sweetAlertService.confirmAction(
-      'Confirmar Ação',
-      `Deseja ${action} ${label}?`,
+      'Confirmar Alteração de Status',
+      message
     );
 
     if (!confirmed) return;
