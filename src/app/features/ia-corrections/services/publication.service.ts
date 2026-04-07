@@ -19,10 +19,14 @@ export class PublicationService {
       activityTypeName: 'Desafio Profissional',
       promptTitle: 'Prompt Corretor Padrão',
       correctionStatus: 'Inativo',
-      publicationStatus: 'Desabilitado',
+      publicationStatus: 'Inativa',
       performanceThreshold: null,
       activatedBy: '-',
       activatedAt: '-',
+      activatedByUserId: '',
+      activatedByName: '',
+      updatedByUserId: '',
+      deactivatedAt: '',
     },
     {
       id: 'PUB-002',
@@ -33,10 +37,14 @@ export class PublicationService {
       activityTypeName: 'Desafio Profissional',
       promptTitle: 'Prompt Corretor Padrão',
       correctionStatus: 'Inativo',
-      publicationStatus: 'Desabilitado',
+      publicationStatus: 'Inativa',
       performanceThreshold: null,
       activatedBy: '-',
       activatedAt: '-',
+      activatedByUserId: '',
+      activatedByName: '',
+      updatedByUserId: '',
+      deactivatedAt: '',
     },
     {
       id: 'PUB-003',
@@ -47,10 +55,14 @@ export class PublicationService {
       activityTypeName: 'Resenha',
       promptTitle: 'Prompt Resenha Crítica',
       correctionStatus: 'Inativo',
-      publicationStatus: 'Desabilitado',
+      publicationStatus: 'Inativa',
       performanceThreshold: null,
       activatedBy: '-',
       activatedAt: '-',
+      activatedByUserId: '',
+      activatedByName: '',
+      updatedByUserId: '',
+      deactivatedAt: '',
     },
     {
       id: 'PUB-004',
@@ -61,10 +73,14 @@ export class PublicationService {
       activityTypeName: 'MAPA',
       promptTitle: 'Prompt MAPA Avaliativo',
       correctionStatus: 'Inativo',
-      publicationStatus: 'Desabilitado',
+      publicationStatus: 'Inativa',
       performanceThreshold: null,
       activatedBy: '-',
       activatedAt: '-',
+      activatedByUserId: '',
+      activatedByName: '',
+      updatedByUserId: '',
+      deactivatedAt: '',
     },
     {
       id: 'PUB-005',
@@ -75,10 +91,14 @@ export class PublicationService {
       activityTypeName: 'Prova',
       promptTitle: 'Prompt Prova Dissertativa',
       correctionStatus: 'Inativo',
-      publicationStatus: 'Desabilitado',
+      publicationStatus: 'Inativa',
       performanceThreshold: null,
       activatedBy: '-',
       activatedAt: '-',
+      activatedByUserId: '',
+      activatedByName: '',
+      updatedByUserId: '',
+      deactivatedAt: '',
     },
     {
       id: 'PUB-006',
@@ -89,10 +109,14 @@ export class PublicationService {
       activityTypeName: 'Desafio Profissional',
       promptTitle: 'Prompt Corretor Padrão',
       correctionStatus: 'Inativo',
-      publicationStatus: 'Desabilitado',
+      publicationStatus: 'Inativa',
       performanceThreshold: null,
       activatedBy: '-',
       activatedAt: '-',
+      activatedByUserId: '',
+      activatedByName: '',
+      updatedByUserId: '',
+      deactivatedAt: '',
     },
     {
       id: 'PUB-007',
@@ -103,10 +127,14 @@ export class PublicationService {
       activityTypeName: 'Prova',
       promptTitle: 'Prompt Prova Dissertativa',
       correctionStatus: 'Inativo',
-      publicationStatus: 'Desabilitado',
+      publicationStatus: 'Inativa',
       performanceThreshold: null,
       activatedBy: '-',
       activatedAt: '-',
+      activatedByUserId: '',
+      activatedByName: '',
+      updatedByUserId: '',
+      deactivatedAt: '',
     },
   ];
 
@@ -123,17 +151,13 @@ export class PublicationService {
     return of([...this.configs]).pipe(delay(300));
   }
 
-  updatePublicationStatus(
-    id: string,
-    status: 'Habilitado' | 'Desabilitado',
-  ): Observable<PublicationConfig> {
+  updatePublicationStatus(id: string, status: 'Ativa' | 'Inativa'): Observable<PublicationConfig> {
     const index = this.configs.findIndex((c) => c.id === id);
     if (index < 0) {
       return throwError(() => new Error('Registro não encontrado.'));
     }
 
-    // RN24: Validar dependência — não pode habilitar se correção está inativa
-    if (status === 'Habilitado') {
+    if (status === 'Ativa') {
       const corrId = id.replace('PUB-', 'COR-');
       const corrStatus = this.correctionConfigService.getConfigStatus(corrId);
       if (corrStatus === 'Inativo') {
@@ -149,43 +173,55 @@ export class PublicationService {
     this.configs[index] = {
       ...this.configs[index],
       publicationStatus: status,
-      activatedBy: status === 'Habilitado' ? 'USR-Current' : this.configs[index].activatedBy,
+      activatedBy: status === 'Ativa' ? 'USR-Current' : this.configs[index].activatedBy,
       activatedAt:
-        status === 'Habilitado'
+        status === 'Ativa'
           ? new Date().toISOString().split('T')[0]
           : this.configs[index].activatedAt,
-      performanceThreshold:
-        status === 'Desabilitado' ? null : this.configs[index].performanceThreshold,
+      performanceThreshold: status === 'Inativa' ? null : this.configs[index].performanceThreshold,
+      activatedByUserId: status === 'Ativa' ? 'USR-Current' : this.configs[index].activatedByUserId,
+      activatedByName: status === 'Ativa' ? 'Usuário Atual' : this.configs[index].activatedByName,
+      updatedByUserId: 'USR-Current',
+      deactivatedAt:
+        status === 'Inativa'
+          ? new Date().toISOString().split('T')[0]
+          : this.configs[index].deactivatedAt,
     };
     return of(this.configs[index]).pipe(delay(300));
   }
 
-  updatePublicationStatuses(
-    ids: string[],
-    status: 'Habilitado' | 'Desabilitado',
-  ): Observable<boolean> {
+  updatePublicationStatuses(ids: string[], status: 'Ativa' | 'Inativa'): Observable<boolean> {
     let blocked = 0;
     ids.forEach((id) => {
       const index = this.configs.findIndex((c) => c.id === id);
       if (index >= 0) {
-        if (status === 'Habilitado') {
+        if (status === 'Ativa') {
           const corrId = id.replace('PUB-', 'COR-');
           const corrStatus = this.correctionConfigService.getConfigStatus(corrId);
           if (corrStatus === 'Inativo') {
             blocked++;
-            return; // Pula este registro (RN24)
+            return;
           }
         }
         this.configs[index] = {
           ...this.configs[index],
           publicationStatus: status,
-          activatedBy: status === 'Habilitado' ? 'USR-Current' : this.configs[index].activatedBy,
+          activatedBy: status === 'Ativa' ? 'USR-Current' : this.configs[index].activatedBy,
           activatedAt:
-            status === 'Habilitado'
+            status === 'Ativa'
               ? new Date().toISOString().split('T')[0]
               : this.configs[index].activatedAt,
           performanceThreshold:
-            status === 'Desabilitado' ? null : this.configs[index].performanceThreshold,
+            status === 'Inativa' ? null : this.configs[index].performanceThreshold,
+          activatedByUserId:
+            status === 'Ativa' ? 'USR-Current' : this.configs[index].activatedByUserId,
+          activatedByName:
+            status === 'Ativa' ? 'Usuário Atual' : this.configs[index].activatedByName,
+          updatedByUserId: 'USR-Current',
+          deactivatedAt:
+            status === 'Inativa'
+              ? new Date().toISOString().split('T')[0]
+              : this.configs[index].deactivatedAt,
         };
       }
     });

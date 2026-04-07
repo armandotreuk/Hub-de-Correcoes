@@ -49,6 +49,9 @@ export interface PromptLink {
   clusterId: number;
   clusterName: string;
   activityTypeName: string;
+  createdByUserId?: string;
+  createdByName?: string;
+  updatedByUserId?: string;
 }
 
 /** Configuração de Correção — Aba 3 */
@@ -65,6 +68,11 @@ export interface CorrectionConfig {
   createdBy: string; // v4: auditoria
   updatedAt: string; // v4: auditoria
   updatedBy: string; // v4: auditoria
+  activatedByUserId?: string;
+  activatedByName?: string;
+  updatedByUserId?: string;
+  activatedAt?: string;
+  deactivatedAt?: string;
 }
 
 /** Configuração de Publicação — Aba 5 */
@@ -77,10 +85,14 @@ export interface PublicationConfig {
   activityTypeName: string;
   promptTitle: string;
   correctionStatus: 'Ativo' | 'Inativo';
-  publicationStatus: 'Habilitado' | 'Desabilitado'; // default: Desabilitado
+  publicationStatus: 'Ativa' | 'Inativa'; // RN43.3: renamed from Habilitado/Desabilitado
   performanceThreshold: number | null; // % de corte (RN25-RN27)
   activatedBy: string;
   activatedAt: string;
+  activatedByUserId?: string;
+  activatedByName?: string;
+  updatedByUserId?: string;
+  deactivatedAt?: string;
 }
 
 /** Curso para navegação hierárquica */
@@ -118,4 +130,44 @@ export interface UnifiedConfigRow {
   publicationStatus: 'Ativa' | 'Inativa';
   note?: number | null;
   deadline?: number | null;
+  promptCreatedByUserId?: string;
+  promptCreatedByName?: string;
+  promptUpdatedByUserId?: string;
+  correctionActivatedByUserId?: string;
+  correctionActivatedByName?: string;
+  correctionUpdatedByUserId?: string;
+  correctionActivatedAt?: string;
+  correctionDeactivatedAt?: string;
+  publicationActivatedByUserId?: string;
+  publicationActivatedByName?: string;
+  publicationUpdatedByUserId?: string;
+  publicationActivatedAt?: string;
+  publicationDeactivatedAt?: string;
+}
+
+/** Linha de exportação de governança — 21 colunas (RN53) */
+export interface GovernanceExportRow {
+  unidadeNegocio: string;
+  cluster: string;
+  curso: string;
+  disciplina: string;
+  tipoAtividade: string;
+  promptVinculado: string;
+  tituloPrompt: string;
+  situacaoPrompt: string;
+  criadoPorUserId: string;
+  criadoPorNome: string;
+  ultimaEdicaoUserId: string;
+  statusCorrecaoIA: string;
+  dataAtivacaoCorrecao: string;
+  dataInativacaoCorrecao: string;
+  ativacaoOriginalUserId: string;
+  ativacaoOriginalNome: string;
+  correcaoUltimaEdicaoUserId: string;
+  statusPublicacao: string;
+  notaMinima: string;
+  prazoLiberacao: string;
+  publicacaoAtivacaoUserId: string;
+  publicacaoAtivacaoNome: string;
+  publicacaoUltimaEdicaoUserId: string;
 }

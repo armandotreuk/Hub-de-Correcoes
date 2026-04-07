@@ -9,9 +9,11 @@
 > Todas as stories deste tema são herdadas integralmente da v4, sem alterações.
 
 ### US01 - Criação de Novo Prompt (com dois corpos)
+
 **Como um** analista pedagógico,
 **Eu quero** criar um novo prompt de correção preenchendo título, corpo de avaliação, corpo de feedback, unidade de negócio e tipo de atividade
 **Para que** o sistema disponha de instruções textuais padronizadas que orientem a IA tanto na avaliação quanto no feedback.
+
 - **Relacionado a:** RN01, RN01.1, RN02
 - **Critérios de Aceite:**
   - [ ] Deve existir um botão "Criar Novo Prompt" na tela.
@@ -21,28 +23,34 @@
   - [ ] O prompt é criado com a Situação **Ativo** por padrão.
 
 ### US02 - Edição de Prompt Existente
+
 **Como um** analista pedagógico,
 **Eu quero** selecionar um prompt da lista e editar seu conteúdo
 **Para que** eu possa refinar as instruções de correção conforme a evolução do modelo de IA.
+
 - **Relacionado a:** RN03, RN05
 - **Critérios de Aceite:**
   - [ ] A tela deve exibir uma lista de todos os prompts cadastrados (respeitando filtros).
   - [ ] Ao selecionar um prompt, seu título, corpo de avaliação, corpo de feedback, unidade, atividade, situação e observações devem ser carregados nos campos de edição.
-  - [ ] As alterações podem ser salvas via botão "Salvar".
+  - [ ] As alterações podem ser salvas via botão **"Salvar"**.
 
 ### US03 - Persistência com Validação de Navegação
+
 **Como um** analista pedagógico,
 **Eu quero** ser avisado ao tentar sair da aba se houver alterações não salvas
 **Para que** eu não perca acidentalmente edições importantes.
+
 - **Relacionado a:** RN04
 - **Critérios de Aceite:**
   - [ ] Se o usuário alterou qualquer campo e tenta navegar para outra aba, um diálogo de confirmação deve ser exibido.
   - [ ] O diálogo deve oferecer opções "Salvar", "Descartar" ou "Cancelar".
 
 ### US03.1 - Situação do Prompt como Dropdown
+
 **Como um** analista pedagógico,
 **Eu quero** selecionar a Situação (Ativo/Inativo) através de um dropdown no padrão visual dos demais
 **Para que** a interface mantenha consistência visual.
+
 - **Relacionado a:** RN05.1
 - **Critérios de Aceite:**
   - [ ] O dropdown de Situação deve ficar à direita do dropdown de Tipo de Atividade, **na mesma linha** (3 colunas: Unidade | Atividade | Situação).
@@ -50,18 +58,22 @@
   - [ ] Ao criar um novo prompt, o valor padrão deve ser **Ativo**.
 
 ### US03.2 - Campo de Observações
+
 **Como um** analista pedagógico,
 **Eu quero** registrar observações em um prompt
 **Para que** minha equipe possa deixar comentários e anotações.
+
 - **Relacionado a:** RN05.2
 - **Critérios de Aceite:**
   - [ ] Abaixo dos campos "Prompt Feedback" deve existir um textarea "Observações" (até 10.000 caracteres).
-  - [ ] Deve possuir um botão próprio "Salvar Comentário" independente do botão "Salvar" do prompt.
+  - [ ] Os comentários devem ser salvos juntamente às edições de prompt ao clicar no botão **"Salvar"**. O botão independente "Salvar Comentário" foi removido.
 
 ### US03.3 - Filtros na Lista de Prompts
+
 **Como um** analista pedagógico,
 **Eu quero** filtrar a lista de prompts por Unidade de Negócio, Tipo de Atividade e Situação
 **Para que** eu encontre rapidamente o prompt que preciso editar.
+
 - **Relacionado a:** RN05.3
 - **Critérios de Aceite:**
   - [ ] Dropdown "Unidade de Negócio" (não obrigatório) filtra a lista.
@@ -71,9 +83,11 @@
   - [ ] Se nenhuma situação for selecionada, nenhum prompt é exibido.
 
 ### US03.4 - Estilo Visual dos Cards de Prompt
+
 **Como um** analista pedagógico,
 **Eu quero** que os cards da lista tenham contornos visíveis e badges de status legíveis
 **Para que** eu consiga identificar rapidamente cada prompt e seu status.
+
 - **Relacionado a:** RN05.4
 - **Critérios de Aceite:**
   - [ ] Cada prompt-item na lista deve possuir **borda/contorno visível** delimitando o card.
@@ -87,9 +101,11 @@
 > **NOVO na v5**: Este tema unifica as funcionalidades dos antigos Temas 2 (Relacionar Prompt), 3 (Ativar Correção) e 5 (Publicação de Notas) em uma única visão matricial.
 
 ### US20 - Visão Matricial Consolidada (US Separada 1)
+
 **Como um** coordenador de correção,
 **Eu quero** visualizar uma tabela unificada que cruza Disciplina × Tipo de Atividade com as três dimensões de configuração (Prompt, Correção, Publicação)
 **Para que** eu configure todo o pipeline de IA sem navegar entre múltiplas abas.
+
 - **Relacionado a:** RN40, RN41
 - **Critérios de Aceite:**
   - [ ] A tabela exibe uma linha por combinação Disciplina + Tipo de Atividade.
@@ -97,40 +113,49 @@
   - [ ] Dados são produzidos pelo join em memória de PromptLinkingService, CorrectionConfigService e PublicationService.
 
 ### US21 - Painel de Filtros Completo (US Separada 1)
+
 **Como um** coordenador de correção,
 **Eu quero** filtrar a matriz usando 8 filtros organizados em duas linhas
 **Para que** eu localize rapidamente as combinações que preciso configurar.
+
 - **Relacionado a:** RN42, RN42.1
 - **Critérios de Aceite:**
   - [ ] **Linha 1**: Atividade (primeiro), Unidade, Cluster, Curso, Disciplina.
   - [ ] **Linha 2**: Prompt, Status IA (Ativo/Inativo), Publicação (Ativa/Inativa), Botão Pesquisar.
   - [ ] Cada filtro usa o componente `MultiSelectDropdownComponent`.
   - [ ] O botão "Pesquisar e Filtrar" aplica todos os filtros de uma vez. Sweet alert de loading durante processamento.
+  - [ ] O filtro de **Prompt** deve exibir apenas as opções compatíveis com as **Atividades** e/ou **Unidades** selecionadas (Filtro Inteligente/Reativo). Caso as mesmas estejam vazias, exibe todos os prompts.
 
 ### US22 - Cores Diferenciadas por Tipo de Atividade (US Separada 1)
+
 **Como um** coordenador de correção,
 **Eu quero** que cada tipo de atividade na tabela possua uma tag com cor diferenciada
 **Para que** eu identifique visualmente o tipo de atividade sem precisar ler o texto.
+
 - **Relacionado a:** RN43.1
 - **Critérios de Aceite:**
   - [ ] As tags de atividade devem seguir o mapeamento: Desafio Profissional (azul), Resenha (ciano), Fórum (verde), MAPA (cinza), Prova (vermelho).
   - [ ] Tipos não mapeados recebem um estilo neutro (dark).
 
 ### US23 - Modal de Detalhe do Prompt na Matriz (US Separada 1)
+
 **Como um** coordenador de correção,
 **Eu quero** clicar no nome de um prompt vinculado na tabela e visualizar seus detalhes em um modal
 **Para que** eu consulte corpo de avaliação, feedback e observações sem sair da matriz.
+
 - **Relacionado a:** RN43.2 (herdado de US06.1)
 - **Critérios de Aceite:**
   - [ ] Ao clicar no nome do prompt, abre modal centralizado.
-  - [ ] Campos Título, Unidade, Tipo de Atividade, Corpo Avaliação e Corpo Feedback estão **bloqueados**.
-  - [ ] Campo Observações está **liberado** para edição com botão "Salvar Comentário".
+  - [ ] Campos Título, Unidade, Tipo de Atividade, Corpo Avaliação, Corpo Feedback e Observações estão **bloqueados para edição**.
+  - [ ] O modal **não exibe o botão Salvar** (visualização exclusiva).
   - [ ] Ao clicar em "Não vinculado", nenhuma ação é executada.
 
 ### US24 - Barra de Ações em Massa com Contagem Dinâmica (US Separada 1)
+
 **Como um** coordenador de correção,
 **Eu quero** ver quantos registros serão afetados pelas ações em massa
 **Para que** eu tenha clareza sobre o impacto antes de executar qualquer operação.
+
 - **Relacionado a:** RN44
 - **Critérios de Aceite:**
   - [ ] A barra exibe: "Ações em massa para todos os **X** resultados filtrados" quando nenhum checkbox está marcado.
@@ -138,9 +163,11 @@
   - [ ] Se nenhum resultado, a barra não é exibida.
 
 ### US25 - Vincular Prompt em Massa (com Validação de Atividade) (US Separada 2)
+
 **Como um** coordenador de correção,
 **Eu quero** vincular um prompt a múltiplas disciplinas com validação de atividade obrigatória
 **Para que** os vínculos sejam sempre compatíveis com o tipo de atividade.
+
 - **Relacionado a:** RN45, RN45.1, RN45.2
 - **Critérios de Aceite:**
   - [ ] O sistema **exige** exatamente uma atividade selecionada no filtro para prosseguir.
@@ -150,18 +177,22 @@
   - [ ] Sweet alert de confirmação antes, sweet alert de conclusão após.
 
 ### US26 - Ativar Correção em Massa (US Separada 3)
+
 **Como um** coordenador de correção,
 **Eu quero** ativar a correção por IA para múltiplos registros simultaneamente
 **Para que** eu economize tempo ao habilitar a IA para grandes volumes.
+
 - **Relacionado a:** RN44.1
 - **Critérios de Aceite:**
   - [ ] Ao clicar em "Ativar Correção", o status de todos os registros-alvo muda para Ativo.
   - [ ] Sweet alert de confirmação antes, sweet alert de conclusão após.
 
 ### US27 - Configurar Publicação em Massa (com Nota e Prazo) (US Separada 4)
+
 **Como um** coordenador de correção,
 **Eu quero** configurar publicação em massa preenchendo Nota Mínima e Prazo obrigatoriamente
 **Para que** todas as publicações automáticas tenham parâmetros válidos.
+
 - **Relacionado a:** RN46, RN46.1
 - **Critérios de Aceite:**
   - [ ] Ao clicar em "Configurar Publicação", abre diálogo interativo com campos de **Nota Mínima** (0-100) e **Prazo** (dias).
@@ -170,9 +201,11 @@
   - [ ] Sweet alert de conclusão com contagem de registros atualizados.
 
 ### US28 - Parametrização Individual (Side Drawer) (US Separada 1)
+
 **Como um** coordenador de correção,
 **Eu quero** configurar individualmente um registro através de um painel lateral
 **Para que** eu faça ajustes finos sem uso de ações em massa.
+
 - **Relacionado a:** RN47, RN47.1
 - **Critérios de Aceite:**
   - [ ] Ao clicar no ícone de engrenagem, abre drawer lateral com 3 etapas:
@@ -183,9 +216,11 @@
   - [ ] Botão "Salvar Tudo" grava todas as configurações de uma vez.
 
 ### US29 - Modal de Regras do Processo (US Separada 1)
+
 **Como um** coordenador de correção,
 **Eu quero** consultar as regras de publicação em um modal informativo bem formatado
 **Para que** eu tenha referência imediata das condições de publicação automática.
+
 - **Relacionado a:** RN48, RN48.1
 - **Critérios de Aceite:**
   - [ ] O modal exibe 4 linhas separadas com as regras.
@@ -193,9 +228,11 @@
   - [ ] Ícone de informação (`info`).
 
 ### US30 - Paginação Padronizada (US Separada 1)
+
 **Como um** coordenador de correção,
 **Eu quero** que a paginação da Matriz siga o mesmo padrão visual da Auditoria
 **Para que** haja consistência em todo o módulo.
+
 - **Relacionado a:** RN49 (herdado de RN21, RN32)
 - **Critérios de Aceite:**
   - [ ] Seletor de itens por página (10/25/50/100), default 25.
@@ -203,11 +240,13 @@
   - [ ] Indicador "Página X de Y".
   - [ ] Botões Anterior/Próximo com ícones e estados disabled.
 
-### US31 - Exportação de Registros da Matriz (Auditoria) (US Separada 5)
+### US31 - Exportação de Registros da Matriz (Relatório de Governança) (US Separada 5)
+
 **Como um** coordenador de correção,
 **Eu quero** exportar os registros da Matriz de Configurações
 **Para que** eu tenha um relatório auditável offline com todas as parametrizações, sabendo exatamente quem e quando ativou ou inativou as configurações.
-- **Relacionado a:** Evolução da RN16.3 (v4)
+
+- **Relacionado a:** Evolução da RN16.3 (v4), RN53
 - **Critérios de Aceite:**
   - [ ] A tela deve apresentar um botão de "Exportar" (ex: Excel ou CSV) visível na interface da Matriz.
   - [ ] A exportação deve gerar um arquivo contendo os registros da tabela (podendo respeitar os filtros ou exportar a base completa).
@@ -215,17 +254,66 @@
     1. Ao clicar em exportar, exibir **Sweet Alert de confirmação** questionando sobre o início da geração do documento.
     2. Durante o processamento, exibir **Sweet Alert temporário de loading** ("Processando a exportação...").
     3. Após gerado, exibir **Sweet Alert informando o sucesso**, contemplando também a contagem estrita de quantos registros foram incluídos na matriz exportada.
-  - [ ] O relatório deve conter as colunas estruturais: Disciplina, Curso, Tipo de Atividade, Unidade de Negócio, Cluster, Prompt Vinculado, Correção por IA e Publicação.
-  - [ ] O relatório deve conter colunas obrigatórias de auditoria: **Alterado por** (Nome/Email do usuário que ativou ou inativou a configuração) e **Data e Hora da Alteração**.
+  - [ ] O relatório deve conter **21 colunas** organizadas em 4 seções conforme blueprint abaixo:
+
+#### Seção A: Hierarquia Organizacional
+
+| #   | Coluna             | Tipo   | Notas |
+| --- | ------------------ | ------ | ----- |
+| A1  | Unidade de Negócio | String |       |
+| A2  | Cluster            | String |       |
+| A3  | Curso              | String |       |
+| A4  | Disciplina         | String |       |
+| A5  | Tipo de Atividade  | String |       |
+
+#### Seção B: Configuração do Prompt
+
+| #   | Coluna                      | Tipo   | Notas                   |
+| --- | --------------------------- | ------ | ----------------------- |
+| B1  | Prompt Vinculado            | String | Nome ou "Não vinculado" |
+| B2  | Título do Prompt            | String |                         |
+| B3  | Situação do Prompt          | Enum   | Ativo / Inativo         |
+| B4  | Criado por (user_id)        | String | Quem criou o vínculo    |
+| B5  | Criado por (Nome)           | String |                         |
+| B6  | Última Edição por (user_id) | String | Quem editou por último  |
+
+#### Seção C: Correção por IA
+
+| #   | Coluna                          | Tipo     | Notas           |
+| --- | ------------------------------- | -------- | --------------- |
+| C1  | Status Correção IA              | Enum     | Ativo / Inativo |
+| C2  | Data Ativação Correção          | DateTime |                 |
+| C3  | Data Inativação Correção        | DateTime |                 |
+| C4  | Ativação Original por (user_id) | String   |                 |
+| C5  | Ativação Original por (Nome)    | String   |                 |
+| C6  | Última Edição por (user_id)     | String   |                 |
+
+#### Seção D: Publicação Automática
+
+| #   | Coluna                          | Tipo     | Notas           |
+| --- | ------------------------------- | -------- | --------------- |
+| D1  | Status Publicação               | Enum     | Ativa / Inativa |
+| D2  | Nota Mínima                     | Integer  | 0–100           |
+| D3  | Prazo para Liberação (dias)     | Integer  |                 |
+| D4  | Data Ativação Publicação        | DateTime |                 |
+| D5  | Data Inativação Publicação      | DateTime |                 |
+| D6  | Ativação Original por (user_id) | String   |                 |
+| D7  | Ativação Original por (Nome)    | String   |                 |
+| D8  | Última Edição por (user_id)     | String   |                 |
+
+- [ ] Quando publicação estiver Inativa, D2 (Nota Mínima) e D3 (Prazo) devem exportar como `N/A` ou vazio.
+- [ ] Quando não houver vínculo de prompt, B1 exporta "Não vinculado" e B2–B6 exportam vazios.
 
 ---
 
 ## TEMA 3: Auditoria de Correções (Referência - Sem Alterações)
 
 ### US12 - Painel de Auditoria (manter actual)
+
 **Como um** auditor ou gestor do sistema,
 **Eu quero** acessar a aba de auditoria com a estrutura já implementada
 **Para que** eu possa consultar as parametrizações de IA.
+
 - **Relacionado a:** RN17, RN18, RN21
 - **Critérios de Aceite:**
   - [x] A tabela exibe: Status, Unidade, Atividade, Cluster, Curso, Disciplina, Prompt, Ativado por, Data.

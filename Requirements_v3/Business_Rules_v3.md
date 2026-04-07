@@ -24,7 +24,7 @@ A estrutura organizacional segue a seguinte precedência:
 
 > Regras integralmente herdadas da v4. Nenhuma alteração funcional nesta aba.
 
-- **RN01 - Entidade Prompt**: O Prompt é uma entidade de primeira classe composta por: **Título** (identificador textual), **Prompt Avaliação** (textarea até 10.000 caracteres), **Prompt Feedback** (textarea até 10.000 caracteres), **Unidade de Negócio** e **Tipo de Atividade** vinculados obrigatoriamente na criação, **Observações** (campo de texto livre até 10.000 caracteres), e **Situação** (Ativo ou Inativo, default: Ativo).
+- **RN01 - Entidade Prompt**: O Prompt é uma entidade de primeira classe composta por: **Título** (identificador textual), **Prompt Avaliação** (textarea até 10.000 caracteres), **Prompt Feedback** (textarea até 10.000 caracteres), **Unidade de Negócio** e **Tipo de Atividade** vinculados obrigatoriamente na criação, **Observações** (campo de texto livre até 10.000 caracteres), e **Situação** (Ativo ou Inativo, default: Ativo). O botão de ação principal para persistência deve ser renomeado para **"Salvar"**.
 - **RN01.1 - Dois Tipos de Corpo de Prompt**: Na tela de criação/edição do prompt devem existir **dois campos de texto** (textareas) para o corpo do prompt:
   - O primeiro campo é destinado ao **Prompt de Avaliação**.
   - O segundo campo (abaixo do primeiro) é destinado ao **Prompt de Feedback**.
@@ -34,12 +34,12 @@ A estrutura organizacional segue a seguinte precedência:
 - **RN04 - Persistência e Validação de Alterações**: Ao tentar navegar para outra aba ou tela com alterações não salvas, o sistema deve exibir uma confirmação ao usuário perguntando se deseja salvar as alterações pendentes.
 - **RN05 - Listagem de Prompts**: O sistema deve manter e exibir uma lista de todos os prompts criados, permitindo seleção para visualização e edição.
 - **RN05.1 - Situação do Prompt (Ativo/Inativo)**: A Situação (Ativo/Inativo) deve ser exibida como um **dropdown no padrão visual dos dropdowns de Unidade de Negócio e Tipo de Atividade**, posicionada ao lado direito da caixa de Tipo de Atividade na mesma linha. Ao criar um novo prompt, o valor padrão deve ser **Ativo**. Ao inativar, o prompt é considerado deprecated.
-- **RN05.2 - Campo de Observações**: Abaixo dos campos de Corpo do Prompt (Avaliação e Feedback), deve existir um campo de texto "Observações" (até 10.000 caracteres) para comentários dos usuários. O campo possui botão próprio "Salvar Comentário" independente do botão "Salvar" do prompt.
+- **RN05.2 - Campo de Observações**: Abaixo dos campos de Corpo do Prompt (Avaliação e Feedback), deve existir um campo de texto "Observações" (até 10.000 caracteres) para comentários dos usuários. Os comentários devem ser salvos juntamente às edições de prompt ao clicar no botão **"Salvar"**. O botão independente "Salvar Comentário" foi removido.
 - **RN05.3 - Filtros na Lista de Prompts**: A lista de prompts deve permitir filtragem por:
   - **Unidade de Negócio** (dropdown, não obrigatório)
   - **Tipo de Atividade** (dropdown, não obrigatório)
   - **Situação** (checkbox múltiplo: Ativo e/ou Inativo). Por padrão, o filtro inicia com "Ativo" marcado. Se nenhuma opção for selecionada, nenhum prompt é exibido.
-  > **Nota de design (UX intencional)**: O comportamento "sem seleção = nenhum resultado" é deliberado. Exigir ao menos uma seleção explícita evita que o usuário visualize acidentalmente prompts inativos (deprecated).
+    > **Nota de design (UX intencional)**: O comportamento "sem seleção = nenhum resultado" é deliberado. Exigir ao menos uma seleção explícita evita que o usuário visualize acidentalmente prompts inativos (deprecated).
 - **RN05.4 - Estilo Visual dos Cards de Prompt**: Cada item da lista de prompts (prompt-item) deve possuir **contorno visível** (borda) para delimitar cada card. O badge de **Situação "Ativo"** deve ter estilo visual diferenciado com **cor de fundo e fonte que garantam alta legibilidade**.
 
 ---
@@ -62,7 +62,7 @@ A estrutura organizacional segue a seguinte precedência:
 - **RN42.2 - Botão Pesquisar**: Os filtros **somente são aplicados** à tabela ao clicar no botão "Pesquisar e Filtrar". Enquanto o backend/mock processa, exibir sweet alert de loading. (Herdado de RN09.0)
 - **RN42.3 - Filtro de Status IA**: Permite selecionar registros com correção Ativo/Inativo.
 - **RN42.4 - Filtro de Publicação**: Permite selecionar registros com publicação Ativa/Inativa.
-- **RN42.5 - Filtro de Prompt**: Permite selecionar registros vinculados a um prompt específico.
+- **RN42.5 - Filtro de Prompt**: Permite selecionar registros vinculados a um prompt específico. Quando houver itens selecionados nos filtros **Atividade** e/ou **Unidade**, o filtro de Prompt deve exibir **somente** as opções relacionadas às seleções desses filtros. Caso esses filtros estejam vazios, o filtro de Prompt exibe todos os prompts (Uso não obrigatório dos filtros superiores para filtrar prompts).
 
 ### 2.3 Tabela Matricial
 
@@ -71,7 +71,7 @@ A estrutura organizacional segue a seguinte precedência:
   - **Hierarquia/Atividade**: Curso, Disciplina, Tag de Atividade e informação de Unidade/Cluster em subtexto
   - **Prompt**: Nome do prompt vinculado (clicável) ou indicador "Não vinculado"
   - **Status IA**: Badge Ativo/Inativo com switch visual
-  - **Publicação**: Badge Ativa/Inativa com indicadores de Nota e Prazo
+  - **Publicação**: Badge Ativa/Inativa. Indicadores de Nota e Prazo devem ser exibidos **somente** se a publicação estiver **"Ativa"**. Casos com publicação **"Inativa"** não devem exibir nota e prazo na tela.
   - **Ação**: Botão de parametrização individual (engrenagem)
 - **RN43.1 - Cores por Tipo de Atividade**: Cada tipo de atividade deve possuir uma **tag colorida diferenciada**:
   - Desafio Profissional: Azul (`badge-soft-primary`)
@@ -81,8 +81,8 @@ A estrutura organizacional segue a seguinte precedência:
   - Prova: Vermelho (`badge-soft-danger`)
   - Avaliação Final: Amarelo (`badge-soft-warning`)
 - **RN43.2 - Prompt Clicável (Modal de Detalhe)**: Ao clicar no nome de um prompt vinculado em um registro da tabela, deve abrir o **Modal de Detalhe do Prompt** (conforme US06.1 da v4) permitindo visualizar os campos do prompt sem sair da matriz:
-  - Campos Título, Unidade, Tipo de Atividade, Corpo Avaliação e Corpo Feedback estão **bloqueados** (visual com cor diferente).
-  - Campo Observações está **liberado** para edição com botão "Salvar Comentário".
+  - Campos Título, Unidade, Tipo de Atividade, Corpo Avaliação, Corpo Feedback e Observações estão **bloqueados para edição** (visual locked).
+  - O modal de visualização a partir da matriz **não deve exibir o botão Salvar** (nem de prompt, nem de comentário).
 - **RN43.3 - Status de Publicação (Terminologia)**: Os status de publicação devem usar a terminologia **"Ativa" / "Inativa"** (feminino), substituindo "Habilitado/Desabilitado" da v4.
 
 ### 2.4 Ações em Massa
@@ -136,6 +136,20 @@ A estrutura organizacional segue a seguinte precedência:
   - Indicador: "Página X de Y".
   - Botões: Anterior/Próximo com ícones e estados disabled.
 
+### 2.10 Exportação — Relatório de Governança
+
+- **RN53 - Blueprint de Exportação (Relatório de Governança)**: A exportação da Matriz deve gerar um arquivo com **21 colunas fixas** organizadas em 4 seções:
+  - **Seção A — Hierarquia Organizacional** (5 colunas): Unidade de Negócio, Cluster, Curso, Disciplina, Tipo de Atividade.
+  - **Seção B — Configuração do Prompt** (6 colunas): Prompt Vinculado, Título do Prompt, Situação do Prompt, Criado por (user_id), Criado por (Nome), Última Edição por (user_id).
+  - **Seção C — Correção por IA** (6 colunas): Status Correção IA, Data Ativação Correção, Data Inativação Correção, Ativação Original por (user_id), Ativação Original por (Nome), Última Edição por (user_id).
+  - **Seção D — Publicação Automática** (8 colunas): Status Publicação, Nota Mínima, Prazo para Liberação (dias), Data Ativação Publicação, Data Inativação Publicação, Ativação Original por (user_id), Ativação Original por (Nome), Última Edição por (user_id).
+- **RN53.1 - Rastreabilidade de Auditoria**: Cada configuração da Matriz (vínculo de prompt, ativação de correção, configuração de publicação) deve rastrear o `user_id` e `Nome` do usuário que criou a configuração e do usuário que realizou a última edição. Os campos de auditoria devem ser populados automaticamente pelo sistema em cada operação de criação ou edição.
+- **RN53.2 - Valores Nulos na Exportação**:
+  - Quando publicação estiver **Inativa**, Nota Mínima (D2) e Prazo para Liberação (D3) devem ser exportados como `N/A` ou vazio.
+  - Quando **não houver prompt vinculado**, Prompt Vinculado (B1) exporta "Não vinculado" e Título do Prompt (B2) até Última Edição por (user_id) (B6) exportam vazios.
+- **RN53.3 - Formato de Exportação**: O arquivo exportado deve estar em formato CSV ou Excel (.xlsx), com cabeçalhos correspondentes aos nomes das colunas definidos no blueprint.
+- **RN53.4 - Filtros na Exportação**: A exportação deve respeitar os filtros ativos no momento da solicitação. Se nenhum filtro estiver ativo, exporta a base completa.
+
 ---
 
 ## 3. Navegação e Acesso
@@ -145,7 +159,7 @@ A estrutura organizacional segue a seguinte precedência:
   1. **Cadastro Prompt** (ativa)
   2. **Matriz de Configurações** (ativa — substitui definitivamente as antigas Abas 2, 3 e 5)
   3. Auditoria Correções (mantida como referência/histórico)
-  > **Nota**: As abas legadas (Relacionar Prompt, Ativar Correção por IA, Publicação de Notas) foram totalmente descontinuadas e consolidadas na Matriz.
+     > **Nota**: As abas legadas (Relacionar Prompt, Ativar Correção por IA, Publicação de Notas) foram totalmente descontinuadas e consolidadas na Matriz.
 - **RN52 - Sweet Alerts Padronizados**: Todas as ações de massa e buscas por filtro devem utilizar sweet alerts padronizados:
   - **Loading**: Exibido durante processamento (botão Pesquisar, vinculação em massa, ativação em massa).
   - **Confirmação**: Exibido antes de executar ação de massa, informando a quantidade de registros afetados.

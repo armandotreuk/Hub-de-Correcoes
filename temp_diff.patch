@@ -1,0 +1,1793 @@
+diff --git a/Requirements_v3/Business_Rules_v3.md b/Requirements_v3/Business_Rules_v3.md
+index 3baffed..e3a90b1 100644
+--- a/Requirements_v3/Business_Rules_v3.md
++++ b/Requirements_v3/Business_Rules_v3.md
+@@ -24,7 +24,7 @@ A estrutura organizacional segue a seguinte precedência:
+ 
+ > Regras integralmente herdadas da v4. Nenhuma alteração funcional nesta aba.
+ 
+-- **RN01 - Entidade Prompt**: O Prompt é uma entidade de primeira classe composta por: **Título** (identificador textual), **Prompt Avaliação** (textarea até 10.000 caracteres), **Prompt Feedback** (textarea até 10.000 caracteres), **Unidade de Negócio** e **Tipo de Atividade** vinculados obrigatoriamente na criação, **Observações** (campo de texto livre até 10.000 caracteres), e **Situação** (Ativo ou Inativo, default: Ativo).
++- **RN01 - Entidade Prompt**: O Prompt é uma entidade de primeira classe composta por: **Título** (identificador textual), **Prompt Avaliação** (textarea até 10.000 caracteres), **Prompt Feedback** (textarea até 10.000 caracteres), **Unidade de Negócio** e **Tipo de Atividade** vinculados obrigatoriamente na criação, **Observações** (campo de texto livre até 10.000 caracteres), e **Situação** (Ativo ou Inativo, default: Ativo). O botão de ação principal para persistência deve ser renomeado para **"Salvar"**.
+ - **RN01.1 - Dois Tipos de Corpo de Prompt**: Na tela de criação/edição do prompt devem existir **dois campos de texto** (textareas) para o corpo do prompt:
+   - O primeiro campo é destinado ao **Prompt de Avaliação**.
+   - O segundo campo (abaixo do primeiro) é destinado ao **Prompt de Feedback**.
+@@ -34,12 +34,12 @@ A estrutura organizacional segue a seguinte precedência:
+ - **RN04 - Persistência e Validação de Alterações**: Ao tentar navegar para outra aba ou tela com alterações não salvas, o sistema deve exibir uma confirmação ao usuário perguntando se deseja salvar as alterações pendentes.
+ - **RN05 - Listagem de Prompts**: O sistema deve manter e exibir uma lista de todos os prompts criados, permitindo seleção para visualização e edição.
+ - **RN05.1 - Situação do Prompt (Ativo/Inativo)**: A Situação (Ativo/Inativo) deve ser exibida como um **dropdown no padrão visual dos dropdowns de Unidade de Negócio e Tipo de Atividade**, posicionada ao lado direito da caixa de Tipo de Atividade na mesma linha. Ao criar um novo prompt, o valor padrão deve ser **Ativo**. Ao inativar, o prompt é considerado deprecated.
+-- **RN05.2 - Campo de Observações**: Abaixo dos campos de Corpo do Prompt (Avaliação e Feedback), deve existir um campo de texto "Observações" (até 10.000 caracteres) para comentários dos usuários. O campo possui botão próprio "Salvar Comentário" independente do botão "Salvar" do prompt.
++- **RN05.2 - Campo de Observações**: Abaixo dos campos de Corpo do Prompt (Avaliação e Feedback), deve existir um campo de texto "Observações" (até 10.000 caracteres) para comentários dos usuários. Os comentários devem ser salvos juntamente às edições de prompt ao clicar no botão **"Salvar"**. O botão independente "Salvar Comentário" foi removido.
+ - **RN05.3 - Filtros na Lista de Prompts**: A lista de prompts deve permitir filtragem por:
+   - **Unidade de Negócio** (dropdown, não obrigatório)
+   - **Tipo de Atividade** (dropdown, não obrigatório)
+   - **Situação** (checkbox múltiplo: Ativo e/ou Inativo). Por padrão, o filtro inicia com "Ativo" marcado. Se nenhuma opção for selecionada, nenhum prompt é exibido.
+-  > **Nota de design (UX intencional)**: O comportamento "sem seleção = nenhum resultado" é deliberado. Exigir ao menos uma seleção explícita evita que o usuário visualize acidentalmente prompts inativos (deprecated).
++    > **Nota de design (UX intencional)**: O comportamento "sem seleção = nenhum resultado" é deliberado. Exigir ao menos uma seleção explícita evita que o usuário visualize acidentalmente prompts inativos (deprecated).
+ - **RN05.4 - Estilo Visual dos Cards de Prompt**: Cada item da lista de prompts (prompt-item) deve possuir **contorno visível** (borda) para delimitar cada card. O badge de **Situação "Ativo"** deve ter estilo visual diferenciado com **cor de fundo e fonte que garantam alta legibilidade**.
+ 
+ ---
+@@ -62,7 +62,7 @@ A estrutura organizacional segue a seguinte precedência:
+ - **RN42.2 - Botão Pesquisar**: Os filtros **somente são aplicados** à tabela ao clicar no botão "Pesquisar e Filtrar". Enquanto o backend/mock processa, exibir sweet alert de loading. (Herdado de RN09.0)
+ - **RN42.3 - Filtro de Status IA**: Permite selecionar registros com correção Ativo/Inativo.
+ - **RN42.4 - Filtro de Publicação**: Permite selecionar registros com publicação Ativa/Inativa.
+-- **RN42.5 - Filtro de Prompt**: Permite selecionar registros vinculados a um prompt específico.
++- **RN42.5 - Filtro de Prompt**: Permite selecionar registros vinculados a um prompt específico. Quando houver itens selecionados nos filtros **Atividade** e/ou **Unidade**, o filtro de Prompt deve exibir **somente** as opções relacionadas às seleções desses filtros. Caso esses filtros estejam vazios, o filtro de Prompt exibe todos os prompts (Uso não obrigatório dos filtros superiores para filtrar prompts).
+ 
+ ### 2.3 Tabela Matricial
+ 
+@@ -71,7 +71,7 @@ A estrutura organizacional segue a seguinte precedência:
+   - **Hierarquia/Atividade**: Curso, Disciplina, Tag de Atividade e informação de Unidade/Cluster em subtexto
+   - **Prompt**: Nome do prompt vinculado (clicável) ou indicador "Não vinculado"
+   - **Status IA**: Badge Ativo/Inativo com switch visual
+-  - **Publicação**: Badge Ativa/Inativa com indicadores de Nota e Prazo
++  - **Publicação**: Badge Ativa/Inativa. Indicadores de Nota e Prazo devem ser exibidos **somente** se a publicação estiver **"Ativa"**. Casos com publicação **"Inativa"** não devem exibir nota e prazo na tela.
+   - **Ação**: Botão de parametrização individual (engrenagem)
+ - **RN43.1 - Cores por Tipo de Atividade**: Cada tipo de atividade deve possuir uma **tag colorida diferenciada**:
+   - Desafio Profissional: Azul (`badge-soft-primary`)
+@@ -81,8 +81,8 @@ A estrutura organizacional segue a seguinte precedência:
+   - Prova: Vermelho (`badge-soft-danger`)
+   - Avaliação Final: Amarelo (`badge-soft-warning`)
+ - **RN43.2 - Prompt Clicável (Modal de Detalhe)**: Ao clicar no nome de um prompt vinculado em um registro da tabela, deve abrir o **Modal de Detalhe do Prompt** (conforme US06.1 da v4) permitindo visualizar os campos do prompt sem sair da matriz:
+-  - Campos Título, Unidade, Tipo de Atividade, Corpo Avaliação e Corpo Feedback estão **bloqueados** (visual com cor diferente).
+-  - Campo Observações está **liberado** para edição com botão "Salvar Comentário".
++  - Campos Título, Unidade, Tipo de Atividade, Corpo Avaliação, Corpo Feedback e Observações estão **bloqueados para edição** (visual locked).
++  - O modal de visualização a partir da matriz **não deve exibir o botão Salvar** (nem de prompt, nem de comentário).
+ - **RN43.3 - Status de Publicação (Terminologia)**: Os status de publicação devem usar a terminologia **"Ativa" / "Inativa"** (feminino), substituindo "Habilitado/Desabilitado" da v4.
+ 
+ ### 2.4 Ações em Massa
+@@ -136,6 +136,20 @@ A estrutura organizacional segue a seguinte precedência:
+   - Indicador: "Página X de Y".
+   - Botões: Anterior/Próximo com ícones e estados disabled.
+ 
++### 2.10 Exportação — Relatório de Governança
++
++- **RN53 - Blueprint de Exportação (Relatório de Governança)**: A exportação da Matriz deve gerar um arquivo com **21 colunas fixas** organizadas em 4 seções:
++  - **Seção A — Hierarquia Organizacional** (5 colunas): Unidade de Negócio, Cluster, Curso, Disciplina, Tipo de Atividade.
++  - **Seção B — Configuração do Prompt** (6 colunas): Prompt Vinculado, Título do Prompt, Situação do Prompt, Criado por (user_id), Criado por (Nome), Última Edição por (user_id).
++  - **Seção C — Correção por IA** (6 colunas): Status Correção IA, Data Ativação Correção, Data Inativação Correção, Ativação Original por (user_id), Ativação Original por (Nome), Última Edição por (user_id).
++  - **Seção D — Publicação Automática** (8 colunas): Status Publicação, Nota Mínima, Prazo para Liberação (dias), Data Ativação Publicação, Data Inativação Publicação, Ativação Original por (user_id), Ativação Original por (Nome), Última Edição por (user_id).
++- **RN53.1 - Rastreabilidade de Auditoria**: Cada configuração da Matriz (vínculo de prompt, ativação de correção, configuração de publicação) deve rastrear o `user_id` e `Nome` do usuário que criou a configuração e do usuário que realizou a última edição. Os campos de auditoria devem ser populados automaticamente pelo sistema em cada operação de criação ou edição.
++- **RN53.2 - Valores Nulos na Exportação**:
++  - Quando publicação estiver **Inativa**, Nota Mínima (D2) e Prazo para Liberação (D3) devem ser exportados como `N/A` ou vazio.
++  - Quando **não houver prompt vinculado**, Prompt Vinculado (B1) exporta "Não vinculado" e Título do Prompt (B2) até Última Edição por (user_id) (B6) exportam vazios.
++- **RN53.3 - Formato de Exportação**: O arquivo exportado deve estar em formato CSV ou Excel (.xlsx), com cabeçalhos correspondentes aos nomes das colunas definidos no blueprint.
++- **RN53.4 - Filtros na Exportação**: A exportação deve respeitar os filtros ativos no momento da solicitação. Se nenhum filtro estiver ativo, exporta a base completa.
++
+ ---
+ 
+ ## 3. Navegação e Acesso
+@@ -145,7 +159,7 @@ A estrutura organizacional segue a seguinte precedência:
+   1. **Cadastro Prompt** (ativa)
+   2. **Matriz de Configurações** (ativa — substitui definitivamente as antigas Abas 2, 3 e 5)
+   3. Auditoria Correções (mantida como referência/histórico)
+-  > **Nota**: As abas legadas (Relacionar Prompt, Ativar Correção por IA, Publicação de Notas) foram totalmente descontinuadas e consolidadas na Matriz.
++     > **Nota**: As abas legadas (Relacionar Prompt, Ativar Correção por IA, Publicação de Notas) foram totalmente descontinuadas e consolidadas na Matriz.
+ - **RN52 - Sweet Alerts Padronizados**: Todas as ações de massa e buscas por filtro devem utilizar sweet alerts padronizados:
+   - **Loading**: Exibido durante processamento (botão Pesquisar, vinculação em massa, ativação em massa).
+   - **Confirmação**: Exibido antes de executar ação de massa, informando a quantidade de registros afetados.
+diff --git a/Requirements_v3/User_Stories_v3.md b/Requirements_v3/User_Stories_v3.md
+index 79f688c..5cabc67 100644
+--- a/Requirements_v3/User_Stories_v3.md
++++ b/Requirements_v3/User_Stories_v3.md
+@@ -9,9 +9,11 @@
+ > Todas as stories deste tema são herdadas integralmente da v4, sem alterações.
+ 
+ ### US01 - Criação de Novo Prompt (com dois corpos)
++
+ **Como um** analista pedagógico,
+ **Eu quero** criar um novo prompt de correção preenchendo título, corpo de avaliação, corpo de feedback, unidade de negócio e tipo de atividade
+ **Para que** o sistema disponha de instruções textuais padronizadas que orientem a IA tanto na avaliação quanto no feedback.
++
+ - **Relacionado a:** RN01, RN01.1, RN02
+ - **Critérios de Aceite:**
+   - [ ] Deve existir um botão "Criar Novo Prompt" na tela.
+@@ -21,28 +23,34 @@
+   - [ ] O prompt é criado com a Situação **Ativo** por padrão.
+ 
+ ### US02 - Edição de Prompt Existente
++
+ **Como um** analista pedagógico,
+ **Eu quero** selecionar um prompt da lista e editar seu conteúdo
+ **Para que** eu possa refinar as instruções de correção conforme a evolução do modelo de IA.
++
+ - **Relacionado a:** RN03, RN05
+ - **Critérios de Aceite:**
+   - [ ] A tela deve exibir uma lista de todos os prompts cadastrados (respeitando filtros).
+   - [ ] Ao selecionar um prompt, seu título, corpo de avaliação, corpo de feedback, unidade, atividade, situação e observações devem ser carregados nos campos de edição.
+-  - [ ] As alterações podem ser salvas via botão "Salvar".
++  - [ ] As alterações podem ser salvas via botão **"Salvar"**.
+ 
+ ### US03 - Persistência com Validação de Navegação
++
+ **Como um** analista pedagógico,
+ **Eu quero** ser avisado ao tentar sair da aba se houver alterações não salvas
+ **Para que** eu não perca acidentalmente edições importantes.
++
+ - **Relacionado a:** RN04
+ - **Critérios de Aceite:**
+   - [ ] Se o usuário alterou qualquer campo e tenta navegar para outra aba, um diálogo de confirmação deve ser exibido.
+   - [ ] O diálogo deve oferecer opções "Salvar", "Descartar" ou "Cancelar".
+ 
+ ### US03.1 - Situação do Prompt como Dropdown
++
+ **Como um** analista pedagógico,
+ **Eu quero** selecionar a Situação (Ativo/Inativo) através de um dropdown no padrão visual dos demais
+ **Para que** a interface mantenha consistência visual.
++
+ - **Relacionado a:** RN05.1
+ - **Critérios de Aceite:**
+   - [ ] O dropdown de Situação deve ficar à direita do dropdown de Tipo de Atividade, **na mesma linha** (3 colunas: Unidade | Atividade | Situação).
+@@ -50,18 +58,22 @@
+   - [ ] Ao criar um novo prompt, o valor padrão deve ser **Ativo**.
+ 
+ ### US03.2 - Campo de Observações
++
+ **Como um** analista pedagógico,
+ **Eu quero** registrar observações em um prompt
+ **Para que** minha equipe possa deixar comentários e anotações.
++
+ - **Relacionado a:** RN05.2
+ - **Critérios de Aceite:**
+   - [ ] Abaixo dos campos "Prompt Feedback" deve existir um textarea "Observações" (até 10.000 caracteres).
+-  - [ ] Deve possuir um botão próprio "Salvar Comentário" independente do botão "Salvar" do prompt.
++  - [ ] Os comentários devem ser salvos juntamente às edições de prompt ao clicar no botão **"Salvar"**. O botão independente "Salvar Comentário" foi removido.
+ 
+ ### US03.3 - Filtros na Lista de Prompts
++
+ **Como um** analista pedagógico,
+ **Eu quero** filtrar a lista de prompts por Unidade de Negócio, Tipo de Atividade e Situação
+ **Para que** eu encontre rapidamente o prompt que preciso editar.
++
+ - **Relacionado a:** RN05.3
+ - **Critérios de Aceite:**
+   - [ ] Dropdown "Unidade de Negócio" (não obrigatório) filtra a lista.
+@@ -71,9 +83,11 @@
+   - [ ] Se nenhuma situação for selecionada, nenhum prompt é exibido.
+ 
+ ### US03.4 - Estilo Visual dos Cards de Prompt
++
+ **Como um** analista pedagógico,
+ **Eu quero** que os cards da lista tenham contornos visíveis e badges de status legíveis
+ **Para que** eu consiga identificar rapidamente cada prompt e seu status.
++
+ - **Relacionado a:** RN05.4
+ - **Critérios de Aceite:**
+   - [ ] Cada prompt-item na lista deve possuir **borda/contorno visível** delimitando o card.
+@@ -87,9 +101,11 @@
+ > **NOVO na v5**: Este tema unifica as funcionalidades dos antigos Temas 2 (Relacionar Prompt), 3 (Ativar Correção) e 5 (Publicação de Notas) em uma única visão matricial.
+ 
+ ### US20 - Visão Matricial Consolidada (US Separada 1)
++
+ **Como um** coordenador de correção,
+ **Eu quero** visualizar uma tabela unificada que cruza Disciplina × Tipo de Atividade com as três dimensões de configuração (Prompt, Correção, Publicação)
+ **Para que** eu configure todo o pipeline de IA sem navegar entre múltiplas abas.
++
+ - **Relacionado a:** RN40, RN41
+ - **Critérios de Aceite:**
+   - [ ] A tabela exibe uma linha por combinação Disciplina + Tipo de Atividade.
+@@ -97,40 +113,49 @@
+   - [ ] Dados são produzidos pelo join em memória de PromptLinkingService, CorrectionConfigService e PublicationService.
+ 
+ ### US21 - Painel de Filtros Completo (US Separada 1)
++
+ **Como um** coordenador de correção,
+ **Eu quero** filtrar a matriz usando 8 filtros organizados em duas linhas
+ **Para que** eu localize rapidamente as combinações que preciso configurar.
++
+ - **Relacionado a:** RN42, RN42.1
+ - **Critérios de Aceite:**
+   - [ ] **Linha 1**: Atividade (primeiro), Unidade, Cluster, Curso, Disciplina.
+   - [ ] **Linha 2**: Prompt, Status IA (Ativo/Inativo), Publicação (Ativa/Inativa), Botão Pesquisar.
+   - [ ] Cada filtro usa o componente `MultiSelectDropdownComponent`.
+   - [ ] O botão "Pesquisar e Filtrar" aplica todos os filtros de uma vez. Sweet alert de loading durante processamento.
++  - [ ] O filtro de **Prompt** deve exibir apenas as opções compatíveis com as **Atividades** e/ou **Unidades** selecionadas (Filtro Inteligente/Reativo). Caso as mesmas estejam vazias, exibe todos os prompts.
+ 
+ ### US22 - Cores Diferenciadas por Tipo de Atividade (US Separada 1)
++
+ **Como um** coordenador de correção,
+ **Eu quero** que cada tipo de atividade na tabela possua uma tag com cor diferenciada
+ **Para que** eu identifique visualmente o tipo de atividade sem precisar ler o texto.
++
+ - **Relacionado a:** RN43.1
+ - **Critérios de Aceite:**
+   - [ ] As tags de atividade devem seguir o mapeamento: Desafio Profissional (azul), Resenha (ciano), Fórum (verde), MAPA (cinza), Prova (vermelho).
+   - [ ] Tipos não mapeados recebem um estilo neutro (dark).
+ 
+ ### US23 - Modal de Detalhe do Prompt na Matriz (US Separada 1)
++
+ **Como um** coordenador de correção,
+ **Eu quero** clicar no nome de um prompt vinculado na tabela e visualizar seus detalhes em um modal
+ **Para que** eu consulte corpo de avaliação, feedback e observações sem sair da matriz.
++
+ - **Relacionado a:** RN43.2 (herdado de US06.1)
+ - **Critérios de Aceite:**
+   - [ ] Ao clicar no nome do prompt, abre modal centralizado.
+-  - [ ] Campos Título, Unidade, Tipo de Atividade, Corpo Avaliação e Corpo Feedback estão **bloqueados**.
+-  - [ ] Campo Observações está **liberado** para edição com botão "Salvar Comentário".
++  - [ ] Campos Título, Unidade, Tipo de Atividade, Corpo Avaliação, Corpo Feedback e Observações estão **bloqueados para edição**.
++  - [ ] O modal **não exibe o botão Salvar** (visualização exclusiva).
+   - [ ] Ao clicar em "Não vinculado", nenhuma ação é executada.
+ 
+ ### US24 - Barra de Ações em Massa com Contagem Dinâmica (US Separada 1)
++
+ **Como um** coordenador de correção,
+ **Eu quero** ver quantos registros serão afetados pelas ações em massa
+ **Para que** eu tenha clareza sobre o impacto antes de executar qualquer operação.
++
+ - **Relacionado a:** RN44
+ - **Critérios de Aceite:**
+   - [ ] A barra exibe: "Ações em massa para todos os **X** resultados filtrados" quando nenhum checkbox está marcado.
+@@ -138,9 +163,11 @@
+   - [ ] Se nenhum resultado, a barra não é exibida.
+ 
+ ### US25 - Vincular Prompt em Massa (com Validação de Atividade) (US Separada 2)
++
+ **Como um** coordenador de correção,
+ **Eu quero** vincular um prompt a múltiplas disciplinas com validação de atividade obrigatória
+ **Para que** os vínculos sejam sempre compatíveis com o tipo de atividade.
++
+ - **Relacionado a:** RN45, RN45.1, RN45.2
+ - **Critérios de Aceite:**
+   - [ ] O sistema **exige** exatamente uma atividade selecionada no filtro para prosseguir.
+@@ -150,18 +177,22 @@
+   - [ ] Sweet alert de confirmação antes, sweet alert de conclusão após.
+ 
+ ### US26 - Ativar Correção em Massa (US Separada 3)
++
+ **Como um** coordenador de correção,
+ **Eu quero** ativar a correção por IA para múltiplos registros simultaneamente
+ **Para que** eu economize tempo ao habilitar a IA para grandes volumes.
++
+ - **Relacionado a:** RN44.1
+ - **Critérios de Aceite:**
+   - [ ] Ao clicar em "Ativar Correção", o status de todos os registros-alvo muda para Ativo.
+   - [ ] Sweet alert de confirmação antes, sweet alert de conclusão após.
+ 
+ ### US27 - Configurar Publicação em Massa (com Nota e Prazo) (US Separada 4)
++
+ **Como um** coordenador de correção,
+ **Eu quero** configurar publicação em massa preenchendo Nota Mínima e Prazo obrigatoriamente
+ **Para que** todas as publicações automáticas tenham parâmetros válidos.
++
+ - **Relacionado a:** RN46, RN46.1
+ - **Critérios de Aceite:**
+   - [ ] Ao clicar em "Configurar Publicação", abre diálogo interativo com campos de **Nota Mínima** (0-100) e **Prazo** (dias).
+@@ -170,9 +201,11 @@
+   - [ ] Sweet alert de conclusão com contagem de registros atualizados.
+ 
+ ### US28 - Parametrização Individual (Side Drawer) (US Separada 1)
++
+ **Como um** coordenador de correção,
+ **Eu quero** configurar individualmente um registro através de um painel lateral
+ **Para que** eu faça ajustes finos sem uso de ações em massa.
++
+ - **Relacionado a:** RN47, RN47.1
+ - **Critérios de Aceite:**
+   - [ ] Ao clicar no ícone de engrenagem, abre drawer lateral com 3 etapas:
+@@ -183,9 +216,11 @@
+   - [ ] Botão "Salvar Tudo" grava todas as configurações de uma vez.
+ 
+ ### US29 - Modal de Regras do Processo (US Separada 1)
++
+ **Como um** coordenador de correção,
+ **Eu quero** consultar as regras de publicação em um modal informativo bem formatado
+ **Para que** eu tenha referência imediata das condições de publicação automática.
++
+ - **Relacionado a:** RN48, RN48.1
+ - **Critérios de Aceite:**
+   - [ ] O modal exibe 4 linhas separadas com as regras.
+@@ -193,9 +228,11 @@
+   - [ ] Ícone de informação (`info`).
+ 
+ ### US30 - Paginação Padronizada (US Separada 1)
++
+ **Como um** coordenador de correção,
+ **Eu quero** que a paginação da Matriz siga o mesmo padrão visual da Auditoria
+ **Para que** haja consistência em todo o módulo.
++
+ - **Relacionado a:** RN49 (herdado de RN21, RN32)
+ - **Critérios de Aceite:**
+   - [ ] Seletor de itens por página (10/25/50/100), default 25.
+@@ -203,11 +240,13 @@
+   - [ ] Indicador "Página X de Y".
+   - [ ] Botões Anterior/Próximo com ícones e estados disabled.
+ 
+-### US31 - Exportação de Registros da Matriz (Auditoria) (US Separada 5)
++### US31 - Exportação de Registros da Matriz (Relatório de Governança) (US Separada 5)
++
+ **Como um** coordenador de correção,
+ **Eu quero** exportar os registros da Matriz de Configurações
+ **Para que** eu tenha um relatório auditável offline com todas as parametrizações, sabendo exatamente quem e quando ativou ou inativou as configurações.
+-- **Relacionado a:** Evolução da RN16.3 (v4)
++
++- **Relacionado a:** Evolução da RN16.3 (v4), RN53
+ - **Critérios de Aceite:**
+   - [ ] A tela deve apresentar um botão de "Exportar" (ex: Excel ou CSV) visível na interface da Matriz.
+   - [ ] A exportação deve gerar um arquivo contendo os registros da tabela (podendo respeitar os filtros ou exportar a base completa).
+@@ -215,17 +254,66 @@
+     1. Ao clicar em exportar, exibir **Sweet Alert de confirmação** questionando sobre o início da geração do documento.
+     2. Durante o processamento, exibir **Sweet Alert temporário de loading** ("Processando a exportação...").
+     3. Após gerado, exibir **Sweet Alert informando o sucesso**, contemplando também a contagem estrita de quantos registros foram incluídos na matriz exportada.
+-  - [ ] O relatório deve conter as colunas estruturais: Disciplina, Curso, Tipo de Atividade, Unidade de Negócio, Cluster, Prompt Vinculado, Correção por IA e Publicação.
+-  - [ ] O relatório deve conter colunas obrigatórias de auditoria: **Alterado por** (Nome/Email do usuário que ativou ou inativou a configuração) e **Data e Hora da Alteração**.
++  - [ ] O relatório deve conter **21 colunas** organizadas em 4 seções conforme blueprint abaixo:
++
++#### Seção A: Hierarquia Organizacional
++
++| #   | Coluna             | Tipo   | Notas |
++| --- | ------------------ | ------ | ----- |
++| A1  | Unidade de Negócio | String |       |
++| A2  | Cluster            | String |       |
++| A3  | Curso              | String |       |
++| A4  | Disciplina         | String |       |
++| A5  | Tipo de Atividade  | String |       |
++
++#### Seção B: Configuração do Prompt
++
++| #   | Coluna                      | Tipo   | Notas                   |
++| --- | --------------------------- | ------ | ----------------------- |
++| B1  | Prompt Vinculado            | String | Nome ou "Não vinculado" |
++| B2  | Título do Prompt            | String |                         |
++| B3  | Situação do Prompt          | Enum   | Ativo / Inativo         |
++| B4  | Criado por (user_id)        | String | Quem criou o vínculo    |
++| B5  | Criado por (Nome)           | String |                         |
++| B6  | Última Edição por (user_id) | String | Quem editou por último  |
++
++#### Seção C: Correção por IA
++
++| #   | Coluna                          | Tipo     | Notas           |
++| --- | ------------------------------- | -------- | --------------- |
++| C1  | Status Correção IA              | Enum     | Ativo / Inativo |
++| C2  | Data Ativação Correção          | DateTime |                 |
++| C3  | Data Inativação Correção        | DateTime |                 |
++| C4  | Ativação Original por (user_id) | String   |                 |
++| C5  | Ativação Original por (Nome)    | String   |                 |
++| C6  | Última Edição por (user_id)     | String   |                 |
++
++#### Seção D: Publicação Automática
++
++| #   | Coluna                          | Tipo     | Notas           |
++| --- | ------------------------------- | -------- | --------------- |
++| D1  | Status Publicação               | Enum     | Ativa / Inativa |
++| D2  | Nota Mínima                     | Integer  | 0–100           |
++| D3  | Prazo para Liberação (dias)     | Integer  |                 |
++| D4  | Data Ativação Publicação        | DateTime |                 |
++| D5  | Data Inativação Publicação      | DateTime |                 |
++| D6  | Ativação Original por (user_id) | String   |                 |
++| D7  | Ativação Original por (Nome)    | String   |                 |
++| D8  | Última Edição por (user_id)     | String   |                 |
++
++- [ ] Quando publicação estiver Inativa, D2 (Nota Mínima) e D3 (Prazo) devem exportar como `N/A` ou vazio.
++- [ ] Quando não houver vínculo de prompt, B1 exporta "Não vinculado" e B2–B6 exportam vazios.
+ 
+ ---
+ 
+ ## TEMA 3: Auditoria de Correções (Referência - Sem Alterações)
+ 
+ ### US12 - Painel de Auditoria (manter actual)
++
+ **Como um** auditor ou gestor do sistema,
+ **Eu quero** acessar a aba de auditoria com a estrutura já implementada
+ **Para que** eu possa consultar as parametrizações de IA.
++
+ - **Relacionado a:** RN17, RN18, RN21
+ - **Critérios de Aceite:**
+   - [x] A tabela exibe: Status, Unidade, Atividade, Cluster, Curso, Disciplina, Prompt, Ativado por, Data.
+diff --git a/src/app/features/ia-corrections/components/matrix-configuration-tab/matrix-configuration-tab.component.html b/src/app/features/ia-corrections/components/matrix-configuration-tab/matrix-configuration-tab.component.html
+index 55c4de4..3e4e89a 100644
+--- a/src/app/features/ia-corrections/components/matrix-configuration-tab/matrix-configuration-tab.component.html
++++ b/src/app/features/ia-corrections/components/matrix-configuration-tab/matrix-configuration-tab.component.html
+@@ -160,7 +160,7 @@
+                 <i [class]="row.publicationStatus === 'Ativa' ? 'ri-checkbox-circle-line' : 'ri-close-circle-line'" class="mr-1"></i>
+                 {{ row.publicationStatus === 'Ativa' ? 'Ativa' : 'Inativo' }}
+               </span>
+-              <span class="x-small font-weight-bold" *ngIf="row.note">Nota: {{ row.note }} | Prazo: {{ row.deadline }}d</span>
++              <span class="x-small font-weight-bold" *ngIf="row.publicationStatus === 'Ativa' && row.note">Nota: {{ row.note }} | Prazo: {{ row.deadline }}d</span>
+             </div>
+           </td>
+           <td class="text-center">
+diff --git a/src/app/features/ia-corrections/components/matrix-configuration-tab/matrix-configuration-tab.component.ts b/src/app/features/ia-corrections/components/matrix-configuration-tab/matrix-configuration-tab.component.ts
+index 4c40505..ea8b445 100644
+--- a/src/app/features/ia-corrections/components/matrix-configuration-tab/matrix-configuration-tab.component.ts
++++ b/src/app/features/ia-corrections/components/matrix-configuration-tab/matrix-configuration-tab.component.ts
+@@ -5,7 +5,15 @@ import { PromptLinkingService } from '../../services/prompt-linking.service';
+ import { CorrectionConfigService } from '../../services/correction-config.service';
+ import { PublicationService } from '../../services/publication.service';
+ import { PromptService } from '../../services/prompt.service';
+-import { Discipline, Prompt, PromptLink, CorrectionConfig, PublicationConfig, UnifiedConfigRow } from '../../models/ia-corrections.models';
++import { GovernanceExportService } from '../../services/governance-export.service';
++import {
++  Discipline,
++  Prompt,
++  PromptLink,
++  CorrectionConfig,
++  PublicationConfig,
++  UnifiedConfigRow,
++} from '../../models/ia-corrections.models';
+ import { MultiSelectDropdownComponent } from '../shared/multi-select-dropdown/multi-select-dropdown.component';
+ import { PromptDetailModalComponent } from '../shared/prompt-detail-modal/prompt-detail-modal.component';
+ import { forkJoin, map } from 'rxjs';
+@@ -15,12 +23,7 @@ import Swal from 'sweetalert2';
+ @Component({
+   selector: 'app-matrix-configuration-tab',
+   standalone: true,
+-  imports: [
+-    CommonModule,
+-    FormsModule,
+-    MultiSelectDropdownComponent,
+-    PromptDetailModalComponent,
+-  ],
++  imports: [CommonModule, FormsModule, MultiSelectDropdownComponent, PromptDetailModalComponent],
+   templateUrl: './matrix-configuration-tab.component.html',
+   styleUrls: ['./matrix-configuration-tab.component.css'],
+ })
+@@ -30,6 +33,7 @@ export class MatrixConfigurationTabComponent implements OnInit {
+   private publicationService = inject(PublicationService);
+   private promptService = inject(PromptService);
+   private swalService = inject(SweetAlertService);
++  private exportService = inject(GovernanceExportService);
+ 
+   // Data
+   allRows = signal<UnifiedConfigRow[]>([]);
+@@ -40,16 +44,16 @@ export class MatrixConfigurationTabComponent implements OnInit {
+   selectedIds = signal<Set<string>>(new Set());
+ 
+   // Filters
+-  unitOptions = signal<{ value: any, label: string }[]>([]);
+-  clusterOptions = signal<{ value: any, label: string }[]>([]);
+-  courseOptions = signal<{ value: any, label: string }[]>([]);
+-  disciplineOptions = signal<{ value: any, label: string }[]>([]);
+-  activityTypeOptions = signal<{ value: any, label: string }[]>([
++  unitOptions = signal<{ value: any; label: string }[]>([]);
++  clusterOptions = signal<{ value: any; label: string }[]>([]);
++  courseOptions = signal<{ value: any; label: string }[]>([]);
++  disciplineOptions = signal<{ value: any; label: string }[]>([]);
++  activityTypeOptions = signal<{ value: any; label: string }[]>([
+     { value: 'Desafio Profissional', label: 'Desafio Profissional' },
+     { value: 'Resenha', label: 'Resenha' },
+     { value: 'Fórum', label: 'Fórum' },
+     { value: 'MAPA', label: 'MAPA' },
+-    { value: 'Prova', label: 'Prova' }
++    { value: 'Prova', label: 'Prova' },
+   ]);
+ 
+   selectedUnits = signal<number[]>([]);
+@@ -62,14 +66,30 @@ export class MatrixConfigurationTabComponent implements OnInit {
+   selectedPublicationStatuses = signal<string[]>([]);
+ 
+   // Filter Options for new filters
+-  promptFilterOptions = signal<{ value: any, label: string }[]>([]);
+-  iaStatusOptions = signal<{ value: any, label: string }[]>([
++  promptFilterOptions = computed(() => {
++    const list = this.prompts();
++    const selectedActs = this.selectedActivityTypes();
++    const selectedUnits = this.selectedUnits();
++
++    if (selectedActs.length === 0 && selectedUnits.length === 0) {
++      return list.map((p) => ({ value: p.id, label: p.title }));
++    }
++
++    return list
++      .filter((p) => {
++        const matchAct = selectedActs.length === 0 || selectedActs.includes(p.activityTypeName);
++        const matchUnit = selectedUnits.length === 0 || selectedUnits.includes(p.businessUnitId);
++        return matchAct && matchUnit;
++      })
++      .map((p) => ({ value: p.id, label: p.title }));
++  });
++  iaStatusOptions = signal<{ value: any; label: string }[]>([
+     { value: 'Ativo', label: 'Ativo' },
+-    { value: 'Inativo', label: 'Inativo' }
++    { value: 'Inativo', label: 'Inativo' },
+   ]);
+-  publicationStatusOptions = signal<{ value: any, label: string }[]>([
++  publicationStatusOptions = signal<{ value: any; label: string }[]>([
+     { value: 'Ativa', label: 'Ativa' },
+-    { value: 'Inativa', label: 'Inativa' }
++    { value: 'Inativa', label: 'Inativa' },
+   ]);
+ 
+   // Pagination
+@@ -94,9 +114,9 @@ export class MatrixConfigurationTabComponent implements OnInit {
+   compatibleDrawerPrompts = computed(() => {
+     const row = this.editingRow();
+     if (!row) return [];
+-    return this.prompts().filter(p => 
+-      p.activityTypeName === row.activityTypeName && 
+-      p.businessUnitName === row.businessUnitName
++    return this.prompts().filter(
++      (p) =>
++        p.activityTypeName === row.activityTypeName && p.businessUnitName === row.businessUnitName,
+     );
+   });
+ 
+@@ -108,87 +128,118 @@ export class MatrixConfigurationTabComponent implements OnInit {
+     // Carregar opções de filtros e prompts
+     this.unitOptions.set([
+       { value: 1, label: 'Uniasselvi' },
+-      { value: 2, label: 'Unicesumar' }
++      { value: 2, label: 'Unicesumar' },
+     ]);
+ 
+     // Carregar Clusters, Cursos e Disciplinas para popular filtros (hierarquia simplificada para o protótipo)
+-    this.linkingService.getAllCourses().subscribe(courses => {
+-      const clusters = Array.from(new Set(courses.map(c => c.clusterId))).map(id => ({
++    this.linkingService.getAllCourses().subscribe((courses) => {
++      const clusters = Array.from(new Set(courses.map((c) => c.clusterId))).map((id) => ({
+         value: id,
+-        label: courses.find(c => c.clusterId === id)?.clusterName || `Cluster ${id}`
++        label: courses.find((c) => c.clusterId === id)?.clusterName || `Cluster ${id}`,
+       }));
+       this.clusterOptions.set(clusters);
+-      this.courseOptions.set(courses.map(c => ({ value: c.id, label: c.name })));
++      this.courseOptions.set(courses.map((c) => ({ value: c.id, label: c.name })));
+     });
+ 
+-    this.linkingService.getAllDisciplines().subscribe(disciplines => {
+-      this.disciplineOptions.set(disciplines.map(d => ({ value: d.id, label: d.name })));
++    this.linkingService.getAllDisciplines().subscribe((disciplines) => {
++      this.disciplineOptions.set(disciplines.map((d) => ({ value: d.id, label: d.name })));
+     });
+ 
+-    this.promptService.getPrompts().subscribe(prompts => {
++    this.promptService.getPrompts().subscribe((prompts) => {
+       this.prompts.set(prompts);
+-      this.promptFilterOptions.set(prompts.map(p => ({ value: p.id, label: p.title })));
+     });
+   }
+ 
+   onSearch() {
+     this.swalService.showLoading('Consolidando matriz de dados...');
+-    
++
+     forkJoin({
+-      disciplines: this.linkingService.getDisciplinesByFilters(this.selectedUnits(), this.selectedClusters(), this.selectedCourses()),
++      disciplines: this.linkingService.getDisciplinesByFilters(
++        this.selectedUnits(),
++        this.selectedClusters(),
++        this.selectedCourses(),
++      ),
+       links: this.linkingService.getAllLinks(),
+       corrections: this.correctionService.getConfigs(),
+-      publications: this.publicationService.getPublicationConfigs()
+-    }).pipe(
+-      map(({ disciplines, links, corrections, publications }) => {
+-        const rows: UnifiedConfigRow[] = [];
+-        
+-        // Atividades base para o protótipo (em produção viria do backend)
+-        const activities = ['Desafio Profissional', 'Resenha', 'Fórum', 'MAPA', 'Prova'];
+-
+-        disciplines.forEach(disc => {
+-          activities.forEach(act => {
+-            // Filtrar por atividade se selecionado
+-            if (this.selectedActivityTypes().length > 0 && !this.selectedActivityTypes().includes(act)) return;
+-            if (this.selectedDisciplines().length > 0 && !this.selectedDisciplines().includes(disc.id)) return;
+-
+-            const link = links.find(l => l.disciplineId === disc.id && l.activityTypeName === act);
+-            const correction = corrections.find(c => c.disciplineName === disc.name && c.activityTypeName === act);
+-            const publication = publications.find(p => p.disciplineName === disc.name && p.activityTypeName === act);
+-
+-            const row: UnifiedConfigRow = {
+-              id: `${disc.id}_${act}`,
+-              disciplineId: disc.id,
+-              disciplineName: disc.name,
+-              courseName: disc.courseName,
+-              clusterName: disc.clusterName,
+-              businessUnitName: disc.businessUnitId === 1 ? 'Uniasselvi' : 'Unicesumar',
+-              activityTypeName: act,
+-              promptId: link?.promptId,
+-              promptTitle: link?.promptTitle,
+-              correctionStatus: correction?.correctionStatus || 'Inativo',
+-              publicationStatus: (publication?.publicationStatus === 'Habilitado' ? 'Ativa' : 'Inativa') as any,
+-              note: publication?.performanceThreshold,
+-              deadline: 3 // Mock deadline
+-            };
+-
+-            // Aplicação dos novos filtros
+-            if (this.selectedPrompts().length > 0 && (!row.promptId || !this.selectedPrompts().includes(row.promptId))) return;
+-            if (this.selectedIaStatuses().length > 0 && !this.selectedIaStatuses().includes(row.correctionStatus)) return;
+-            if (this.selectedPublicationStatuses().length > 0 && !this.selectedPublicationStatuses().includes(row.publicationStatus)) return;
+-
+-            rows.push(row);
++      publications: this.publicationService.getPublicationConfigs(),
++    })
++      .pipe(
++        map(({ disciplines, links, corrections, publications }) => {
++          const rows: UnifiedConfigRow[] = [];
++
++          // Atividades base para o protótipo (em produção viria do backend)
++          const activities = ['Desafio Profissional', 'Resenha', 'Fórum', 'MAPA', 'Prova'];
++
++          disciplines.forEach((disc) => {
++            activities.forEach((act) => {
++              // Filtrar por atividade se selecionado
++              if (
++                this.selectedActivityTypes().length > 0 &&
++                !this.selectedActivityTypes().includes(act)
++              )
++                return;
++              if (
++                this.selectedDisciplines().length > 0 &&
++                !this.selectedDisciplines().includes(disc.id)
++              )
++                return;
++
++              const link = links.find(
++                (l) => l.disciplineId === disc.id && l.activityTypeName === act,
++              );
++              const correction = corrections.find(
++                (c) => c.disciplineName === disc.name && c.activityTypeName === act,
++              );
++              const publication = publications.find(
++                (p) => p.disciplineName === disc.name && p.activityTypeName === act,
++              );
++
++              const row: UnifiedConfigRow = {
++                id: `${disc.id}_${act}`,
++                disciplineId: disc.id,
++                disciplineName: disc.name,
++                courseName: disc.courseName,
++                clusterName: disc.clusterName,
++                businessUnitName: disc.businessUnitId === 1 ? 'Uniasselvi' : 'Unicesumar',
++                activityTypeName: act,
++                promptId: link?.promptId,
++                promptTitle: link?.promptTitle,
++                correctionStatus: correction?.correctionStatus || 'Inativo',
++                publicationStatus: publication?.publicationStatus ?? 'Inativa',
++                note: publication?.performanceThreshold,
++                deadline: 3, // Mock deadline
++              };
++
++              // Aplicação dos novos filtros
++              if (
++                this.selectedPrompts().length > 0 &&
++                (!row.promptId || !this.selectedPrompts().includes(row.promptId))
++              )
++                return;
++              if (
++                this.selectedIaStatuses().length > 0 &&
++                !this.selectedIaStatuses().includes(row.correctionStatus)
++              )
++                return;
++              if (
++                this.selectedPublicationStatuses().length > 0 &&
++                !this.selectedPublicationStatuses().includes(row.publicationStatus)
++              )
++                return;
++
++              rows.push(row);
++            });
+           });
+-        });
+-        return rows;
+-      })
+-    ).subscribe(rows => {
+-      this.allRows.set(rows);
+-      this.filteredRows.set(rows);
+-      this.selectedIds.set(new Set()); // Limpar seleção de itens
+-      this.currentPage.set(1);
+-      this.swalService.closeLoading();
+-    });
++          return rows;
++        }),
++      )
++      .subscribe((rows) => {
++        this.allRows.set(rows);
++        this.filteredRows.set(rows);
++        this.selectedIds.set(new Set()); // Limpar seleção de itens
++        this.currentPage.set(1);
++        this.swalService.closeLoading();
++      });
+   }
+ 
+   toggleSelection(id: string) {
+@@ -203,7 +254,7 @@ export class MatrixConfigurationTabComponent implements OnInit {
+ 
+   toggleAll(event: any) {
+     if (event.target.checked) {
+-      const allIds = this.paginatedRows().map(r => r.id);
++      const allIds = this.paginatedRows().map((r) => r.id);
+       this.selectedIds.set(new Set(allIds));
+     } else {
+       this.selectedIds.set(new Set());
+@@ -234,7 +285,7 @@ export class MatrixConfigurationTabComponent implements OnInit {
+ 
+     // Atualizar título do prompt antes de salvar
+     if (row.promptId) {
+-      const p = this.prompts().find(x => x.id === row.promptId);
++      const p = this.prompts().find((x) => x.id === row.promptId);
+       if (p) row.promptTitle = p.title;
+     } else {
+       row.promptTitle = undefined;
+@@ -243,7 +294,7 @@ export class MatrixConfigurationTabComponent implements OnInit {
+     // Simulação de salvamento
+     this.swalService.showLoading('Salvando configurações...');
+     setTimeout(() => {
+-      const idx = this.allRows().findIndex(r => r.id === row.id);
++      const idx = this.allRows().findIndex((r) => r.id === row.id);
+       if (idx !== -1) {
+         const updatedRows = [...this.allRows()];
+         updatedRows[idx] = { ...row };
+@@ -259,18 +310,18 @@ export class MatrixConfigurationTabComponent implements OnInit {
+   getActivityColorClass(activityName: string): string {
+     const mapping: { [key: string]: string } = {
+       'Desafio Profissional': 'badge-soft-primary',
+-      'Resenha': 'badge-soft-info',
+-      'Fórum': 'badge-soft-success',
+-      'MAPA': 'badge-soft-secondary',
+-      'Prova': 'badge-soft-danger',
+-      'Avaliação Final': 'badge-soft-warning'
++      Resenha: 'badge-soft-info',
++      Fórum: 'badge-soft-success',
++      MAPA: 'badge-soft-secondary',
++      Prova: 'badge-soft-danger',
++      'Avaliação Final': 'badge-soft-warning',
+     };
+     return mapping[activityName] || 'badge-soft-dark';
+   }
+ 
+   openPromptDetail(row: UnifiedConfigRow) {
+     if (!row.promptId) return;
+-    const prompt = this.prompts().find(p => p.id === row.promptId);
++    const prompt = this.prompts().find((p) => p.id === row.promptId);
+     if (prompt) {
+       this.selectedPromptForDetail.set(prompt);
+       this.isPromptModalOpen.set(true);
+@@ -285,9 +336,10 @@ export class MatrixConfigurationTabComponent implements OnInit {
+   // Ações em Massa
+   async onBulkManageCorrection() {
+     // Pegar targets brutos
+-    const baseTargets = this.selectedIds().size > 0 
+-      ? this.filteredRows().filter(r => this.selectedIds().has(r.id))
+-      : this.filteredRows();
++    const baseTargets =
++      this.selectedIds().size > 0
++        ? this.filteredRows().filter((r) => this.selectedIds().has(r.id))
++        : this.filteredRows();
+ 
+     if (baseTargets.length === 0) {
+       this.swalService.showError('Aviso', 'Nenhum registro selecionado ou filtrado.');
+@@ -295,12 +347,12 @@ export class MatrixConfigurationTabComponent implements OnInit {
+     }
+ 
+     // Regra 1.2: Apenas registros com prompt vinculado podem ter correção ativada
+-    const eligibleTargets = baseTargets.filter(r => !!r.promptId);
+-    
++    const eligibleTargets = baseTargets.filter((r) => !!r.promptId);
++
+     if (eligibleTargets.length === 0) {
+       this.swalService.showError(
+-        'Ação Bloqueada', 
+-        'Nenhum dos registros selecionados possui um prompt vinculado. A correção só pode ser gerenciada em registros com prompt.'
++        'Ação Bloqueada',
++        'Nenhum dos registros selecionados possui um prompt vinculado. A correção só pode ser gerenciada em registros com prompt.',
+       );
+       return;
+     }
+@@ -326,17 +378,21 @@ export class MatrixConfigurationTabComponent implements OnInit {
+ 
+     if (isConfirmed || isDenied) {
+       this.swalService.showLoading('Processando...');
+-      const targetIds = eligibleTargets.map(t => t.id);
+-      
++      const targetIds = eligibleTargets.map((t) => t.id);
++
+       const newStatus = isConfirmed ? 'Ativo' : 'Inativo';
+       const successText = isConfirmed ? 'ativados' : 'desativados';
+ 
+       setTimeout(() => {
+-        const updated = this.allRows().map(r => {
++        const updated = this.allRows().map((r) => {
+           if (targetIds.includes(r.id)) {
+             // Regra Cascata: Se desativar correção, desativa publicação junto
+             if (newStatus === 'Inativo') {
+-              return { ...r, correctionStatus: newStatus as any, publicationStatus: 'Inativa' as any };
++              return {
++                ...r,
++                correctionStatus: newStatus as any,
++                publicationStatus: 'Inativa' as any,
++              };
+             }
+             return { ...r, correctionStatus: newStatus as any };
+           }
+@@ -345,16 +401,20 @@ export class MatrixConfigurationTabComponent implements OnInit {
+         this.allRows.set(updated);
+         this.filteredRows.set(updated);
+         this.swalService.closeLoading();
+-        this.swalService.showSuccess('Concluído', `${targetIds.length} registros ${successText} com sucesso.`);
++        this.swalService.showSuccess(
++          'Concluído',
++          `${targetIds.length} registros ${successText} com sucesso.`,
++        );
+       }, 1000);
+     }
+   }
+ 
+   async onBulkLinkPrompt() {
+     // Para vincular em massa, é preciso extrair os cursos contidos no escopo (selecionado ou filtrado)
+-    const baseTargets = this.selectedIds().size > 0 
+-      ? this.filteredRows().filter(r => this.selectedIds().has(r.id))
+-      : this.filteredRows();
++    const baseTargets =
++      this.selectedIds().size > 0
++        ? this.filteredRows().filter((r) => this.selectedIds().has(r.id))
++        : this.filteredRows();
+ 
+     if (baseTargets.length === 0) {
+       this.swalService.showError('Aviso', 'Nenhum registro selecionado ou filtrado para vincular.');
+@@ -362,13 +422,13 @@ export class MatrixConfigurationTabComponent implements OnInit {
+     }
+ 
+     // Regra 1.1: Mapear Unidades de Negócio e Tipos de Atividade presentes no escopo
+-    const uniqueBUs = Array.from(new Set(baseTargets.map(r => r.businessUnitName)));
+-    const uniqueActivities = Array.from(new Set(baseTargets.map(r => r.activityTypeName)));
++    const uniqueBUs = Array.from(new Set(baseTargets.map((r) => r.businessUnitName)));
++    const uniqueActivities = Array.from(new Set(baseTargets.map((r) => r.activityTypeName)));
+ 
+     if (uniqueBUs.length !== 1 || uniqueActivities.length !== 1) {
+       this.swalService.showError(
+         'Ação Bloqueada',
+-        'Para vincular um prompt em massa, garanta que os registros selecionados pertençam à mesma "Unidade de Negócio" e "Tipo de Atividade". Refine seu filtro (ou seleção) para isolar um grupo único.'
++        'Para vincular um prompt em massa, garanta que os registros selecionados pertençam à mesma "Unidade de Negócio" e "Tipo de Atividade". Refine seu filtro (ou seleção) para isolar um grupo único.',
+       );
+       return;
+     }
+@@ -378,42 +438,42 @@ export class MatrixConfigurationTabComponent implements OnInit {
+ 
+     // Regra 2: Filtrar os prompts por BU e Atividade validada
+     const promptOptions: { [key: string]: string } = {};
+-    const compatiblePrompts = this.prompts().filter(p => 
+-      p.activityTypeName === targetActivity && p.businessUnitName === targetBU
++    const compatiblePrompts = this.prompts().filter(
++      (p) => p.activityTypeName === targetActivity && p.businessUnitName === targetBU,
+     );
+ 
+     if (compatiblePrompts.length === 0) {
+       this.swalService.showError(
+         'Nenhum Prompt Encontrado',
+-        `Não existem prompts cadastrados para a atividade "${targetActivity}" na unidade "${targetBU}".`
++        `Não existem prompts cadastrados para a atividade "${targetActivity}" na unidade "${targetBU}".`,
+       );
+       return;
+     }
+ 
+-    compatiblePrompts.forEach(p => {
++    compatiblePrompts.forEach((p) => {
+       promptOptions[p.id] = p.title;
+     });
+ 
+     const selectedPromptId = await this.swalService.selectOption(
+       'Vincular Prompt em Massa',
+       `Selecione o prompt válido associado (BU/Ativ.)`,
+-      promptOptions
++      promptOptions,
+     );
+ 
+     if (selectedPromptId) {
+-      const selectedPrompt = this.prompts().find(p => p.id === selectedPromptId);
++      const selectedPrompt = this.prompts().find((p) => p.id === selectedPromptId);
+       if (!selectedPrompt) return;
+ 
+       this.swalService.showLoading('Vinculando prompt...');
+-      
++
+       setTimeout(() => {
+-        const targetIds = baseTargets.map(t => t.id);
+-        const updated = this.allRows().map(r => {
++        const targetIds = baseTargets.map((t) => t.id);
++        const updated = this.allRows().map((r) => {
+           if (targetIds.includes(r.id)) {
+-            return { 
+-              ...r, 
++            return {
++              ...r,
+               promptId: selectedPrompt.id,
+-              promptTitle: selectedPrompt.title
++              promptTitle: selectedPrompt.title,
+             };
+           }
+           return r;
+@@ -422,28 +482,35 @@ export class MatrixConfigurationTabComponent implements OnInit {
+         this.allRows.set(updated);
+         this.filteredRows.set(updated);
+         this.swalService.closeLoading();
+-        this.swalService.showSuccess('Concluído', `${targetIds.length} registros vinculados ao prompt: ${selectedPrompt.title}`);
++        this.swalService.showSuccess(
++          'Concluído',
++          `${targetIds.length} registros vinculados ao prompt: ${selectedPrompt.title}`,
++        );
+       }, 1000);
+     }
+   }
+ 
+   async onBulkManagePublication() {
+-    const baseTargets = this.selectedIds().size > 0 
+-      ? this.filteredRows().filter(r => this.selectedIds().has(r.id))
+-      : this.filteredRows();
++    const baseTargets =
++      this.selectedIds().size > 0
++        ? this.filteredRows().filter((r) => this.selectedIds().has(r.id))
++        : this.filteredRows();
+ 
+     if (baseTargets.length === 0) {
+-      this.swalService.showError('Aviso', 'Nenhum registro selecionado ou filtrado para configurar.');
++      this.swalService.showError(
++        'Aviso',
++        'Nenhum registro selecionado ou filtrado para configurar.',
++      );
+       return;
+     }
+ 
+     // Regra 1.3: Publicação só gerenciada em registros com correção ativa
+-    const eligibleTargets = baseTargets.filter(r => r.correctionStatus === 'Ativo');
++    const eligibleTargets = baseTargets.filter((r) => r.correctionStatus === 'Ativo');
+ 
+     if (eligibleTargets.length === 0) {
+       this.swalService.showError(
+-        'Ação Bloqueada', 
+-        'Nenhum dos registros selecionados possui "Correção por IA" Ativa. A publicação depende da correção.'
++        'Ação Bloqueada',
++        'Nenhum dos registros selecionados possui "Correção por IA" Ativa. A publicação depende da correção.',
+       );
+       return;
+     }
+@@ -482,28 +549,28 @@ export class MatrixConfigurationTabComponent implements OnInit {
+         // Validation only applies if the user is confirming (Activating)
+         const note = (document.getElementById('swal-note') as HTMLInputElement).value;
+         const deadline = (document.getElementById('swal-deadline') as HTMLInputElement).value;
+-        
++
+         if (!note || !deadline) {
+           Swal.showValidationMessage('Ambos os campos numéricos são obrigatórios para Ativar');
+           return false;
+         }
+         return { note: parseInt(note), deadline: parseInt(deadline) };
+-      }
++      },
+     });
+ 
+     if (swalResult.isConfirmed) {
+       this.swalService.showLoading('Processando...');
+-      const targetIds = eligibleTargets.map(t => t.id);
++      const targetIds = eligibleTargets.map((t) => t.id);
+       const formValues = swalResult.value;
+ 
+       setTimeout(() => {
+-        const updated = this.allRows().map(r => {
++        const updated = this.allRows().map((r) => {
+           if (targetIds.includes(r.id)) {
+-            return { 
+-              ...r, 
++            return {
++              ...r,
+               publicationStatus: 'Ativa' as const,
+               note: formValues.note,
+-              deadline: formValues.deadline
++              deadline: formValues.deadline,
+             };
+           }
+           return r;
+@@ -511,21 +578,24 @@ export class MatrixConfigurationTabComponent implements OnInit {
+         this.allRows.set(updated);
+         this.filteredRows.set(updated);
+         this.swalService.closeLoading();
+-        this.swalService.showSuccess('Concluído', `${targetIds.length} registros com publicação ATIVADA com sucesso.`);
++        this.swalService.showSuccess(
++          'Concluído',
++          `${targetIds.length} registros com publicação ATIVADA com sucesso.`,
++        );
+       }, 1000);
+     } else if (swalResult.isDenied) {
+       this.swalService.showLoading('Inativando...');
+-      const targetIds = eligibleTargets.map(t => t.id);
++      const targetIds = eligibleTargets.map((t) => t.id);
+ 
+       setTimeout(() => {
+-        const updated = this.allRows().map(r => {
++        const updated = this.allRows().map((r) => {
+           if (targetIds.includes(r.id)) {
+             // Nullify note and deadline upon unchecking
+-            return { 
+-              ...r, 
++            return {
++              ...r,
+               publicationStatus: 'Inativa' as const,
+               note: null,
+-              deadline: null
++              deadline: null,
+             };
+           }
+           return r;
+@@ -533,7 +603,10 @@ export class MatrixConfigurationTabComponent implements OnInit {
+         this.allRows.set(updated);
+         this.filteredRows.set(updated);
+         this.swalService.closeLoading();
+-        this.swalService.showSuccess('Concluído', `${targetIds.length} registros tiveram a publicação DESATIVADA.`);
++        this.swalService.showSuccess(
++          'Concluído',
++          `${targetIds.length} registros tiveram a publicação DESATIVADA.`,
++        );
+       }, 1000);
+     }
+   }
+@@ -541,7 +614,10 @@ export class MatrixConfigurationTabComponent implements OnInit {
+   async onExportMatrix() {
+     const targets = this.filteredRows();
+     if (targets.length === 0) {
+-      this.swalService.showError('Ação Bloqueada', 'Não existem registros filtrados na tabela para serem exportados.');
++      this.swalService.showError(
++        'Ação Bloqueada',
++        'Não existem registros filtrados na tabela para serem exportados.',
++      );
+       return;
+     }
+ 
+@@ -552,16 +628,19 @@ export class MatrixConfigurationTabComponent implements OnInit {
+       showCancelButton: true,
+       confirmButtonText: 'Sim, exportar',
+       cancelButtonText: 'Cancelar',
+-      confirmButtonColor: '#405189'
++      confirmButtonColor: '#405189',
+     });
+ 
+     if (isConfirmed) {
+       this.swalService.showLoading('Processando a exportação...');
+-      
+-      // Delay to mock export compilation time
++
+       setTimeout(() => {
++        this.exportService.exportMatrix(targets, this.prompts());
+         this.swalService.closeLoading();
+-        this.swalService.showSuccess('Sucesso', `${targets.length} registros foram compilados com sucesso. O download iniciará em instantes.`);
++        this.swalService.showSuccess(
++          'Sucesso',
++          `${targets.length} registros foram compilados com sucesso. O download iniciará em instantes.`,
++        );
+       }, 1500);
+     }
+   }
+@@ -580,7 +659,7 @@ export class MatrixConfigurationTabComponent implements OnInit {
+       icon: 'info',
+       confirmButtonText: 'OK',
+       confirmButtonColor: '#405189',
+-      showCancelButton: false
++      showCancelButton: false,
+     });
+   }
+ 
+diff --git a/src/app/features/ia-corrections/components/prompt-registration-tab/prompt-registration-tab.component.html b/src/app/features/ia-corrections/components/prompt-registration-tab/prompt-registration-tab.component.html
+index 3ad7307..6bb1636 100644
+--- a/src/app/features/ia-corrections/components/prompt-registration-tab/prompt-registration-tab.component.html
++++ b/src/app/features/ia-corrections/components/prompt-registration-tab/prompt-registration-tab.component.html
+@@ -199,7 +199,7 @@
+               [disabled]="!isFormValid() || isSaving() || !formDirty()"
+             >
+               <i class="ri-save-line mr-1"></i>
+-              {{ isSaving() ? 'Salvando...' : 'Salvar Prompt' }}
++              {{ isSaving() ? 'Salvando...' : 'Salvar' }}
+             </button>
+           </div>
+ 
+@@ -207,15 +207,6 @@
+           <div class="form-group border-top pt-3 mt-2">
+             <div class="d-flex justify-content-between align-items-center mb-2">
+               <label class="mb-0">Observações</label>
+-              @if (!isNewPrompt()) {
+-                <button
+-                  class="btn btn-sm btn-outline-primary"
+-                  (click)="saveComment()"
+-                  [disabled]="isSaving()"
+-                >
+-                  <i class="ri-save-line mr-1"></i> Salvar Comentário
+-                </button>
+-              }
+             </div>
+             <textarea
+               class="form-control obs-textarea"
+diff --git a/src/app/features/ia-corrections/components/prompt-registration-tab/prompt-registration-tab.component.ts b/src/app/features/ia-corrections/components/prompt-registration-tab/prompt-registration-tab.component.ts
+index 2882245..1fc42d8 100644
+--- a/src/app/features/ia-corrections/components/prompt-registration-tab/prompt-registration-tab.component.ts
++++ b/src/app/features/ia-corrections/components/prompt-registration-tab/prompt-registration-tab.component.ts
+@@ -151,25 +151,7 @@ export class PromptRegistrationTabComponent implements OnInit {
+     this.checkFormDirty();
+   }
+ 
+-  saveComment() {
+-    if (!this.selectedPrompt()) return;
+-    this.isSaving.set(true);
+-    this.promptService
+-      .updatePromptObservations(this.selectedPrompt()!.id, this.formData.observations)
+-      .subscribe({
+-        next: (updated) => {
+-          this.prompts.update((list) => list.map((p) => (p.id === updated.id ? updated : p)));
+-          this.originalFormData.observations = updated.observations;
+-          this.isSaving.set(false);
+-          this.checkFormDirty();
+-          alert('Comentário salvo com sucesso!');
+-        },
+-        error: () => {
+-          this.isSaving.set(false);
+-          alert('Erro ao salvar comentário.');
+-        },
+-      });
+-  }
++
+ 
+   checkFormDirty() {
+     const current = JSON.stringify({
+diff --git a/src/app/features/ia-corrections/components/shared/prompt-detail-modal/prompt-detail-modal.component.html b/src/app/features/ia-corrections/components/shared/prompt-detail-modal/prompt-detail-modal.component.html
+index 591c65c..687ef61 100644
+--- a/src/app/features/ia-corrections/components/shared/prompt-detail-modal/prompt-detail-modal.component.html
++++ b/src/app/features/ia-corrections/components/shared/prompt-detail-modal/prompt-detail-modal.component.html
+@@ -58,10 +58,14 @@
+           (ngModelChange)="observations.set($event)"
+           rows="4"
+           placeholder="Adicione observações sobre este prompt..."
++          [readonly]="!allowEdit"
++          [class.readonly]="!allowEdit"
+         ></textarea>
+-        <button class="btn-save-observations" (click)="saveObservationsClick()">
+-          Salvar Comentário
+-        </button>
++        @if (allowEdit) {
++          <button class="btn-save-observations" (click)="saveObservationsClick()">
++            Salvar Comentário
++          </button>
++        }
+       </div>
+     </div>
+ 
+diff --git a/src/app/features/ia-corrections/models/ia-corrections.models.ts b/src/app/features/ia-corrections/models/ia-corrections.models.ts
+index 76ba0da..57d964b 100644
+--- a/src/app/features/ia-corrections/models/ia-corrections.models.ts
++++ b/src/app/features/ia-corrections/models/ia-corrections.models.ts
+@@ -49,6 +49,9 @@ export interface PromptLink {
+   clusterId: number;
+   clusterName: string;
+   activityTypeName: string;
++  createdByUserId?: string;
++  createdByName?: string;
++  updatedByUserId?: string;
+ }
+ 
+ /** Configuração de Correção — Aba 3 */
+@@ -65,6 +68,11 @@ export interface CorrectionConfig {
+   createdBy: string; // v4: auditoria
+   updatedAt: string; // v4: auditoria
+   updatedBy: string; // v4: auditoria
++  activatedByUserId?: string;
++  activatedByName?: string;
++  updatedByUserId?: string;
++  activatedAt?: string;
++  deactivatedAt?: string;
+ }
+ 
+ /** Configuração de Publicação — Aba 5 */
+@@ -77,10 +85,14 @@ export interface PublicationConfig {
+   activityTypeName: string;
+   promptTitle: string;
+   correctionStatus: 'Ativo' | 'Inativo';
+-  publicationStatus: 'Habilitado' | 'Desabilitado'; // default: Desabilitado
++  publicationStatus: 'Ativa' | 'Inativa'; // RN43.3: renamed from Habilitado/Desabilitado
+   performanceThreshold: number | null; // % de corte (RN25-RN27)
+   activatedBy: string;
+   activatedAt: string;
++  activatedByUserId?: string;
++  activatedByName?: string;
++  updatedByUserId?: string;
++  deactivatedAt?: string;
+ }
+ 
+ /** Curso para navegação hierárquica */
+@@ -118,4 +130,44 @@ export interface UnifiedConfigRow {
+   publicationStatus: 'Ativa' | 'Inativa';
+   note?: number | null;
+   deadline?: number | null;
++  promptCreatedByUserId?: string;
++  promptCreatedByName?: string;
++  promptUpdatedByUserId?: string;
++  correctionActivatedByUserId?: string;
++  correctionActivatedByName?: string;
++  correctionUpdatedByUserId?: string;
++  correctionActivatedAt?: string;
++  correctionDeactivatedAt?: string;
++  publicationActivatedByUserId?: string;
++  publicationActivatedByName?: string;
++  publicationUpdatedByUserId?: string;
++  publicationActivatedAt?: string;
++  publicationDeactivatedAt?: string;
++}
++
++/** Linha de exportação de governança — 21 colunas (RN53) */
++export interface GovernanceExportRow {
++  unidadeNegocio: string;
++  cluster: string;
++  curso: string;
++  disciplina: string;
++  tipoAtividade: string;
++  promptVinculado: string;
++  tituloPrompt: string;
++  situacaoPrompt: string;
++  criadoPorUserId: string;
++  criadoPorNome: string;
++  ultimaEdicaoUserId: string;
++  statusCorrecaoIA: string;
++  dataAtivacaoCorrecao: string;
++  dataInativacaoCorrecao: string;
++  ativacaoOriginalUserId: string;
++  ativacaoOriginalNome: string;
++  correcaoUltimaEdicaoUserId: string;
++  statusPublicacao: string;
++  notaMinima: string;
++  prazoLiberacao: string;
++  publicacaoAtivacaoUserId: string;
++  publicacaoAtivacaoNome: string;
++  publicacaoUltimaEdicaoUserId: string;
+ }
+diff --git a/src/app/features/ia-corrections/services/correction-config.service.ts b/src/app/features/ia-corrections/services/correction-config.service.ts
+index 29d740f..c1395b7 100644
+--- a/src/app/features/ia-corrections/services/correction-config.service.ts
++++ b/src/app/features/ia-corrections/services/correction-config.service.ts
+@@ -6,7 +6,6 @@ import { CorrectionConfig } from '../models/ia-corrections.models';
+ @Injectable({ providedIn: 'root' })
+ export class CorrectionConfigService {
+   private configs: CorrectionConfig[] = [
+-    // Engenharia de Software (101) - Cluster Sul - Uniasselvi
+     {
+       id: 'COR-001',
+       businessUnitName: 'Uniasselvi',
+@@ -20,6 +19,11 @@ export class CorrectionConfigService {
+       createdBy: 'USR-Admin',
+       updatedAt: '2026-01-10 10:00',
+       updatedBy: 'USR-Admin',
++      activatedByUserId: 'USR-Admin',
++      activatedByName: 'Admin',
++      updatedByUserId: 'USR-Admin',
++      activatedAt: '2026-01-10 10:00',
++      deactivatedAt: '',
+     },
+     {
+       id: 'COR-002',
+@@ -34,54 +38,16 @@ export class CorrectionConfigService {
+       createdBy: 'USR-Admin',
+       updatedAt: '2026-01-10 10:00',
+       updatedBy: 'USR-Admin',
++      activatedByUserId: 'USR-Admin',
++      activatedByName: 'Admin',
++      updatedByUserId: 'USR-Admin',
++      activatedAt: '2026-01-10 10:00',
++      deactivatedAt: '',
+     },
+     {
+       id: 'COR-003',
+       businessUnitName: 'Uniasselvi',
+       clusterName: 'Cluster Sul',
+-      courseName: 'Engenharia de Software',
+-      disciplineName: 'Engenharia de Requisitos',
+-      activityTypeName: 'Desafio Profissional',
+-      promptTitle: 'Prompt Corretor Padrão',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-004',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Sul',
+-      courseName: 'Engenharia de Software',
+-      disciplineName: 'Arquitetura de Software',
+-      activityTypeName: 'Desafio Profissional',
+-      promptTitle: 'Prompt Corretor Padrão',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-005',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Sul',
+-      courseName: 'Engenharia de Software',
+-      disciplineName: 'Testes de Software',
+-      activityTypeName: 'Desafio Profissional',
+-      promptTitle: 'Prompt Corretor Padrão',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    // Administração (102) - Cluster Sul - Uniasselvi
+-    {
+-      id: 'COR-006',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Sul',
+       courseName: 'Administração',
+       disciplineName: 'Gestão de Projetos',
+       activityTypeName: 'Resenha',
+@@ -91,163 +57,11 @@ export class CorrectionConfigService {
+       createdBy: 'USR-Admin',
+       updatedAt: '2026-01-10 10:00',
+       updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-007',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Sul',
+-      courseName: 'Administração',
+-      disciplineName: 'Marketing',
+-      activityTypeName: 'Resenha',
+-      promptTitle: 'Prompt Resenha Crítica',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-008',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Sul',
+-      courseName: 'Administração',
+-      disciplineName: 'Contabilidade Gerencial',
+-      activityTypeName: 'Resenha',
+-      promptTitle: 'Prompt Resenha Crítica',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-009',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Sul',
+-      courseName: 'Administração',
+-      disciplineName: 'Recursos Humanos',
+-      activityTypeName: 'Resenha',
+-      promptTitle: 'Prompt Resenha Crítica',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-010',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Sul',
+-      courseName: 'Administração',
+-      disciplineName: 'Logística',
+-      activityTypeName: 'Resenha',
+-      promptTitle: 'Prompt Resenha Crítica',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    // Ciência da Computação (201) - Cluster Norte - Uniasselvi
+-    {
+-      id: 'COR-011',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Norte',
+-      courseName: 'Ciência da Computação',
+-      disciplineName: 'Estrutura de Dados',
+-      activityTypeName: 'Desafio Profissional',
+-      promptTitle: 'Prompt Corretor Padrão',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-012',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Norte',
+-      courseName: 'Ciência da Computação',
+-      disciplineName: 'Redes de Computadores',
+-      activityTypeName: 'Desafio Profissional',
+-      promptTitle: 'Prompt Corretor Padrão',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-013',
+-      businessUnitName: 'Uniasselvi',
+-      clusterName: 'Cluster Norte',
+-      courseName: 'Ciência da Computação',
+-      disciplineName: 'Sistemas Operacionais',
+-      activityTypeName: 'Desafio Profissional',
+-      promptTitle: 'Prompt Corretor Padrão',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    // Engenharia Civil (301) - Cluster Centro - Unicesumar
+-    {
+-      id: 'COR-014',
+-      businessUnitName: 'Unicesumar',
+-      clusterName: 'Cluster Centro',
+-      courseName: 'Engenharia Civil',
+-      disciplineName: 'Materiais de Construção',
+-      activityTypeName: 'MAPA',
+-      promptTitle: 'Prompt MAPA Avaliativo',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-015',
+-      businessUnitName: 'Unicesumar',
+-      clusterName: 'Cluster Centro',
+-      courseName: 'Engenharia Civil',
+-      disciplineName: 'Mecânica dos Solos',
+-      activityTypeName: 'MAPA',
+-      promptTitle: 'Prompt MAPA Avaliativo',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    // Design Gráfico (402) - Cluster Oeste - Unicesumar
+-    {
+-      id: 'COR-016',
+-      businessUnitName: 'Unicesumar',
+-      clusterName: 'Cluster Oeste',
+-      courseName: 'Design Gráfico',
+-      disciplineName: 'Design de Identidade',
+-      activityTypeName: 'Prova',
+-      promptTitle: 'Prompt Prova Dissertativa',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
+-    },
+-    {
+-      id: 'COR-017',
+-      businessUnitName: 'Unicesumar',
+-      clusterName: 'Cluster Oeste',
+-      courseName: 'Design Gráfico',
+-      disciplineName: 'Tipografia',
+-      activityTypeName: 'Prova',
+-      promptTitle: 'Prompt Prova Dissertativa',
+-      correctionStatus: 'Inativo',
+-      createdAt: '2026-01-10 10:00',
+-      createdBy: 'USR-Admin',
+-      updatedAt: '2026-01-10 10:00',
+-      updatedBy: 'USR-Admin',
++      activatedByUserId: 'USR-Admin',
++      activatedByName: 'Admin',
++      updatedByUserId: 'USR-Admin',
++      activatedAt: '2026-01-10 10:00',
++      deactivatedAt: '',
+     },
+   ];
+ 
+@@ -268,6 +82,12 @@ export class CorrectionConfigService {
+         correctionStatus: status,
+         updatedAt: now,
+         updatedBy: 'USR-Current',
++        updatedByUserId: 'USR-Current',
++        activatedByUserId:
++          status === 'Ativo' ? 'USR-Current' : this.configs[index].activatedByUserId,
++        activatedByName: status === 'Ativo' ? 'Usuário Atual' : this.configs[index].activatedByName,
++        activatedAt: status === 'Ativo' ? now : this.configs[index].activatedAt,
++        deactivatedAt: status === 'Inativo' ? now : this.configs[index].deactivatedAt,
+       };
+     }
+     return of(this.configs[index]).pipe(delay(300));
+@@ -283,6 +103,13 @@ export class CorrectionConfigService {
+           correctionStatus: status,
+           updatedAt: now,
+           updatedBy: 'USR-Current',
++          updatedByUserId: 'USR-Current',
++          activatedByUserId:
++            status === 'Ativo' ? 'USR-Current' : this.configs[index].activatedByUserId,
++          activatedByName:
++            status === 'Ativo' ? 'Usuário Atual' : this.configs[index].activatedByName,
++          activatedAt: status === 'Ativo' ? now : this.configs[index].activatedAt,
++          deactivatedAt: status === 'Inativo' ? now : this.configs[index].deactivatedAt,
+         };
+       }
+     });
+diff --git a/src/app/features/ia-corrections/services/prompt-linking.service.ts b/src/app/features/ia-corrections/services/prompt-linking.service.ts
+index efdae55..49fc257 100644
+--- a/src/app/features/ia-corrections/services/prompt-linking.service.ts
++++ b/src/app/features/ia-corrections/services/prompt-linking.service.ts
+@@ -694,6 +694,9 @@ export class PromptLinkingService {
+       clusterId: 1,
+       clusterName: 'Cluster Sul',
+       activityTypeName: 'Desafio Profissional',
++      createdByUserId: 'USR-001',
++      createdByName: 'João Silva',
++      updatedByUserId: 'USR-001',
+     },
+     {
+       id: 'LNK-002',
+@@ -706,6 +709,9 @@ export class PromptLinkingService {
+       clusterId: 2,
+       clusterName: 'Cluster Norte',
+       activityTypeName: 'Desafio Profissional',
++      createdByUserId: 'USR-002',
++      createdByName: 'Maria Santos',
++      updatedByUserId: 'USR-002',
+     },
+     {
+       id: 'LNK-003',
+@@ -718,6 +724,9 @@ export class PromptLinkingService {
+       clusterId: 1,
+       clusterName: 'Cluster Sul',
+       activityTypeName: 'Resenha',
++      createdByUserId: 'USR-003',
++      createdByName: 'Pedro Oliveira',
++      updatedByUserId: 'USR-004',
+     },
+   ];
+ 
+@@ -800,9 +809,12 @@ export class PromptLinkingService {
+       clusterId: discipline.clusterId,
+       clusterName: discipline.clusterName,
+       activityTypeName,
++      createdByUserId: 'USR-Current',
++      createdByName: 'Usuário Atual',
++      updatedByUserId: 'USR-Current',
+     };
+     this.links.push(newLink);
+-    return of(newLink).pipe(delay(400));
++    createdLinks.push(newLink);
+   }
+ 
+   unlinkPromptFromDiscipline(linkId: string): Observable<boolean> {
+@@ -863,9 +875,12 @@ export class PromptLinkingService {
+         clusterId: discipline.clusterId,
+         clusterName: discipline.clusterName,
+         activityTypeName,
++        createdByUserId: 'USR-Current',
++        createdByName: 'Usuário Atual',
++        updatedByUserId: 'USR-Current',
+       };
+       this.links.push(newLink);
+-      createdLinks.push(newLink);
++      return of(newLink).pipe(delay(400));
+     }
+ 
+     return of({ created: createdLinks, skipped }).pipe(delay(400));
+diff --git a/src/app/features/ia-corrections/services/publication.service.ts b/src/app/features/ia-corrections/services/publication.service.ts
+index 732e389..6ec3ddc 100644
+--- a/src/app/features/ia-corrections/services/publication.service.ts
++++ b/src/app/features/ia-corrections/services/publication.service.ts
+@@ -19,10 +19,14 @@ export class PublicationService {
+       activityTypeName: 'Desafio Profissional',
+       promptTitle: 'Prompt Corretor Padrão',
+       correctionStatus: 'Inativo',
+-      publicationStatus: 'Desabilitado',
++      publicationStatus: 'Inativa',
+       performanceThreshold: null,
+       activatedBy: '-',
+       activatedAt: '-',
++      activatedByUserId: '',
++      activatedByName: '',
++      updatedByUserId: '',
++      deactivatedAt: '',
+     },
+     {
+       id: 'PUB-002',
+@@ -33,10 +37,14 @@ export class PublicationService {
+       activityTypeName: 'Desafio Profissional',
+       promptTitle: 'Prompt Corretor Padrão',
+       correctionStatus: 'Inativo',
+-      publicationStatus: 'Desabilitado',
++      publicationStatus: 'Inativa',
+       performanceThreshold: null,
+       activatedBy: '-',
+       activatedAt: '-',
++      activatedByUserId: '',
++      activatedByName: '',
++      updatedByUserId: '',
++      deactivatedAt: '',
+     },
+     {
+       id: 'PUB-003',
+@@ -47,10 +55,14 @@ export class PublicationService {
+       activityTypeName: 'Resenha',
+       promptTitle: 'Prompt Resenha Crítica',
+       correctionStatus: 'Inativo',
+-      publicationStatus: 'Desabilitado',
++      publicationStatus: 'Inativa',
+       performanceThreshold: null,
+       activatedBy: '-',
+       activatedAt: '-',
++      activatedByUserId: '',
++      activatedByName: '',
++      updatedByUserId: '',
++      deactivatedAt: '',
+     },
+     {
+       id: 'PUB-004',
+@@ -61,10 +73,14 @@ export class PublicationService {
+       activityTypeName: 'MAPA',
+       promptTitle: 'Prompt MAPA Avaliativo',
+       correctionStatus: 'Inativo',
+-      publicationStatus: 'Desabilitado',
++      publicationStatus: 'Inativa',
+       performanceThreshold: null,
+       activatedBy: '-',
+       activatedAt: '-',
++      activatedByUserId: '',
++      activatedByName: '',
++      updatedByUserId: '',
++      deactivatedAt: '',
+     },
+     {
+       id: 'PUB-005',
+@@ -75,10 +91,14 @@ export class PublicationService {
+       activityTypeName: 'Prova',
+       promptTitle: 'Prompt Prova Dissertativa',
+       correctionStatus: 'Inativo',
+-      publicationStatus: 'Desabilitado',
++      publicationStatus: 'Inativa',
+       performanceThreshold: null,
+       activatedBy: '-',
+       activatedAt: '-',
++      activatedByUserId: '',
++      activatedByName: '',
++      updatedByUserId: '',
++      deactivatedAt: '',
+     },
+     {
+       id: 'PUB-006',
+@@ -89,10 +109,14 @@ export class PublicationService {
+       activityTypeName: 'Desafio Profissional',
+       promptTitle: 'Prompt Corretor Padrão',
+       correctionStatus: 'Inativo',
+-      publicationStatus: 'Desabilitado',
++      publicationStatus: 'Inativa',
+       performanceThreshold: null,
+       activatedBy: '-',
+       activatedAt: '-',
++      activatedByUserId: '',
++      activatedByName: '',
++      updatedByUserId: '',
++      deactivatedAt: '',
+     },
+     {
+       id: 'PUB-007',
+@@ -103,10 +127,14 @@ export class PublicationService {
+       activityTypeName: 'Prova',
+       promptTitle: 'Prompt Prova Dissertativa',
+       correctionStatus: 'Inativo',
+-      publicationStatus: 'Desabilitado',
++      publicationStatus: 'Inativa',
+       performanceThreshold: null,
+       activatedBy: '-',
+       activatedAt: '-',
++      activatedByUserId: '',
++      activatedByName: '',
++      updatedByUserId: '',
++      deactivatedAt: '',
+     },
+   ];
+ 
+@@ -123,17 +151,13 @@ export class PublicationService {
+     return of([...this.configs]).pipe(delay(300));
+   }
+ 
+-  updatePublicationStatus(
+-    id: string,
+-    status: 'Habilitado' | 'Desabilitado',
+-  ): Observable<PublicationConfig> {
++  updatePublicationStatus(id: string, status: 'Ativa' | 'Inativa'): Observable<PublicationConfig> {
+     const index = this.configs.findIndex((c) => c.id === id);
+     if (index < 0) {
+       return throwError(() => new Error('Registro não encontrado.'));
+     }
+ 
+-    // RN24: Validar dependência — não pode habilitar se correção está inativa
+-    if (status === 'Habilitado') {
++    if (status === 'Ativa') {
+       const corrId = id.replace('PUB-', 'COR-');
+       const corrStatus = this.correctionConfigService.getConfigStatus(corrId);
+       if (corrStatus === 'Inativo') {
+@@ -149,43 +173,55 @@ export class PublicationService {
+     this.configs[index] = {
+       ...this.configs[index],
+       publicationStatus: status,
+-      activatedBy: status === 'Habilitado' ? 'USR-Current' : this.configs[index].activatedBy,
++      activatedBy: status === 'Ativa' ? 'USR-Current' : this.configs[index].activatedBy,
+       activatedAt:
+-        status === 'Habilitado'
++        status === 'Ativa'
+           ? new Date().toISOString().split('T')[0]
+           : this.configs[index].activatedAt,
+-      performanceThreshold:
+-        status === 'Desabilitado' ? null : this.configs[index].performanceThreshold,
++      performanceThreshold: status === 'Inativa' ? null : this.configs[index].performanceThreshold,
++      activatedByUserId: status === 'Ativa' ? 'USR-Current' : this.configs[index].activatedByUserId,
++      activatedByName: status === 'Ativa' ? 'Usuário Atual' : this.configs[index].activatedByName,
++      updatedByUserId: 'USR-Current',
++      deactivatedAt:
++        status === 'Inativa'
++          ? new Date().toISOString().split('T')[0]
++          : this.configs[index].deactivatedAt,
+     };
+     return of(this.configs[index]).pipe(delay(300));
+   }
+ 
+-  updatePublicationStatuses(
+-    ids: string[],
+-    status: 'Habilitado' | 'Desabilitado',
+-  ): Observable<boolean> {
++  updatePublicationStatuses(ids: string[], status: 'Ativa' | 'Inativa'): Observable<boolean> {
+     let blocked = 0;
+     ids.forEach((id) => {
+       const index = this.configs.findIndex((c) => c.id === id);
+       if (index >= 0) {
+-        if (status === 'Habilitado') {
++        if (status === 'Ativa') {
+           const corrId = id.replace('PUB-', 'COR-');
+           const corrStatus = this.correctionConfigService.getConfigStatus(corrId);
+           if (corrStatus === 'Inativo') {
+             blocked++;
+-            return; // Pula este registro (RN24)
++            return;
+           }
+         }
+         this.configs[index] = {
+           ...this.configs[index],
+           publicationStatus: status,
+-          activatedBy: status === 'Habilitado' ? 'USR-Current' : this.configs[index].activatedBy,
++          activatedBy: status === 'Ativa' ? 'USR-Current' : this.configs[index].activatedBy,
+           activatedAt:
+-            status === 'Habilitado'
++            status === 'Ativa'
+               ? new Date().toISOString().split('T')[0]
+               : this.configs[index].activatedAt,
+           performanceThreshold:
+-            status === 'Desabilitado' ? null : this.configs[index].performanceThreshold,
++            status === 'Inativa' ? null : this.configs[index].performanceThreshold,
++          activatedByUserId:
++            status === 'Ativa' ? 'USR-Current' : this.configs[index].activatedByUserId,
++          activatedByName:
++            status === 'Ativa' ? 'Usuário Atual' : this.configs[index].activatedByName,
++          updatedByUserId: 'USR-Current',
++          deactivatedAt:
++            status === 'Inativa'
++              ? new Date().toISOString().split('T')[0]
++              : this.configs[index].deactivatedAt,
+         };
+       }
+     });

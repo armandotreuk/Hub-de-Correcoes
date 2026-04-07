@@ -188,7 +188,7 @@ export class PublicationTabComponent implements OnInit {
     // v4: F.6 Update logic: If correction is Inativo, disable button, but do NOT auto-toggle publication.
     if (config.correctionStatus === 'Inativo') return; // Cannot toggle if correction is inactive
 
-    const newStatus = config.publicationStatus === 'Habilitado' ? 'Desabilitado' : 'Habilitado';
+    const newStatus = config.publicationStatus === 'Ativa' ? 'Inativa' : 'Ativa';
     this.service.updatePublicationStatus(config.id, newStatus).subscribe((updated) => {
       this.configs.update((list) => list.map((c) => (c.id === updated.id ? updated : c)));
       this.displayedConfigs.update((list) => list.map((c) => (c.id === updated.id ? updated : c)));
@@ -217,9 +217,9 @@ export class PublicationTabComponent implements OnInit {
       return;
     }
 
-    const hasDisabled = validTargets.some((t) => t.publicationStatus === 'Desabilitado');
-    const newStatus = hasDisabled ? 'Habilitado' : 'Desabilitado';
-    const action = hasDisabled ? 'habilitar' : 'desabilitar';
+    const hasDisabled = validTargets.some((t) => t.publicationStatus === 'Inativa');
+    const newStatus = hasDisabled ? 'Ativa' : 'Inativa';
+    const action = hasDisabled ? 'ativar' : 'inativar';
 
     const eligibleCount = validTargets.length;
     const ineligibleCount = targets.length - validTargets.length;
@@ -231,10 +231,7 @@ export class PublicationTabComponent implements OnInit {
       message += `• ${ineligibleCount} Inelegíveis (Correção Inativa)\n`;
     }
 
-    const confirmed = await this.sweetAlertService.confirmAction(
-      'Confirmar Publicação',
-      message
-    );
+    const confirmed = await this.sweetAlertService.confirmAction('Confirmar Publicação', message);
 
     if (!confirmed) return;
 
@@ -248,7 +245,7 @@ export class PublicationTabComponent implements OnInit {
         this.sweetAlertService.closeLoading();
         this.sweetAlertService.showSuccess(
           'Concluído!',
-          `${eligibleCount} registros ${action === 'habilitar' ? 'habilitados' : 'desabilitados'}.`,
+          `${eligibleCount} registros ${action === 'ativar' ? 'ativados' : 'inativados'}.`,
         );
         this.loadData();
         this.selectedIds.set(new Set());

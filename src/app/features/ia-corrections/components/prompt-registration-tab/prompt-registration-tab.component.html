@@ -199,7 +199,7 @@
               [disabled]="!isFormValid() || isSaving() || !formDirty()"
             >
               <i class="ri-save-line mr-1"></i>
-              {{ isSaving() ? 'Salvando...' : 'Salvar Prompt' }}
+              {{ isSaving() ? 'Salvando...' : 'Salvar' }}
             </button>
           </div>
 
@@ -207,15 +207,6 @@
           <div class="form-group border-top pt-3 mt-2">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <label class="mb-0">Observações</label>
-              @if (!isNewPrompt()) {
-                <button
-                  class="btn btn-sm btn-outline-primary"
-                  (click)="saveComment()"
-                  [disabled]="isSaving()"
-                >
-                  <i class="ri-save-line mr-1"></i> Salvar Comentário
-                </button>
-              }
             </div>
             <textarea
               class="form-control obs-textarea"

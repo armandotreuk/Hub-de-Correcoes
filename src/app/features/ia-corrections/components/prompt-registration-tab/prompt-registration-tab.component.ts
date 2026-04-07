@@ -151,25 +151,7 @@ export class PromptRegistrationTabComponent implements OnInit {
     this.checkFormDirty();
   }
 
-  saveComment() {
-    if (!this.selectedPrompt()) return;
-    this.isSaving.set(true);
-    this.promptService
-      .updatePromptObservations(this.selectedPrompt()!.id, this.formData.observations)
-      .subscribe({
-        next: (updated) => {
-          this.prompts.update((list) => list.map((p) => (p.id === updated.id ? updated : p)));
-          this.originalFormData.observations = updated.observations;
-          this.isSaving.set(false);
-          this.checkFormDirty();
-          alert('Comentário salvo com sucesso!');
-        },
-        error: () => {
-          this.isSaving.set(false);
-          alert('Erro ao salvar comentário.');
-        },
-      });
-  }
+
 
   checkFormDirty() {
     const current = JSON.stringify({

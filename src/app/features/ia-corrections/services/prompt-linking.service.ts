@@ -694,6 +694,9 @@ export class PromptLinkingService {
       clusterId: 1,
       clusterName: 'Cluster Sul',
       activityTypeName: 'Desafio Profissional',
+      createdByUserId: 'USR-001',
+      createdByName: 'João Silva',
+      updatedByUserId: 'USR-001',
     },
     {
       id: 'LNK-002',
@@ -706,6 +709,9 @@ export class PromptLinkingService {
       clusterId: 2,
       clusterName: 'Cluster Norte',
       activityTypeName: 'Desafio Profissional',
+      createdByUserId: 'USR-002',
+      createdByName: 'Maria Santos',
+      updatedByUserId: 'USR-002',
     },
     {
       id: 'LNK-003',
@@ -718,6 +724,9 @@ export class PromptLinkingService {
       clusterId: 1,
       clusterName: 'Cluster Sul',
       activityTypeName: 'Resenha',
+      createdByUserId: 'USR-003',
+      createdByName: 'Pedro Oliveira',
+      updatedByUserId: 'USR-004',
     },
   ];
 
@@ -800,6 +809,9 @@ export class PromptLinkingService {
       clusterId: discipline.clusterId,
       clusterName: discipline.clusterName,
       activityTypeName,
+      createdByUserId: 'USR-Current',
+      createdByName: 'Usuário Atual',
+      updatedByUserId: 'USR-Current',
     };
     this.links.push(newLink);
     return of(newLink).pipe(delay(400));
@@ -863,6 +875,9 @@ export class PromptLinkingService {
         clusterId: discipline.clusterId,
         clusterName: discipline.clusterName,
         activityTypeName,
+        createdByUserId: 'USR-Current',
+        createdByName: 'Usuário Atual',
+        updatedByUserId: 'USR-Current',
       };
       this.links.push(newLink);
       createdLinks.push(newLink);

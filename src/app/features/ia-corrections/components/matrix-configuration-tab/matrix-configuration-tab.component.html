@@ -160,7 +160,7 @@
                 <i [class]="row.publicationStatus === 'Ativa' ? 'ri-checkbox-circle-line' : 'ri-close-circle-line'" class="mr-1"></i>
                 {{ row.publicationStatus === 'Ativa' ? 'Ativa' : 'Inativo' }}
               </span>
-              <span class="x-small font-weight-bold" *ngIf="row.note">Nota: {{ row.note }} | Prazo: {{ row.deadline }}d</span>
+              <span class="x-small font-weight-bold" *ngIf="row.publicationStatus === 'Ativa' && row.note">Nota: {{ row.note }} | Prazo: {{ row.deadline }}d</span>
             </div>
           </td>
           <td class="text-center">

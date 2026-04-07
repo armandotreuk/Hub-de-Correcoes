@@ -58,10 +58,14 @@
           (ngModelChange)="observations.set($event)"
           rows="4"
           placeholder="Adicione observações sobre este prompt..."
+          [readonly]="!allowEdit"
+          [class.readonly]="!allowEdit"
         ></textarea>
-        <button class="btn-save-observations" (click)="saveObservationsClick()">
-          Salvar Comentário
-        </button>
+        @if (allowEdit) {
+          <button class="btn-save-observations" (click)="saveObservationsClick()">
+            Salvar Comentário
+          </button>
+        }
       </div>
     </div>
 
