@@ -84,8 +84,8 @@ export class PublicationTabComponent implements OnInit {
   activityOptions = computed(() => this.getUniqueOptions(this.configs(), 'activityTypeName'));
   promptOptions = computed(() => this.getUniqueOptions(this.configs(), 'promptTitle'));
   statusOptions: MultiSelectOption[] = [
-    { value: 'Habilitado', label: 'Habilitado' },
-    { value: 'Desabilitado', label: 'Desabilitado' },
+    { value: 'Ativa', label: 'Ativa' },
+    { value: 'Inativa', label: 'Inativa' },
   ];
 
   private getUniqueOptions(data: any[], key: string): MultiSelectOption[] {
